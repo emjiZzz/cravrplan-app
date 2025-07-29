@@ -1,0 +1,51 @@
+/* src/components/Header/Header.module.css */
+
+.headerContainer {
+  background-color: var(--primary-purple);
+  color: var(--text-white);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.logoSection {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  /* Space between bowl icon and app name */
+}
+
+.bowlIconPlaceholder {
+  width: 24px;
+  /* Size of the placeholder icon */
+  height: 24px;
+  background-color: var(--text-white);
+  border-radius: 50%;
+}
+
+.appName {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.navigation {
+  display: flex;
+  gap: 30px;
+}
+
+.navLink {
+  font-size: 16px;
+  font-weight: bold;
+  text-transform: uppercase;
+  padding: 5px 0;
+  /* Padding for click area */
+  position: relative;
+  /* For the active/hover underline effect */
+  transition: opacity 0.3s ease;
+}
+
+.navLink:hover {
+  opacity: 0.8;
+}
