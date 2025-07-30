@@ -69,17 +69,72 @@ const RecipeDetailPage: React.FC = () => {
 
           <div className={styles.tabContent}>
             {activeTab === 'ingredients' ? (
-              <ul className={styles.ingredientsList}>
-                {recipe.extendedIngredients?.map((ing) => (
-                  <li key={ing.id}>
-                    <span>{ing.original}</span>
-                    {/* Add quantity here if available from API */}
-                  </li>
-                ))}
-              </ul>
+              <div className={styles.instructionsList}>
+                {recipe.extendedIngredients && recipe.extendedIngredients.length > 0 ? (
+                  <ol className={styles.instructionSteps}>
+                    {recipe.extendedIngredients.map((ingredient, index) => (
+                      <li key={ingredient.id} className={styles.instructionStep}>
+                        <span className={styles.stepNumber}>{index + 1}</span>
+                        <span className={styles.stepText}>{ingredient.original}</span>
+                      </li>
+                    ))}
+                  </ol>
+                ) : (
+                  <p className={styles.noIngredients}>No ingredients information available.</p>
+                )}
+              </div>
             ) : (
               <div className={styles.instructionsList}>
-                <div dangerouslySetInnerHTML={{ __html: recipe.instructions || 'No instructions provided.' }} />
+                {(() => {
+                  // Try to use analyzed instructions first
+                  if (recipe.analyzedInstructions && recipe.analyzedInstructions.length > 0) {
+                    return recipe.analyzedInstructions.map((instructionGroup, groupIndex) => (
+                      <div key={groupIndex} className={styles.instructionGroup}>
+                        {instructionGroup.name && (
+                          <h3 className={styles.instructionGroupTitle}>{instructionGroup.name}</h3>
+                        )}
+                        <ol className={styles.instructionSteps}>
+                          {instructionGroup.steps.map((step) => (
+                            <li key={step.id} className={styles.instructionStep}>
+                              <span className={styles.stepNumber}>{step.number}</span>
+                              <span className={styles.stepText}>{step.step}</span>
+                            </li>
+                          ))}
+                        </ol>
+                      </div>
+                    ));
+                  }
+
+                  // Fallback: parse raw instructions string into steps
+                  if (recipe.instructions) {
+                    // Remove HTML tags and split by common step indicators
+                    const cleanInstructions = recipe.instructions.replace(/<[^>]*>/g, '');
+                    const steps = cleanInstructions
+                      .split(/(?:\d+\.|step\s+\d+|^\d+\))/i)
+                      .filter(step => step.trim().length > 0)
+                      .map(step => step.trim());
+
+                    if (steps.length > 0) {
+                      return (
+                        <ol className={styles.instructionSteps}>
+                          {steps.map((step, index) => (
+                            <li key={index} className={styles.instructionStep}>
+                              <span className={styles.stepNumber}>{index + 1}</span>
+                              <span className={styles.stepText}>{step}</span>
+                            </li>
+                          ))}
+                        </ol>
+                      );
+                    }
+                  }
+
+                  // Final fallback
+                  return (
+                    <div className={styles.fallbackInstructions}>
+                      <p>No cooking instructions available for this recipe.</p>
+                    </div>
+                  );
+                })()}
               </div>
             )}
           </div>

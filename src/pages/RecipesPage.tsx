@@ -45,8 +45,8 @@ const RecipesPage: React.FC = () => {
 
       try {
         const searchParams: RecipeSearchParams = {
-          number: 15, // 3 columns × 5 rows = 15 recipes per page
-          offset: currentPage * 15
+          number: 12, // 12 recipes per page
+          offset: currentPage * 12
         };
 
         // Add search query if provided
@@ -249,7 +249,7 @@ const RecipesPage: React.FC = () => {
             <div className={styles.pageInfo}>
               <span>Page {currentPage + 1}</span>
               <span className={styles.totalPages}>
-                {Math.ceil(totalResults / 15)} pages
+                {Math.ceil(totalResults / 12)} pages
               </span>
             </div>
 
