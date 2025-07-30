@@ -1,51 +1,85 @@
-/* src/components/Header/Header.module.css */
+.headerWrapper {
+  width: 100%;
+}
 
 .headerContainer {
   background-color: var(--primary-purple);
   color: var(--text-white);
+  padding: 15px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 30px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.logoSection {
+.logo {
   display: flex;
   align-items: center;
-  gap: 10px;
-  /* Space between bowl icon and app name */
+  gap: 3px;
 }
 
-.bowlIconPlaceholder {
-  width: 24px;
-  /* Size of the placeholder icon */
-  height: 24px;
-  background-color: var(--text-white);
-  border-radius: 50%;
+.logoImage {
+  height: 40px;
+  width: auto;
 }
 
-.appName {
-  font-size: 24px;
+.logo h1 {
+  font-size: 30px;
+  color: var(--text-white);
   font-weight: bold;
 }
 
+/* Navigation container */
 .navigation {
   display: flex;
   gap: 30px;
 }
 
-.navLink {
+/* Button styling */
+.navigation button {
   font-size: 16px;
-  font-weight: bold;
-  text-transform: uppercase;
-  padding: 5px 0;
-  /* Padding for click area */
-  position: relative;
-  /* For the active/hover underline effect */
-  transition: opacity 0.3s ease;
+  color: var(--text-white);
+  background: none;
+  border: none;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+  padding: 6px 12px;
+  border-radius: 0px;
+  cursor: pointer;
 }
 
-.navLink:hover {
-  opacity: 0.8;
+.navigation button:hover {
+  color: var(--text-white);
+  background-color: transparent;
+}
+
+
+/* Active button */
+.active {
+  background-color: transparent;
+  color: var(--light-gray);
+}
+
+/* Auth links (e.g. login) */
+.authLinks {
+  display: flex;
+  align-items: center;
+}
+
+.authLinks button {
+  font-size: 16px;
+  color: var(--text-white);
+  background: none;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.2s ease-in-out;
+  padding: 8px 12px;
+  border-radius: 0px;
+  margin-left: 30px;
+}
+
+.authLinks button:hover {
+  color: var(--light-gray);
 }

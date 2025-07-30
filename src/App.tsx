@@ -1,14 +1,30 @@
 import Header from './Header/Header';
+import LoginPage from './pages/Auth/LoginPage'; // Import the LoginPage component
+
+// Import placeholder components for other pages (we'll create these next)
+import RecipesPage from './pages/RecipesPage';
+import PlanPage from './pages/PlanPage';
+import ShopPage from './pages/ShopPage';
+import RecipeDetailPage from './pages/RecipeDetailPage';
+
+
+import { Routes, Route } from 'react-router-dom';
 
 function App() {
   return (
-    <div>
-      {/* We render the Header component here, which will display at the top of our app. */}
-      <Header />
-      {/* This 'main' section is where the primary content of your pages will go. */}
-      <main style={{ padding: '20px' }}>
-        <h2>Welcome to CravrPlan!</h2>
-        <p>This is where my main content will appear.</p>
+    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <Header /> {/* The Header component remains visible on all pages */}
+
+      <main style={{ flex: 1, overflow: 'auto' }}>
+        <Routes>
+          <Route path="/" element={<h2>Welcome to CravrPlan! Navigate using the links!</h2>} /> {/* Home page */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/recipes" element={<RecipesPage />} />
+          <Route path="/recipes/:id" element={<RecipeDetailPage />} />
+          <Route path="/plan" element={<PlanPage />} />
+          <Route path="/shop" element={<ShopPage />} />
+          {/* Add more routes here as you build out other features */}
+        </Routes>
       </main>
     </div>
   );
