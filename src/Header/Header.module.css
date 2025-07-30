@@ -1,9 +1,11 @@
-/* src/components/Header/Header.module.css */
+.headerWrapper {
+  width: 100%;
+}
 
 .headerContainer {
   background-color: var(--primary-purple);
   color: var(--text-white);
-  padding: 15px 30px;
+  padding: 15px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -13,36 +15,71 @@
 .logo {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 3px;
 }
 
 .logoImage {
-  height: 30px;
+  height: 40px;
   width: auto;
 }
 
 .logo h1 {
-  font-size: 25px;
-  /* Adjust font size as needed, matches the mockup */
-  margin: 0;
-  /* Remove default margin from h1 */
+  font-size: 30px;
   color: var(--text-white);
-  /* Ensure logo text color is white */
   font-weight: bold;
 }
 
-.navigation a,
-.authLinks a {
-  color: var(--text-white);
-  text-decoration: none;
-  font-weight: medium;
-  margin-left: 25px;
-  /* Space between navigation links */
-  transition: color 0.2s ease-in-out;
+/* Navigation container */
+.navigation {
+  display: flex;
+  gap: 30px;
 }
 
-.navigation a:hover,
-.authLinks a:hover {
+/* Button styling */
+.navigation button {
+  font-size: 16px;
+  color: var(--text-white);
+  background: none;
+  border: none;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+  padding: 6px 12px;
+  border-radius: 0px;
+  cursor: pointer;
+}
+
+.navigation button:hover {
+  color: var(--text-white);
+  background-color: transparent;
+}
+
+
+/* Active button */
+.active {
+  background-color: transparent;
   color: var(--light-gray);
-  /* Lighter color on hover */
+}
+
+/* Auth links (e.g. login) */
+.authLinks {
+  display: flex;
+  align-items: center;
+}
+
+.authLinks button {
+  font-size: 16px;
+  color: var(--text-white);
+  background: none;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.2s ease-in-out;
+  padding: 8px 12px;
+  border-radius: 0px;
+  margin-left: 30px;
+}
+
+.authLinks button:hover {
+  color: var(--light-gray);
 }
