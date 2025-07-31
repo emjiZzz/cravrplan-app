@@ -15,7 +15,7 @@
 .logo {
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: 5px;
 }
 
 .logoImage {
@@ -27,6 +27,8 @@
   font-size: 30px;
   color: var(--text-white);
   font-weight: bold;
+  margin-top: 10px;
+  /* Adjusted the top margin to move the text down */
 }
 
 /* Navigation container */

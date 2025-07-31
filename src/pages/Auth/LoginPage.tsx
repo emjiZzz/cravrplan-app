@@ -59,7 +59,7 @@ const LoginPage: React.FC = () => {
 
         {/* Section for "Don't have an account?" */}
         <p className={styles.signupText}>
-          Don't have an account? <a href="#" className={styles.signupLink}>SIGN UP</a>
+          Don't have an account? <a href="/signup" className={styles.signupLink}>SIGN UP</a>
         </p>
       </div>
     </div>

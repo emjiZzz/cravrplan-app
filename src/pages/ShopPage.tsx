@@ -6,7 +6,6 @@ const ShopPage: React.FC = () => {
   return (
     <div>
       <h1>Shopping List Page</h1>
-      <p>Manage your groceries here.</p>
     </div>
   );
 };
