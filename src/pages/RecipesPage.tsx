@@ -5,11 +5,10 @@ import type { Recipe, RecipeSearchParams, FilterOptionsResponse } from '../types
 import { searchRecipes, getFilterOptions } from '../services/apiService';
 import styles from './RecipesPage.module.css';
 
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate, useLocation } from 'react-router-dom'; // Import useNavigate and useLocation
 
 
 const RecipesPage: React.FC = () => {
-  const [searchQuery, setSearchQuery] = useState('');
   const [selectedMenu, setSelectedMenu] = useState('All Menus');
   const [selectedDiet, setSelectedDiet] = useState('No Diet Restrictions');
   const [recipes, setRecipes] = useState<Recipe[]>([]);
@@ -22,6 +21,13 @@ const RecipesPage: React.FC = () => {
   const [hasPreviousPage, setHasPreviousPage] = useState(false);
 
   const navigate = useNavigate(); // Initialize useNavigate hook
+  const location = useLocation(); // Initialize useLocation hook
+
+  // Get search query from URL
+  const getSearchQueryFromURL = () => {
+    const urlParams = new URLSearchParams(location.search);
+    return urlParams.get('search') || '';
+  };
 
   // Load filter options on component mount
   useEffect(() => {
@@ -50,6 +56,7 @@ const RecipesPage: React.FC = () => {
         };
 
         // Add search query if provided
+        const searchQuery = getSearchQueryFromURL();
         if (searchQuery.trim()) {
           searchParams.query = searchQuery.trim();
         }
@@ -86,7 +93,7 @@ const RecipesPage: React.FC = () => {
     // Debounce search to avoid too many API calls
     const timeoutId = setTimeout(searchRecipesWithFilters, 500);
     return () => clearTimeout(timeoutId);
-  }, [searchQuery, selectedMenu, selectedDiet, currentPage]);
+  }, [location.search, selectedMenu, selectedDiet, currentPage]);
 
   const handleRecipeClick = (recipeId: number) => {
     // Navigate to recipe detail page using React Router's navigate function
@@ -99,11 +106,6 @@ const RecipesPage: React.FC = () => {
 
   const handlePreviousPage = () => {
     setCurrentPage(prev => Math.max(0, prev - 1));
-  };
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-    setCurrentPage(0); // Reset to first page when searching
   };
 
   const handleMenuChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -119,16 +121,6 @@ const RecipesPage: React.FC = () => {
   return (
     <div className={styles.recipesPageContainer}>
       <div className={styles.contentWrapper}>
-        {/* Search Bar */}
-        <div className={styles.searchBar}>
-          <input
-            type="text"
-            placeholder="Search recipes"
-            value={searchQuery}
-            onChange={handleSearchChange}
-            className={styles.searchInput}
-          />
-        </div>
 
         {/* Filter Dropdowns */}
         <div className={styles.filters}>
