@@ -1,10 +1,11 @@
-/* src/pages/RecipesPage.TSX */
+/* src/pages/RecipeDetailPage.tsx */
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getRecipeDetails } from '../services/apiService';
 import type { Recipe } from '../types/recipeTypes';
 import styles from './RecipeDetailPage.module.css';
+import AddToPlanModal from '../components/AddToPlanModal';
 
 const RecipeDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -13,6 +14,7 @@ const RecipeDetailPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'ingredients' | 'instructions'>('ingredients'); // State for tabs
+  const [isModalOpen, setIsModalOpen] = useState(false); // State for modal
 
   useEffect(() => {
     const fetchRecipe = async () => {
@@ -48,7 +50,13 @@ const RecipeDetailPage: React.FC = () => {
       <div className={styles.contentWrapper}>
         <div className={styles.imageSection}>
           <img src={recipe.image} alt={recipe.title} className={styles.recipeImage} />
-          <button className={styles.addFavoriteButton}>+</button>
+          <button 
+            className={styles.addFavoriteButton}
+            onClick={() => setIsModalOpen(true)}
+            title="Add to Plan"
+          >
+            +
+          </button>
         </div>
 
         <div className={styles.detailsSection}>
@@ -140,6 +148,19 @@ const RecipeDetailPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Add to Plan Modal */}
+      {recipe && (
+        <AddToPlanModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          recipe={{
+            id: recipe.id,
+            title: recipe.title,
+            image: recipe.image,
+          }}
+        />
+      )}
     </div>
   );
 };

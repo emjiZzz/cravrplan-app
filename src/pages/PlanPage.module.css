@@ -1,0 +1,179 @@
+/* src/pages/PlanPage.module.css */
+.planPageContainer {
+  padding: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+  background-color: var(--light-gray);
+  min-height: 100vh;
+}
+
+/* Page Header */
+.pageHeader {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.headerContent {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+.pageTitle {
+  font-size: 32px;
+  font-weight: bold;
+  color: var(--text-dark);
+  margin: 0;
+}
+
+.statsContainer {
+  display: flex;
+  gap: 24px;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.statNumber {
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--primary-purple);
+  display: block;
+}
+
+.statLabel {
+  font-size: 14px;
+  color: #666;
+  margin-top: 4px;
+}
+
+.headerActions {
+  display: flex;
+  gap: 12px;
+}
+
+.clearAllButton {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.clearAllButton:hover {
+  background-color: #c82333;
+}
+
+.calendarTitle {
+  font-size: 28px;
+  font-weight: bold;
+  color: var(--text-dark);
+  margin-bottom: 20px;
+}
+
+/* Calendar styling */
+.calendarContainer {
+  font-family: 'Poppins', sans-serif;
+}
+
+.calendarContainer .fc-toolbar-chunk .fc-button {
+  background-color: transparent;
+  color: var(--text-dark);
+  border: 1px solid var(--text-dark);
+  border-radius: 5px;
+  padding: 8px 15px;
+  font-weight: bold;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.calendarContainer .fc-toolbar-chunk .fc-button:hover {
+  background-color: #6c757d;
+  color: white;
+  border-color: #6c757d;
+}
+
+/* Day of the week header */
+.calendarContainer .fc .fc-day-header {
+  background-color: #f8f9fa;
+  color: var(--text-dark);
+  padding: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  border: 1px solid #e9ecef;
+}
+
+/* Day cells */
+.calendarContainer .fc-daygrid-day {
+  border: 1px solid #e9ecef;
+  min-height: 120px;
+  position: relative;
+  /* Ensure positioning context */
+  padding: 5px;
+  /* Add some padding for the number */
+}
+
+/* Cell day number */
+.calendarContainer .fc-daygrid-day-number {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+/* Today's date styling */
+.calendarContainer .fc-day-today {
+  background-color: #f0f0f0;
+}
+
+/* Meal labels - removed */
+
+/* Event items (recipes) */
+.eventItem {
+  color: white;
+  padding: 8px;
+  margin-top: 5px;
+  border-radius: 6px;
+  font-size: 11px;
+  white-space: normal;
+  line-height: 1.3;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.eventTitle {
+  font-weight: 600;
+  margin-bottom: 2px;
+  word-break: break-word;
+}
+
+.eventMealType {
+  font-size: 10px;
+  opacity: 0.9;
+  font-style: italic;
+}
+
+/* Meal type specific colors */
+.mealBreakfast {
+  background-color: #FF8A65;
+}
+
+.mealLunch {
+  background-color: #81C784;
+}
+
+.mealDinner {
+  background-color: #9575CD;
+}
