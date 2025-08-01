@@ -3,13 +3,11 @@
 }
 
 .headerContainer {
-  background-color: var(--primary-purple);
-  color: var(--text-white);
+  background-color: #F8F7E5;
   padding: 15px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .logo {
@@ -25,7 +23,7 @@
 
 .logo h1 {
   font-size: 30px;
-  color: var(--text-white);
+  color: #17371A;
   font-weight: bold;
   margin-top: 10px;
   /* Adjusted the top margin to move the text down */
@@ -40,10 +38,10 @@
 /* Button styling */
 .navigation button {
   font-size: 16px;
-  color: var(--text-white);
+  color: #17371A;
   background: none;
   border: none;
-  font-weight: 500;
+  font-weight: 600;
   text-decoration: none;
   transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out;
   padding: 6px 12px;
@@ -52,7 +50,7 @@
 }
 
 .navigation button:hover {
-  color: var(--text-white);
+  color: #546A04;
   background-color: transparent;
 }
 
@@ -60,10 +58,10 @@
 /* Active button */
 .active {
   background-color: transparent;
-  color: var(--light-gray);
+
 }
 
-/* Auth links (e.g. login) */
+/* Auth links   color: var(--light-gray);(e.g. login) */
 .authLinks {
   display: flex;
   align-items: center;
@@ -71,7 +69,7 @@
 
 .authLinks button {
   font-size: 16px;
-  color: var(--text-white);
+  color: #17371A;
   background: none;
   border: none;
   font-weight: 600;
@@ -83,5 +81,5 @@
 }
 
 .authLinks button:hover {
-  color: var(--light-gray);
+  color: #546A04;
 }
