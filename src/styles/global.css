@@ -149,7 +149,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: var(--text-dark);
-  background: white;
+  background: #F8F7E5;
   margin: 0;
   padding: 0;
   min-height: 100vh;
@@ -159,7 +159,7 @@ body {
 #root {
   width: 100%;
   height: 100vh;
-  background: white;
+  background: #F8F7E5;
   overflow: hidden;
 }
 

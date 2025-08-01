@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styles from './Header.module.css';
-import CravrPlanBowlLogo from '../assets/bowl-logo.png';
+import CravrPlanBowlLogo from '../assets/salad.png';
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
