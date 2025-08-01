@@ -9,12 +9,12 @@ import AddToPlanModal from '../components/AddToPlanModal';
 
 const RecipeDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate(); // Use for the back button
+  const navigate = useNavigate();
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'ingredients' | 'instructions'>('ingredients'); // State for tabs
-  const [isModalOpen, setIsModalOpen] = useState(false); // State for modal
+  const [activeTab, setActiveTab] = useState<'ingredients' | 'instructions'>('ingredients');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchRecipe = async () => {
@@ -36,9 +36,45 @@ const RecipeDetailPage: React.FC = () => {
     fetchRecipe();
   }, [id]);
 
-  if (loading) return <div className={styles.loading}>Loading recipe...</div>;
-  if (error) return <div className={styles.error}>{error}</div>;
-  if (!recipe) return <div className={styles.error}>No recipe found.</div>;
+  if (loading) return (
+    <div className={styles.loading}>
+      <div className={styles.loadingSpinner}></div>
+      <p>Loading recipe...</p>
+    </div>
+  );
+
+  if (error) return (
+    <div className={styles.error}>
+      <div className={styles.errorIcon}>⚠️</div>
+      <p>{error}</p>
+    </div>
+  );
+
+  if (!recipe) return (
+    <div className={styles.error}>
+      <div className={styles.errorIcon}>❌</div>
+      <p>No recipe found.</p>
+    </div>
+  );
+
+  // Helper function to format time
+  const formatTime = (minutes: number) => {
+    if (minutes < 60) return `${minutes}m`;
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+  };
+
+  // Helper function to get cuisine type
+  const getCuisineType = () => {
+    if (recipe.cuisines && recipe.cuisines.length > 0) {
+      return recipe.cuisines[0];
+    }
+    if (recipe.dishTypes && recipe.dishTypes.length > 0) {
+      return recipe.dishTypes[0];
+    }
+    return 'International';
+  };
 
   return (
     <div className={styles.pageContainer}>
@@ -50,27 +86,93 @@ const RecipeDetailPage: React.FC = () => {
       <div className={styles.contentWrapper}>
         <div className={styles.imageSection}>
           <img src={recipe.image} alt={recipe.title} className={styles.recipeImage} />
-          <button 
-            className={styles.addFavoriteButton}
+
+          {/* Image Overlay with Stats */}
+          <div className={styles.imageOverlay}>
+            <div className={styles.recipeStats}>
+              {recipe.readyInMinutes && (
+                <div className={styles.statBadge}>
+                  ⏱️ {formatTime(recipe.readyInMinutes)}
+                </div>
+              )}
+              {recipe.servings && (
+                <div className={styles.statBadge}>
+                  👥 {recipe.servings} servings
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Add to Plan Hover Overlay */}
+          <div
+            className={styles.addToPlanOverlay}
             onClick={() => setIsModalOpen(true)}
-            title="Add to Plan"
+            title="Add to Meal Plan"
           >
-            +
-          </button>
+            <div className={styles.addToPlanText}>
+              ADD THIS TO MEAL PLAN?
+            </div>
+          </div>
         </div>
 
         <div className={styles.detailsSection}>
+          {/* Recipe Info Header */}
+          <div className={styles.recipeInfoHeader}>
+            <div className={styles.recipeMeta}>
+              {recipe.readyInMinutes && (
+                <div className={styles.metaItem}>
+                  <div className={styles.metaIcon}>⏱️</div>
+                  <span>{formatTime(recipe.readyInMinutes)}</span>
+                </div>
+              )}
+              {recipe.servings && (
+                <div className={styles.metaItem}>
+                  <div className={styles.metaIcon}>👥</div>
+                  <span>{recipe.servings} servings</span>
+                </div>
+              )}
+              <div className={styles.metaItem}>
+                <div className={styles.metaIcon}>🍽️</div>
+                <span>{getCuisineType()}</span>
+              </div>
+              {recipe.healthScore && (
+                <div className={styles.metaItem}>
+                  <div className={styles.metaIcon}>❤️</div>
+                  <span>Health Score: {recipe.healthScore}</span>
+                </div>
+              )}
+            </div>
+
+            {recipe.summary && (
+              <div className={styles.recipeDescription}>
+                {recipe.summary.replace(/<[^>]*>/g, '').substring(0, 200)}...
+              </div>
+            )}
+
+            <div className={styles.recipeTags}>
+              {recipe.dishTypes && recipe.dishTypes.slice(0, 3).map((type, index) => (
+                <span key={index} className={styles.recipeTag}>{type}</span>
+              ))}
+              {recipe.diets && recipe.diets.slice(0, 2).map((diet, index) => (
+                <span key={index} className={styles.recipeTag}>{diet}</span>
+              ))}
+            </div>
+          </div>
+
+          {/* Modern Tab Design */}
           <div className={styles.tabContainer}>
             <button
               className={`${styles.tabButton} ${activeTab === 'ingredients' ? styles.active : ''}`}
               onClick={() => setActiveTab('ingredients')}
             >
+              <span className={styles.tabIcon}>🥬</span>
               Ingredients
             </button>
             <button
               className={`${styles.tabButton} ${activeTab === 'instructions' ? styles.active : ''}`}
               onClick={() => setActiveTab('instructions')}
             >
+              <span className={styles.tabIcon}>👨‍🍳</span>
               Cook & Satisfied!
             </button>
           </div>
