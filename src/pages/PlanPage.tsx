@@ -7,7 +7,7 @@ import styles from './PlanPage.module.css';
 import { usePlan } from '../context/PlanContext';
 
 const PlanPage: React.FC = () => {
-  const { events } = usePlan();
+  const { events, removeFromPlan } = usePlan();
 
   // Calculate stats
   const totalMeals = events.length;
@@ -37,10 +37,19 @@ const PlanPage: React.FC = () => {
           </div>
         </div>
         <div className={styles.headerActions}>
-          <button className={styles.clearAllButton}>Clear All</button>
+          <button
+            className={styles.clearAllButton}
+            onClick={() => {
+              if (window.confirm('Are you sure you want to clear all meals?')) {
+                events.forEach(event => removeFromPlan(event.id));
+              }
+            }}
+          >
+            Clear All
+          </button>
         </div>
       </div>
-      
+
       <div className={styles.calendarContainer}>
         <FullCalendar
           plugins={[dayGridPlugin]}
