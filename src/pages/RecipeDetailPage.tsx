@@ -113,6 +113,7 @@ const RecipeDetailPage: React.FC = () => {
               ADD THIS TO MEAL PLAN?
             </div>
           </div>
+
         </div>
 
         <div className={styles.detailsSection}>
