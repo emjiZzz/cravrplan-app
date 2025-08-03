@@ -804,6 +804,43 @@ class RecipeApiService {
     }
   }
 
+  // Search recipes by ingredients
+  async searchRecipesByIngredients(ingredients: string[], maxMissingIngredients: number = 3): Promise<Recipe[]> {
+    if (this.useMockData) {
+      return this.getMockRecipesByIngredients(ingredients, maxMissingIngredients);
+    }
+
+    try {
+      const ingredientsString = ingredients.join(',');
+      const queryParams = buildQueryParams({
+        ingredients: ingredientsString,
+        ranking: 2, // Maximize used ingredients
+        ignorePantry: true,
+        number: 20,
+        apiKey: API_KEY,
+        addRecipeInformation: true,
+        fillIngredients: true
+      });
+
+      const response = await fetch(`${API_BASE_URL}/findByIngredients?${queryParams}`);
+
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      // Filter results based on maxMissingIngredients
+      return data.filter((recipe: any) =>
+        recipe.missedIngredientCount <= maxMissingIngredients
+      );
+    } catch (error) {
+      console.error('Error searching recipes by ingredients:', error);
+      // Fallback to mock data on error
+      return this.getMockRecipesByIngredients(ingredients, maxMissingIngredients);
+    }
+  }
+
   // Get detailed recipe information
   async getRecipeDetails(recipeId: number): Promise<RecipeDetailResponse> {
     if (this.useMockData) {
@@ -974,6 +1011,14 @@ class RecipeApiService {
       ]
     };
   }
+
+  private getMockRecipesByIngredients(ingredients: string[], maxMissingIngredients: number = 3): Recipe[] {
+    return mockRecipes.filter(recipe => {
+      const recipeIngredients = recipe.extendedIngredients.map(ing => ing.name.toLowerCase());
+      const missingCount = ingredients.filter(ing => !recipeIngredients.includes(ing.toLowerCase())).length;
+      return missingCount <= maxMissingIngredients;
+    });
+  }
 }
 
 // Export singleton instance
@@ -983,3 +1028,4 @@ export const recipeApiService = new RecipeApiService();
 export const searchRecipes = (params: RecipeSearchParams) => recipeApiService.searchRecipes(params);
 export const getRecipeDetails = (recipeId: number) => recipeApiService.getRecipeDetails(recipeId);
 export const getFilterOptions = () => recipeApiService.getFilterOptions();
+export const searchRecipesByIngredients = (ingredients: string[], maxMissingIngredients: number = 3) => recipeApiService.searchRecipesByIngredients(ingredients, maxMissingIngredients);

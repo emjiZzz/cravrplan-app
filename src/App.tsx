@@ -7,6 +7,7 @@ import RecipesPage from './pages/RecipesPage';
 import PlanPage from './pages/PlanPage';
 import ShopPage from './pages/ShopPage';
 import RecipeDetailPage from './pages/RecipeDetailPage';
+import FridgePage from './pages/FridgePage';
 import { PlanProvider } from './context/PlanContext';
 
 import { Routes, Route, useLocation } from 'react-router-dom';
@@ -30,6 +31,7 @@ function App() {
             <Route path="/recipes/:id" element={<RecipeDetailPage />} />
             <Route path="/plan" element={<PlanPage />} />
             <Route path="/shop" element={<ShopPage />} />
+            <Route path="/fridge" element={<FridgePage />} />
             {/* Add more routes here as you build out other features */}
           </Routes>
         </main>

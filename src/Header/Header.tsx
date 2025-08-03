@@ -42,6 +42,12 @@ const Header: React.FC = () => {
             RECIPES
           </button>
           <button
+            onClick={() => handleNavClick('/fridge')}
+            className={location.pathname === '/fridge' ? styles.active : ''}
+          >
+            FRIDGE
+          </button>
+          <button
             onClick={() => handleNavClick('/plan')}
             className={location.pathname === '/plan' ? styles.active : ''}
           >
