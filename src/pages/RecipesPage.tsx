@@ -51,8 +51,8 @@ const RecipesPage: React.FC = () => {
 
       try {
         const searchParams: RecipeSearchParams = {
-          number: 12, // 12 recipes per page
-          offset: currentPage * 12
+          number: 20, // 20 recipes per page
+          offset: currentPage * 20
         };
 
         // Add search query if provided

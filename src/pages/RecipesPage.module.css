@@ -45,52 +45,79 @@
 .filters {
   display: flex;
   flex-direction: column;
-  gap: 25px;
+  gap: 20px;
   margin-bottom: 40px;
-  background: linear-gradient(135deg, rgba(84, 106, 4, 0.05), rgba(23, 55, 26, 0.05));
-  padding: 25px;
-  border-radius: 16px;
-  border: 1px solid rgba(84, 106, 4, 0.15);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 .basicFilters {
   display: flex;
-  gap: 20px;
+  gap: 15px;
   justify-content: flex-start;
   align-items: center;
   flex-wrap: wrap;
-  padding-bottom: 20px;
-  border-bottom: 2px solid rgba(84, 106, 4, 0.1);
+  padding: 8px 0;
 }
 
 .advancedFilters {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: 1fr 1fr 1fr 2fr;
   gap: 15px;
-  padding: 20px;
-  background: rgba(248, 247, 229, 0.2);
-  border-radius: 10px;
-  border: 1px solid rgba(84, 106, 4, 0.1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  padding: 25px;
+  background: linear-gradient(135deg, rgba(248, 247, 229, 0.4), rgba(248, 247, 229, 0.2));
+  border-radius: 16px;
+  border: 1px solid rgba(84, 106, 4, 0.15);
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.advancedFilters::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #546A04, #17371A, #546A04);
+  border-radius: 16px 16px 0 0;
 }
 
 .filterGroup {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 12px;
-  background: rgba(248, 247, 229, 0.3);
-  border-radius: 8px;
-  border: 1px solid rgba(84, 106, 4, 0.1);
+  gap: 10px;
+  padding: 16px;
+  background: linear-gradient(135deg, rgba(248, 247, 229, 0.5), rgba(248, 247, 229, 0.3));
+  border-radius: 12px;
+  border: 1px solid rgba(84, 106, 4, 0.12);
   transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.filterGroup::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #546A04, #17371A);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .filterGroup:hover {
-  background: rgba(248, 247, 229, 0.5);
-  border-color: rgba(84, 106, 4, 0.2);
-  transform: translateY(-1px);
-  box-shadow: 0 3px 10px rgba(84, 106, 4, 0.1);
+  background: linear-gradient(135deg, rgba(248, 247, 229, 0.7), rgba(248, 247, 229, 0.5));
+  border-color: rgba(84, 106, 4, 0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(84, 106, 4, 0.15);
+}
+
+.filterGroup:hover::before {
+  opacity: 1;
 }
 
 .filterGroupTitle {
@@ -105,21 +132,30 @@
 }
 
 .filterDropdown {
-  padding: 12px 20px;
-  border: 2px solid rgba(84, 106, 4, 0.3);
-  border-radius: 8px;
+  padding: 14px 20px;
+  border: 2px solid rgba(84, 106, 4, 0.25);
+  border-radius: 10px;
   font-size: 14px;
+  font-weight: 500;
   color: #17371A;
-  background-color: #F8F7E5;
+  background: linear-gradient(135deg, #F8F7E5, rgba(248, 247, 229, 0.9));
   cursor: pointer;
-  transition: border-color 0.3s ease;
+  transition: all 0.3s ease;
   min-width: 200px;
+  box-shadow: 0 2px 6px rgba(84, 106, 4, 0.08);
+}
+
+.filterDropdown:hover {
+  border-color: rgba(84, 106, 4, 0.4);
+  box-shadow: 0 4px 12px rgba(84, 106, 4, 0.12);
+  transform: translateY(-1px);
 }
 
 .filterDropdown:focus {
   outline: none;
   border-color: #546A04;
-  box-shadow: 0 0 0 3px rgba(84, 106, 4, 0.1);
+  box-shadow: 0 0 0 3px rgba(84, 106, 4, 0.15), 0 4px 12px rgba(84, 106, 4, 0.12);
+  transform: translateY(-1px);
 }
 
 .advancedFilterToggle,
@@ -213,35 +249,38 @@
 }
 
 .intoleranceTag {
-  padding: 6px 12px;
-  border: 2px solid rgba(84, 106, 4, 0.3);
-  border-radius: 20px;
+  padding: 8px 16px;
+  border: 2px solid rgba(84, 106, 4, 0.25);
+  border-radius: 25px;
   font-size: 12px;
   font-weight: 600;
-  background: #F8F7E5;
+  background: linear-gradient(135deg, #F8F7E5, rgba(248, 247, 229, 0.9));
   color: #17371A;
   cursor: pointer;
   transition: all 0.3s ease;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  box-shadow: 0 2px 6px rgba(84, 106, 4, 0.08);
 }
 
 .intoleranceTag:hover {
   border-color: #546A04;
-  background: rgba(84, 106, 4, 0.1);
-  transform: translateY(-1px);
+  background: linear-gradient(135deg, rgba(84, 106, 4, 0.1), rgba(23, 55, 26, 0.1));
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(84, 106, 4, 0.15);
 }
 
 .intoleranceTag.selected {
   background: linear-gradient(135deg, #546A04, #17371A);
   color: #F8F7E5;
   border-color: #546A04;
+  box-shadow: 0 4px 12px rgba(84, 106, 4, 0.25);
 }
 
 .intoleranceTag.selected:hover {
   background: linear-gradient(135deg, #17371A, #546A04);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(84, 106, 4, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(84, 106, 4, 0.35);
 }
 
 /* Loading State */
