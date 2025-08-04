@@ -183,26 +183,12 @@
   overflow: hidden;
 }
 
-.advancedFilterToggle::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(84, 106, 4, 0.1), transparent);
-  transition: left 0.5s;
-}
 
-.advancedFilterToggle:hover::before {
-  left: 100%;
-}
 
 .advancedFilterToggle:hover {
   background: linear-gradient(135deg, rgba(84, 106, 4, 0.2), rgba(23, 55, 26, 0.2));
   border-color: #546A04;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(84, 106, 4, 0.25);
+  box-shadow: 0 4px 12px rgba(84, 106, 4, 0.2);
 }
 
 .advancedFilterToggle:active {
@@ -216,23 +202,9 @@
   position: relative;
 }
 
-.clearFiltersButton::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s;
-}
 
-.clearFiltersButton:hover::before {
-  left: 100%;
-}
 
 .clearFiltersButton:hover {
-  transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(84, 106, 4, 0.3);
   background: linear-gradient(135deg, #17371A, #546A04);
 }
@@ -266,7 +238,6 @@
 .intoleranceTag:hover {
   border-color: #546A04;
   background: linear-gradient(135deg, rgba(84, 106, 4, 0.1), rgba(23, 55, 26, 0.1));
-  transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(84, 106, 4, 0.15);
 }
 
@@ -343,7 +314,6 @@
 }
 
 .retryButton:hover {
-  transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(84, 106, 4, 0.3);
 }
 
@@ -366,8 +336,8 @@
 }
 
 .recipeCard:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.25);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
   border-color: #546A04;
 }
 
@@ -385,7 +355,7 @@
 }
 
 .recipeCard:hover .recipeImage img {
-  transform: scale(1.05);
+  transform: scale(1.02);
 }
 
 .recipeOverlay {
@@ -503,7 +473,6 @@
 }
 
 .paginationButton:hover:not(.disabled) {
-  transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(84, 106, 4, 0.3);
 }
 

@@ -100,10 +100,10 @@
 }
 
 .imageSection:hover {
-  transform: translateY(-8px) scale(1.02);
+  transform: translateY(-4px);
   box-shadow:
-    0 20px 60px rgba(0, 0, 0, 0.3),
-    0 8px 24px rgba(84, 106, 4, 0.15);
+    0 16px 40px rgba(0, 0, 0, 0.25),
+    0 6px 20px rgba(84, 106, 4, 0.12);
   border-color: rgba(84, 106, 4, 0.2);
 }
 
@@ -115,7 +115,7 @@
 }
 
 .imageSection:hover .recipeImage {
-  transform: scale(1.05);
+  transform: scale(1.02);
 }
 
 .imageOverlay {
@@ -313,26 +313,12 @@
   overflow: hidden;
 }
 
-.tabButton::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(84, 106, 4, 0.1), transparent);
-  transition: left 0.5s;
-}
 
-.tabButton:hover::before {
-  left: 100%;
-}
 
 .tabButton:hover {
   color: #546A04;
   background: linear-gradient(135deg, rgba(84, 106, 4, 0.1), rgba(23, 55, 26, 0.1));
   border-color: rgba(84, 106, 4, 0.2);
-  transform: translateY(-2px);
   box-shadow: 0 4px 16px rgba(84, 106, 4, 0.15);
 }
 
@@ -341,7 +327,6 @@
   background: linear-gradient(135deg, #546A04, #17371A);
   border-color: #546A04;
   box-shadow: 0 6px 20px rgba(84, 106, 4, 0.3);
-  transform: translateY(-1px);
 }
 
 .tabIcon {
@@ -404,10 +389,10 @@
 }
 
 .instructionStep:hover {
-  transform: translateX(8px) translateY(-2px);
+  transform: translateX(4px);
   box-shadow:
-    0 8px 24px rgba(0, 0, 0, 0.12),
-    0 4px 12px rgba(84, 106, 4, 0.1);
+    0 6px 20px rgba(0, 0, 0, 0.1),
+    0 3px 10px rgba(84, 106, 4, 0.08);
   border-left-color: #546A04;
   border-color: rgba(84, 106, 4, 0.15);
   background: linear-gradient(135deg, rgba(248, 247, 229, 0.8), rgba(248, 247, 229, 0.6));
