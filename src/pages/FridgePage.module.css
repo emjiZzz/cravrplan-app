@@ -7,15 +7,18 @@
 }
 
 .header {
-  text-align: center;
-  margin-bottom: 40px;
-  padding: 20px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 0;
+  position: relative;
 }
 
 .backButton {
   position: absolute;
-  top: 20px;
-  left: 20px;
+  left: 0;
   background: rgba(84, 106, 4, 0.2);
   color: #F8F7E5;
   border: 2px solid rgba(84, 106, 4, 0.4);
@@ -40,15 +43,16 @@
   font-size: 36px;
   font-weight: 700;
   color: #F8F7E5;
-  margin: 0 0 10px 0;
+  margin: 0;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .subtitle {
   font-size: 18px;
   color: #F8F7E5;
-  margin: 0;
+  margin: 0 0 24px 0;
   opacity: 0.9;
+  text-align: center;
 }
 
 .content {

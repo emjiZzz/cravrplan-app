@@ -70,10 +70,10 @@ const FridgePage: React.FC = () => {
           &larr;
         </button>
         <h1 className={styles.title}>What's in my fridge?</h1>
-        <p className={styles.subtitle}>
-          Find recipes using what you have available
-        </p>
       </div>
+      <p className={styles.subtitle}>
+        Find recipes using what you have available
+      </p>
 
       <div className={styles.content}>
         {/* Ingredient Selection Section */}

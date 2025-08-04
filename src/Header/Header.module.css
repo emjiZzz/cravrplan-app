@@ -40,28 +40,90 @@
   font-size: 16px;
   color: #17371A;
   background: none;
-  border: none;
+  border: 2px solid transparent;
+  outline: none;
   font-weight: 600;
   text-decoration: none;
-  transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out;
-  padding: 6px 12px;
-  border-radius: 0px;
+  transition: all 0.3s ease;
+  padding: 8px 16px;
+  border-radius: 8px;
   cursor: pointer;
+  box-shadow: none;
+  position: relative;
 }
 
 .navigation button:hover {
   color: #546A04;
   background-color: transparent;
+  border: none;
+  outline: none;
+  box-shadow: none;
 }
 
+.navigation button:focus {
+  outline: none;
+  border: none;
+  box-shadow: none;
+}
+
+.navigation button:active {
+  outline: none;
+  border: none;
+  box-shadow: none;
+  background-color: transparent;
+}
 
 /* Active button */
 .active {
-  background-color: transparent;
-
+  background-color: #546A04;
+  color: #F8F7E5;
+  border: 2px solid #546A04;
+  outline: none;
+  box-shadow: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-weight: 700;
+  position: relative;
+  transition: all 0.3s ease;
 }
 
-/* Auth links   color: var(--light-gray);(e.g. login) */
+.active:hover {
+  background-color: #17371A;
+  border-color: #17371A;
+  color: #F8F7E5;
+  outline: none;
+  box-shadow: 0 4px 12px rgba(84, 106, 4, 0.3);
+  transform: translateY(-1px);
+}
+
+.active:focus {
+  outline: none;
+  border: 2px solid #546A04;
+  box-shadow: 0 0 0 3px rgba(84, 106, 4, 0.2);
+}
+
+.active:active {
+  outline: none;
+  border: 2px solid #546A04;
+  box-shadow: none;
+  background-color: #546A04;
+  transform: translateY(0);
+}
+
+/* Add a subtle indicator line under active button */
+.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 3px;
+  background: linear-gradient(90deg, #546A04, #17371A);
+  border-radius: 2px;
+}
+
+/* Auth links (e.g. login) */
 .authLinks {
   display: flex;
   align-items: center;
@@ -72,14 +134,33 @@
   color: #17371A;
   background: none;
   border: none;
+  outline: none;
   font-weight: 600;
   cursor: pointer;
   transition: color 0.2s ease-in-out;
   padding: 8px 12px;
   border-radius: 0px;
   margin-left: 30px;
+  box-shadow: none;
 }
 
 .authLinks button:hover {
   color: #546A04;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+
+.authLinks button:focus {
+  outline: none;
+  border: none;
+  box-shadow: none;
+}
+
+.authLinks button:active {
+  outline: none;
+  border: none;
+  box-shadow: none;
+  background-color: transparent;
 }

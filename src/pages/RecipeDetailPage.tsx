@@ -13,7 +13,7 @@ const RecipeDetailPage: React.FC = () => {
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'ingredients' | 'instructions' | 'nutrition'>('ingredients');
+  const [activeTab, setActiveTab] = useState<'ingredients' | 'instructions'>('ingredients');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
@@ -82,6 +82,9 @@ const RecipeDetailPage: React.FC = () => {
         <button onClick={() => navigate(-1)} className={styles.backButton}>&larr;</button>
         <h2 className={styles.recipeTitle}>{recipe.title}</h2>
       </div>
+      <p className={styles.recipeSubtitle}>
+        Discover ingredients, cooking instructions, and add to your meal plan
+      </p>
 
       <div className={styles.contentWrapper}>
         <div className={styles.imageSection}>
@@ -113,7 +116,6 @@ const RecipeDetailPage: React.FC = () => {
               ADD THIS TO MEAL PLAN?
             </div>
           </div>
-
         </div>
 
         <div className={styles.detailsSection}>
@@ -176,13 +178,6 @@ const RecipeDetailPage: React.FC = () => {
               <span className={styles.tabIcon}>👨‍🍳</span>
               Cook & Satisfied!
             </button>
-            <button
-              className={`${styles.tabButton} ${activeTab === 'nutrition' ? styles.active : ''}`}
-              onClick={() => setActiveTab('nutrition')}
-            >
-              <span className={styles.tabIcon}>📊</span>
-              Nutritional Information
-            </button>
           </div>
 
           <div className={styles.tabContent}>
@@ -214,106 +209,6 @@ const RecipeDetailPage: React.FC = () => {
                   </div>
                 ) : (
                   <p className={styles.noIngredients}>No ingredients information available.</p>
-                )}
-              </div>
-            ) : activeTab === 'nutrition' ? (
-              <div className={styles.instructionsList}>
-                {recipe.nutrition ? (
-                  <div className={styles.nutritionSection}>
-                    {/* Macronutrients */}
-                    <div className={styles.nutritionGroup}>
-                      <h3 className={styles.nutritionTitle}>Macronutrients</h3>
-                      <div className={styles.nutritionGrid}>
-                        {recipe.nutrition.nutrients
-                          .filter(nutrient => ['Calories', 'Protein', 'Fat', 'Carbohydrates'].includes(nutrient.name))
-                          .map((nutrient) => (
-                            <div key={nutrient.name} className={styles.nutritionCard}>
-                              <div className={styles.nutritionValue}>{Math.round(nutrient.amount)}</div>
-                              <div className={styles.nutritionUnit}>{nutrient.unit}</div>
-                              <div className={styles.nutritionName}>{nutrient.name}</div>
-                            </div>
-                          ))}
-                      </div>
-                    </div>
-
-                    {/* Micronutrients */}
-                    <div className={styles.nutritionGroup}>
-                      <h3 className={styles.nutritionTitle}>Vitamins & Minerals</h3>
-                      <div className={styles.nutritionGrid}>
-                        {recipe.nutrition.nutrients
-                          .filter(nutrient =>
-                            ['Vitamin C', 'Vitamin D', 'Vitamin E', 'Vitamin K', 'Vitamin B6', 'Vitamin B12',
-                              'Calcium', 'Iron', 'Magnesium', 'Potassium', 'Sodium', 'Zinc'].includes(nutrient.name)
-                          )
-                          .slice(0, 8)
-                          .map((nutrient) => (
-                            <div key={nutrient.name} className={styles.nutritionCard}>
-                              <div className={styles.nutritionValue}>{Math.round(nutrient.amount)}</div>
-                              <div className={styles.nutritionUnit}>{nutrient.unit}</div>
-                              <div className={styles.nutritionName}>{nutrient.name}</div>
-                            </div>
-                          ))}
-                      </div>
-                    </div>
-
-                    {/* Caloric Breakdown */}
-                    {recipe.nutrition.caloricBreakdown && (
-                      <div className={styles.nutritionGroup}>
-                        <h3 className={styles.nutritionTitle}>Caloric Breakdown</h3>
-                        <div className={styles.caloricBreakdown}>
-                          <div className={styles.caloricItem}>
-                            <div className={styles.caloricBar}>
-                              <div
-                                className={styles.caloricFill}
-                                style={{
-                                  width: `${recipe.nutrition.caloricBreakdown.percentProtein}%`,
-                                  backgroundColor: '#546A04'
-                                }}
-                              ></div>
-                            </div>
-                            <div className={styles.caloricInfo}>
-                              <span className={styles.caloricLabel}>Protein</span>
-                              <span className={styles.caloricPercent}>{Math.round(recipe.nutrition.caloricBreakdown.percentProtein)}%</span>
-                            </div>
-                          </div>
-                          <div className={styles.caloricItem}>
-                            <div className={styles.caloricBar}>
-                              <div
-                                className={styles.caloricFill}
-                                style={{
-                                  width: `${recipe.nutrition.caloricBreakdown.percentFat}%`,
-                                  backgroundColor: '#17371A'
-                                }}
-                              ></div>
-                            </div>
-                            <div className={styles.caloricInfo}>
-                              <span className={styles.caloricLabel}>Fat</span>
-                              <span className={styles.caloricPercent}>{Math.round(recipe.nutrition.caloricBreakdown.percentFat)}%</span>
-                            </div>
-                          </div>
-                          <div className={styles.caloricItem}>
-                            <div className={styles.caloricBar}>
-                              <div
-                                className={styles.caloricFill}
-                                style={{
-                                  width: `${recipe.nutrition.caloricBreakdown.percentCarbs}%`,
-                                  backgroundColor: '#F8F7E5'
-                                }}
-                              ></div>
-                            </div>
-                            <div className={styles.caloricInfo}>
-                              <span className={styles.caloricLabel}>Carbs</span>
-                              <span className={styles.caloricPercent}>{Math.round(recipe.nutrition.caloricBreakdown.percentCarbs)}%</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className={styles.noNutrition}>
-                    <p>No nutritional information available for this recipe.</p>
-                  </div>
                 )}
               </div>
             ) : (

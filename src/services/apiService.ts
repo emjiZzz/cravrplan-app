@@ -853,7 +853,8 @@ class RecipeApiService {
         addRecipeInformation: true,
         fillIngredients: true,
         addWinePairing: true,
-        addTasteData: true
+        addTasteData: true,
+        addRecipeNutrition: true
       });
 
       const response = await fetch(`${API_BASE_URL}/${recipeId}/information?${queryParams}`);
@@ -958,6 +959,50 @@ class RecipeApiService {
 
     return {
       ...recipe,
+      nutrition: {
+        nutrients: [
+          { name: "Calories", amount: 450, unit: "kcal", percentOfDailyNeeds: 22.5 },
+          { name: "Protein", amount: 25, unit: "g", percentOfDailyNeeds: 50 },
+          { name: "Fat", amount: 18, unit: "g", percentOfDailyNeeds: 27.7 },
+          { name: "Carbohydrates", amount: 35, unit: "g", percentOfDailyNeeds: 11.7 },
+          { name: "Fiber", amount: 8, unit: "g", percentOfDailyNeeds: 32 },
+          { name: "Sugar", amount: 12, unit: "g", percentOfDailyNeeds: 13.3 },
+          { name: "Sodium", amount: 680, unit: "mg", percentOfDailyNeeds: 28.3 },
+          { name: "Potassium", amount: 420, unit: "mg", percentOfDailyNeeds: 8.9 },
+          { name: "Vitamin C", amount: 15, unit: "mg", percentOfDailyNeeds: 16.7 },
+          { name: "Iron", amount: 3.2, unit: "mg", percentOfDailyNeeds: 17.8 },
+          { name: "Calcium", amount: 180, unit: "mg", percentOfDailyNeeds: 18 }
+        ],
+        properties: [
+          { name: "Glycemic Index", amount: 45, unit: "" },
+          { name: "Glycemic Load", amount: 8, unit: "" }
+        ],
+        flavonoids: [
+          { name: "Quercetin", amount: 2.5, unit: "mg" },
+          { name: "Kaempferol", amount: 1.2, unit: "mg" }
+        ],
+        ingredients: [
+          {
+            id: 1,
+            name: "corn tortillas",
+            amount: 2,
+            unit: "pieces",
+            nutrients: [
+              { name: "Calories", amount: 120, unit: "kcal", percentOfDailyNeeds: 6 },
+              { name: "Carbohydrates", amount: 24, unit: "g", percentOfDailyNeeds: 8 }
+            ]
+          }
+        ],
+        caloricBreakdown: {
+          percentProtein: 22.2,
+          percentFat: 36,
+          percentCarbs: 31.1
+        },
+        weightPerServing: {
+          amount: 250,
+          unit: "g"
+        }
+      },
       winePairing: {
         pairedWines: ["Chardonnay", "Pinot Noir"],
         pairingText: "This dish pairs well with a light Chardonnay or a medium-bodied Pinot Noir.",
