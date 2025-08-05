@@ -1,13 +1,14 @@
 /* src/pages/PlanPage.tsx */
 
-import React from 'react';
+import React, { useState } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import styles from './PlanPage.module.css';
 import { usePlan } from '../context/PlanContext';
 
 const PlanPage: React.FC = () => {
-  const { events } = usePlan();
+  const { events, removeFromPlan, clearAll } = usePlan();
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   // Calculate stats
   const totalMeals = events.length;
@@ -20,11 +21,40 @@ const PlanPage: React.FC = () => {
     return eventDate >= weekStart && eventDate <= weekEnd;
   }).length;
 
+  const handleClearAll = () => {
+    if (events.length === 0) return;
+    
+    if (showClearConfirm) {
+      // Clear all events using the context function
+      clearAll();
+      setShowClearConfirm(false);
+    } else {
+      setShowClearConfirm(true);
+      // Auto-hide confirmation after 3 seconds
+      setTimeout(() => setShowClearConfirm(false), 3000);
+    }
+  };
+
+  const handleEventClick = (clickInfo: any) => {
+    const event = events.find(e => e.title === clickInfo.event.title);
+    if (event) {
+      if (confirm(`Remove "${event.title}" from your meal plan?`)) {
+        removeFromPlan(event.id);
+      }
+    }
+  };
+
   return (
     <div className={styles.planPageContainer}>
+      {/* Page Header */}
       <div className={styles.pageHeader}>
         <div className={styles.headerContent}>
-          <h1 className={styles.pageTitle}>My Meal Plan</h1>
+          <div>
+            <h1 className={styles.pageTitle}>My Meal Plan</h1>
+            <p className={styles.pageSubtitle}>
+              Organize your weekly meals and track your culinary journey
+            </p>
+          </div>
           <div className={styles.statsContainer}>
             <div className={styles.statItem}>
               <span className={styles.statNumber}>{totalMeals}</span>
@@ -37,10 +67,17 @@ const PlanPage: React.FC = () => {
           </div>
         </div>
         <div className={styles.headerActions}>
-          <button className={styles.clearAllButton}>Clear All</button>
+          <button 
+            className={`${styles.clearAllButton} ${showClearConfirm ? styles.confirmMode : ''}`}
+            onClick={handleClearAll}
+            disabled={events.length === 0}
+          >
+            {showClearConfirm ? 'Click to Confirm' : 'Clear All'}
+          </button>
         </div>
       </div>
       
+      {/* Calendar Container */}
       <div className={styles.calendarContainer}>
         <FullCalendar
           plugins={[dayGridPlugin]}
@@ -67,6 +104,7 @@ const PlanPage: React.FC = () => {
             );
           }}
           events={events}
+          eventClick={handleEventClick}
         />
       </div>
     </div>

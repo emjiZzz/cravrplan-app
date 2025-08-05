@@ -13,6 +13,7 @@ interface PlanContextType {
   events: PlanEvent[];
   addToPlan: (event: Omit<PlanEvent, 'id'>) => void;
   removeFromPlan: (id: string) => void;
+  clearAll: () => void;
   getEventsForDate: (date: string) => PlanEvent[];
 }
 
@@ -45,12 +46,16 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
     setEvents(prev => prev.filter(event => event.id !== id));
   };
 
+  const clearAll = () => {
+    setEvents([]);
+  };
+
   const getEventsForDate = (date: string) => {
     return events.filter(event => event.date === date);
   };
 
   return (
-    <PlanContext.Provider value={{ events, addToPlan, removeFromPlan, getEventsForDate }}>
+    <PlanContext.Provider value={{ events, addToPlan, removeFromPlan, clearAll, getEventsForDate }}>
       {children}
     </PlanContext.Provider>
   );
