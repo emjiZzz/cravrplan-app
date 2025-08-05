@@ -1,12 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './FridgePage.module.css';
-import { RecipeApiService } from '../services/apiService';
+import { searchRecipesByIngredients } from '../services/apiService';
+import type { Recipe } from '../types/recipeTypes';
 
-interface Recipe {
-  id: number;
-  title: string;
-  image: string;
+interface FridgeRecipe extends Recipe {
   missedIngredientCount: number;
   usedIngredientCount: number;
   missedIngredients: Array<{ name: string }>;
@@ -16,42 +14,25 @@ interface Recipe {
 interface Ingredient {
   name: string;
   quantity?: string;
-  category?: string;
 }
 
 const FridgePage: React.FC = () => {
   const navigate = useNavigate();
   const [customIngredient, setCustomIngredient] = useState('');
   const [selectedIngredients, setSelectedIngredients] = useState<Ingredient[]>([]);
-  const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [recipes, setRecipes] = useState<FridgeRecipe[]>([]);
   const [loading, setLoading] = useState(false);
   const [maxMissing, setMaxMissing] = useState(3);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Organized common ingredients by category
-  const commonIngredients = {
-    'Vegetables': [
-      'tomato', 'onion', 'garlic', 'bell pepper', 'carrot', 'potato',
-      'spinach', 'lettuce', 'cucumber', 'mushroom', 'broccoli', 'cauliflower'
-    ],
-    'Fruits': [
-      'apple', 'banana', 'orange', 'lemon', 'lime', 'strawberry',
-      'blueberry', 'avocado', 'mango', 'pineapple'
-    ],
-    'Proteins': [
-      'chicken', 'beef', 'pork', 'fish', 'shrimp', 'eggs',
-      'tofu', 'beans', 'lentils', 'chickpeas'
-    ],
-    'Dairy & Eggs': [
-      'milk', 'cheese', 'yogurt', 'butter', 'cream', 'sour cream'
-    ],
-    'Grains & Pasta': [
-      'rice', 'pasta', 'bread', 'flour', 'quinoa', 'oats'
-    ],
-    'Herbs & Spices': [
-      'basil', 'oregano', 'thyme', 'rosemary', 'parsley', 'cilantro',
-      'salt', 'pepper', 'cumin', 'paprika', 'chili powder'
-    ]
+  // Popular ingredients organized by category
+  const ingredientCategories = {
+    'Vegetables': ['tomato', 'onion', 'garlic', 'bell pepper', 'carrot', 'potato', 'spinach', 'lettuce', 'cucumber', 'mushroom'],
+    'Proteins': ['chicken', 'beef', 'fish', 'eggs', 'pork', 'shrimp', 'tofu'],
+    'Dairy': ['milk', 'cheese', 'butter', 'yogurt', 'cream'],
+    'Grains': ['rice', 'pasta', 'bread', 'flour', 'quinoa'],
+    'Fruits': ['apple', 'banana', 'lemon', 'orange', 'strawberry'],
+    'Herbs & Spices': ['basil', 'oregano', 'thyme', 'salt', 'pepper', 'cumin', 'paprika']
   };
 
   const addCustomIngredient = () => {
@@ -91,9 +72,9 @@ const FridgePage: React.FC = () => {
 
     setLoading(true);
     try {
-      const ingredientNames = selectedIngredients.map(ing => ing.name).join(',');
-      const response = await RecipeApiService.searchRecipesByIngredients(ingredientNames, maxMissing);
-      setRecipes(response);
+      const ingredientNames = selectedIngredients.map(ing => ing.name);
+      const response = await searchRecipesByIngredients(ingredientNames, maxMissing);
+      setRecipes(response as FridgeRecipe[]);
     } catch (error) {
       console.error('Error searching recipes:', error);
     } finally {
@@ -101,33 +82,34 @@ const FridgePage: React.FC = () => {
     }
   };
 
-  const filteredIngredients = Object.entries(commonIngredients).filter(([category, ingredients]) => {
-    if (!searchQuery) return true;
-    return category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      ingredients.some(ing => ing.toLowerCase().includes(searchQuery.toLowerCase()));
-  });
-
   const filteredRecipes = recipes.filter(recipe =>
-    recipe.title.toLowerCase().includes(searchQuery.toLowerCase())
+    !searchQuery || recipe.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
     <div className={styles.fridgePageContainer}>
-      <div className={styles.header}>
+      {/* Header - Matching Recipe Detail Page */}
+      <div className={styles.recipeHeader}>
         <button className={styles.backButton} onClick={() => navigate(-1)}>
-          ← Back
+          &larr;
         </button>
         <h1 className={styles.title}>My Fridge</h1>
       </div>
+      <p className={styles.subtitle}>
+        Add ingredients from your fridge and discover delicious recipes you can make
+      </p>
 
-      <div className={styles.content}>
-        {/* Left Panel - Ingredient Selection */}
-        <div className={styles.leftPanel}>
-          <div className={styles.ingredientSection}>
-            <h2 className={styles.sectionTitle}>Add Ingredients</h2>
+      <div className={styles.mainContent}>
+        {/* Left Side - Ingredient Selection */}
+        <div className={styles.ingredientSection}>
+          <div className={styles.sectionCard}>
+            <h2 className={styles.sectionTitle}>
+              <span className={styles.titleIcon}>🥬</span>
+              Add Ingredients
+            </h2>
 
-            {/* Search Ingredients */}
-            <div className={styles.searchContainer}>
+            {/* Search Bar */}
+            <div className={styles.searchBar}>
               <input
                 type="text"
                 placeholder="Search ingredients..."
@@ -138,149 +120,178 @@ const FridgePage: React.FC = () => {
             </div>
 
             {/* Custom Ingredient Input */}
-            <div className={styles.customInputContainer}>
-              <input
-                type="text"
-                placeholder="Add custom ingredient..."
-                value={customIngredient}
-                onChange={(e) => setCustomIngredient(e.target.value)}
-                onKeyPress={handleKeyPress}
-                className={styles.customInput}
-              />
-              <button onClick={addCustomIngredient} className={styles.addButton}>
-                Add
-              </button>
+            <div className={styles.customInputSection}>
+              <div className={styles.inputGroup}>
+                <input
+                  type="text"
+                  placeholder="Add custom ingredient..."
+                  value={customIngredient}
+                  onChange={(e) => setCustomIngredient(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  className={styles.customInput}
+                />
+                <button onClick={addCustomIngredient} className={styles.addButton}>
+                  Add
+                </button>
+              </div>
             </div>
 
-            {/* Organized Common Ingredients */}
-            <div className={styles.ingredientsGrid}>
-              {filteredIngredients.map(([category, ingredients]) => (
-                <div key={category} className={styles.categorySection}>
-                  <h3 className={styles.categoryTitle}>{category}</h3>
-                  <div className={styles.ingredientsList}>
-                    {ingredients.map((ingredient) => {
-                      const isSelected = selectedIngredients.find(ing =>
-                        ing.name.toLowerCase() === ingredient.toLowerCase()
-                      );
-                      return (
-                        <button
-                          key={ingredient}
-                          onClick={() => toggleIngredient(ingredient)}
-                          className={`${styles.ingredientButton} ${isSelected ? styles.selected : ''}`}
-                        >
-                          {ingredient}
-                        </button>
-                      );
-                    })}
+            {/* Ingredient Categories */}
+            <div className={styles.categoriesContainer}>
+              {Object.entries(ingredientCategories).map(([category, ingredients]) => {
+                const filteredIngredients = ingredients.filter(ingredient =>
+                  !searchQuery || ingredient.toLowerCase().includes(searchQuery.toLowerCase())
+                );
+
+                if (filteredIngredients.length === 0) return null;
+
+                return (
+                  <div key={category} className={styles.categoryCard}>
+                    <h3 className={styles.categoryTitle}>{category}</h3>
+                    <div className={styles.ingredientsGrid}>
+                      {filteredIngredients.map((ingredient) => {
+                        const isSelected = selectedIngredients.find(ing =>
+                          ing.name.toLowerCase() === ingredient.toLowerCase()
+                        );
+                        return (
+                          <button
+                            key={ingredient}
+                            onClick={() => toggleIngredient(ingredient)}
+                            className={`${styles.ingredientChip} ${isSelected ? styles.selected : ''}`}
+                          >
+                            {ingredient}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
 
-        {/* Right Panel - Selected Ingredients & Recipes */}
-        <div className={styles.rightPanel}>
-          {/* Selected Ingredients */}
-          <div className={styles.selectedSection}>
+        {/* Right Side - Selected Ingredients & Recipes */}
+        <div className={styles.resultsSection}>
+          {/* Selected Ingredients Card */}
+          <div className={styles.sectionCard}>
             <h2 className={styles.sectionTitle}>
+              <span className={styles.titleIcon}>📋</span>
               Selected Ingredients ({selectedIngredients.length})
             </h2>
 
-            {selectedIngredients.length > 0 && (
-              <div className={styles.selectedIngredients}>
-                {selectedIngredients.map((ingredient, index) => (
-                  <div key={index} className={styles.selectedIngredient}>
-                    <div className={styles.ingredientInfo}>
-                      <span className={styles.ingredientName}>{ingredient.name}</span>
-                      <input
-                        type="text"
-                        placeholder="Qty (optional)"
-                        value={ingredient.quantity || ''}
-                        onChange={(e) => updateIngredientQuantity(ingredient.name, e.target.value)}
-                        className={styles.quantityInput}
-                      />
+            {selectedIngredients.length > 0 ? (
+              <>
+                <div className={styles.selectedIngredientsList}>
+                  {selectedIngredients.map((ingredient, index) => (
+                    <div key={index} className={styles.selectedIngredientItem}>
+                      <div className={styles.ingredientDetails}>
+                        <span className={styles.ingredientName}>{ingredient.name}</span>
+                        <input
+                          type="text"
+                          placeholder="Qty"
+                          value={ingredient.quantity || ''}
+                          onChange={(e) => updateIngredientQuantity(ingredient.name, e.target.value)}
+                          className={styles.quantityInput}
+                        />
+                      </div>
+                      <button
+                        onClick={() => removeIngredient(ingredient.name)}
+                        className={styles.removeButton}
+                        title="Remove ingredient"
+                      >
+                        ×
+                      </button>
                     </div>
-                    <button
-                      onClick={() => removeIngredient(ingredient.name)}
-                      className={styles.removeButton}
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Search Controls */}
-            {selectedIngredients.length > 0 && (
-              <div className={styles.searchControls}>
-                <div className={styles.maxMissingControl}>
-                  <label htmlFor="maxMissing">Max missing ingredients:</label>
-                  <select
-                    id="maxMissing"
-                    value={maxMissing}
-                    onChange={(e) => setMaxMissing(Number(e.target.value))}
-                    className={styles.maxMissingSelect}
-                  >
-                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
-                      <option key={num} value={num}>{num}</option>
-                    ))}
-                  </select>
+                  ))}
                 </div>
-                <button
-                  onClick={searchRecipes}
-                  disabled={loading}
-                  className={styles.searchButton}
-                >
-                  {loading ? 'Searching...' : 'Find Recipes'}
-                </button>
+
+                {/* Search Controls */}
+                <div className={styles.searchControls}>
+                  <div className={styles.controlGroup}>
+                    <label htmlFor="maxMissing" className={styles.controlLabel}>
+                      Max missing ingredients:
+                    </label>
+                    <select
+                      id="maxMissing"
+                      value={maxMissing}
+                      onChange={(e) => setMaxMissing(Number(e.target.value))}
+                      className={styles.controlSelect}
+                    >
+                      {[1, 2, 3, 4, 5].map(num => (
+                        <option key={num} value={num}>{num}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <button
+                    onClick={searchRecipes}
+                    disabled={loading}
+                    className={styles.searchButton}
+                  >
+                    {loading ? (
+                      <>
+                        <span className={styles.loadingSpinner}></span>
+                        Searching...
+                      </>
+                    ) : (
+                      <>
+                        <span className={styles.searchIcon}>🔍</span>
+                        Find Recipes
+                      </>
+                    )}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className={styles.emptyState}>
+                <div className={styles.emptyIcon}>🥘</div>
+                <p>No ingredients selected yet</p>
+                <p className={styles.emptySubtext}>Add ingredients from your fridge to discover recipes!</p>
               </div>
             )}
           </div>
 
           {/* Recipe Results */}
           {recipes.length > 0 && (
-            <div className={styles.recipesSection}>
+            <div className={styles.sectionCard}>
               <h2 className={styles.sectionTitle}>
+                <span className={styles.titleIcon}>🍽️</span>
                 Recipe Results ({filteredRecipes.length})
               </h2>
-
-              {/* Recipe Search Filter */}
-              <div className={styles.recipeSearchContainer}>
-                <input
-                  type="text"
-                  placeholder="Filter recipes..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className={styles.recipeSearchInput}
-                />
-              </div>
 
               <div className={styles.recipesGrid}>
                 {filteredRecipes.map((recipe) => (
                   <div key={recipe.id} className={styles.recipeCard}>
-                    <img
-                      src={recipe.image}
-                      alt={recipe.title}
-                      className={styles.recipeImage}
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = 'https://via.placeholder.com/300x200?text=No+Image';
-                      }}
-                    />
-                    <div className={styles.recipeInfo}>
-                      <h3 className={styles.recipeTitle}>{recipe.title}</h3>
-                      <div className={styles.recipeStats}>
-                        <span className={styles.usedCount}>
-                          Used: {recipe.usedIngredientCount}
-                        </span>
-                        <span className={styles.missedCount}>
-                          Missing: {recipe.missedIngredientCount}
-                        </span>
+                    <div className={styles.recipeImageContainer}>
+                      <img
+                        src={recipe.image}
+                        alt={recipe.title}
+                        className={styles.recipeImage}
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = 'https://via.placeholder.com/300x200?text=No+Image';
+                        }}
+                      />
+                      <div className={styles.recipeOverlay}>
+                        <div className={styles.recipeStats}>
+                          <span className={styles.usedCount}>
+                            ✓ {recipe.usedIngredientCount} used
+                          </span>
+                          <span className={styles.missedCount}>
+                            ✗ {recipe.missedIngredientCount} missing
+                          </span>
+                        </div>
                       </div>
+                    </div>
+                    <div className={styles.recipeContent}>
+                      <h3 className={styles.recipeTitle}>{recipe.title}</h3>
+                      {recipe.readyInMinutes && (
+                        <div className={styles.recipeTime}>
+                          ⏱️ {recipe.readyInMinutes} minutes
+                        </div>
+                      )}
                       <button
-                        onClick={() => navigate(`/recipe/${recipe.id}`)}
+                        onClick={() => navigate(`/recipes/${recipe.id}`)}
                         className={styles.viewRecipeButton}
                       >
                         View Recipe
