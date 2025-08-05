@@ -880,10 +880,16 @@ class RecipeApiService {
 
     try {
       const [cuisinesResponse, dietsResponse, intolerancesResponse] = await Promise.all([
-        fetch(`${API_BASE_URL}/cuisines?apiKey=${API_KEY}`),
-        fetch(`${API_BASE_URL}/diets?apiKey=${API_KEY}`),
-        fetch(`${API_BASE_URL}/intolerances?apiKey=${API_KEY}`)
+        fetch(`${API_BASE_URL}/cuisine?apiKey=${API_KEY}`),
+        fetch(`${API_BASE_URL}/diet?apiKey=${API_KEY}`),
+        fetch(`${API_BASE_URL}/intolerance?apiKey=${API_KEY}`)
       ]);
+
+      // Check if responses are ok before parsing JSON
+      if (!cuisinesResponse.ok || !dietsResponse.ok || !intolerancesResponse.ok) {
+        console.warn('Some filter endpoints returned errors, using mock data');
+        return this.getMockFilterOptions();
+      }
 
       const [cuisines, diets, intolerances] = await Promise.all([
         cuisinesResponse.json(),

@@ -257,33 +257,7 @@ const RecipeDetailPage: React.FC = () => {
                                 </div>
                               )}
 
-                              {/* Step Images - Equipment */}
-                              {step.equipment && step.equipment.length > 0 && (
-                                <div className={styles.stepImages}>
-                                  <div className={styles.stepImageSection}>
-                                    <h4 className={styles.stepImageTitle}>Equipment:</h4>
-                                    <div className={styles.stepImageGrid}>
-                                      {step.equipment.map((equipment) => (
-                                        <div key={equipment.id} className={styles.stepImageItem}>
-                                          {equipment.image ? (
-                                            <img
-                                              src={`https://spoonacular.com/cdn/equipment_100x100/${equipment.image}`}
-                                              alt={equipment.name}
-                                              className={styles.stepImg}
-                                              title={equipment.name}
-                                            />
-                                          ) : (
-                                            <div className={styles.stepImagePlaceholder}>
-                                              🍳
-                                            </div>
-                                          )}
-                                          <span className={styles.stepImageLabel}>{equipment.name}</span>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
+
                             </li>
                           ))}
                         </ol>
@@ -304,7 +278,7 @@ const RecipeDetailPage: React.FC = () => {
                       return (
                         <ol className={styles.instructionSteps}>
                           {steps.map((step, index) => (
-                            <li key={index} className={styles.instructionStep}>
+                            <li key={`fallback-step-${index}`} className={styles.instructionStep}>
                               <span className={styles.stepNumber}>{index + 1}</span>
                               <span className={styles.stepText}>{step}</span>
                             </li>
