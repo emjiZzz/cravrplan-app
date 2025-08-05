@@ -24,7 +24,7 @@
   background-color: var(--text-white);
   padding: 40px;
   border-radius: 10px;
-  box-shadow: 0 0 0 1px var(--primary-purple), 0 0 0 6px rgba(138, 43, 226, 0.2);
+  box-shadow: 0 0 0 1px var(--primary-green), 0 0 0 6px rgba(46, 125, 50, 0.2);
   width: 350px;
   height: 500px;
   max-width: 400px;
@@ -71,12 +71,12 @@
 
 .inputField:focus {
   outline: none;
-  border-color: var(--primary-purple);
-  box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.2);
+  border-color: var(--primary-green);
+  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.2);
 }
 
 .signUpButton {
-  background-color: var(--primary-purple);
+  background-color: var(--primary-green);
   color: var(--text-white);
   padding: 12px 10px;
   border: none;
@@ -95,8 +95,8 @@
 }
 
 .signUpButton:hover {
-  background-color: #6A1FB8;
-  /* Slightly darker purple on hover */
+  background-color: #1B5E20;
+  /* Slightly darker green on hover */
 }
 
 .loginText {
@@ -106,8 +106,8 @@
 }
 
 .loginLink {
-  color: var(--primary-purple);
-  /* Purple for login link */
+  color: var(--primary-green);
+  /* Green for login link */
   font-weight: bold;
   text-decoration: none;
 }

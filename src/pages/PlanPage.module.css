@@ -47,7 +47,7 @@
 .statNumber {
   font-size: 24px;
   font-weight: bold;
-  color: var(--primary-purple);
+  color: var(--primary-green);
   display: block;
 }
 
@@ -175,5 +175,5 @@
 }
 
 .mealDinner {
-  background-color: #9575CD;
+  background-color: #388E3C;
 }
