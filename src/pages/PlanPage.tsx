@@ -22,52 +22,102 @@ const PlanPage: React.FC = () => {
 
   return (
     <div className={styles.planPageContainer}>
+      {/* Page Header */}
       <div className={styles.pageHeader}>
-        <div className={styles.headerContent}>
-          <h1 className={styles.pageTitle}>My Meal Plan</h1>
-          <div className={styles.statsContainer}>
-            <div className={styles.statItem}>
-              <span className={styles.statNumber}>{totalMeals}</span>
-              <span className={styles.statLabel}>Total Meals</span>
-            </div>
-            <div className={styles.statItem}>
-              <span className={styles.statNumber}>{thisWeekMeals}</span>
-              <span className={styles.statLabel}>This Week</span>
-            </div>
-          </div>
+        <h1 className={styles.pageTitle}>My Meal Plan</h1>
+        <p className={styles.pageSubtitle}>Plan your weekly meals and stay organized</p>
+      </div>
+
+      {/* Stats Section */}
+      <div className={styles.statsSection}>
+        <div className={styles.statCard}>
+          <div className={styles.statNumber}>{totalMeals}</div>
+          <div className={styles.statLabel}>Total Meals Planned</div>
+          <div className={styles.statIcon}>🍽️</div>
         </div>
-        <div className={styles.headerActions}>
-          <button className={styles.clearAllButton}>Clear All</button>
+        <div className={styles.statCard}>
+          <div className={styles.statNumber}>{thisWeekMeals}</div>
+          <div className={styles.statLabel}>This Week</div>
+          <div className={styles.statIcon}>📅</div>
+        </div>
+        <div className={styles.statCard}>
+          <div className={styles.statNumber}>{Math.ceil(totalMeals / 7)}</div>
+          <div className={styles.statLabel}>Avg per Week</div>
+          <div className={styles.statIcon}>📊</div>
+        </div>
+      </div>
+
+      {/* Actions Bar */}
+      <div className={styles.actionsBar}>
+        <div className={styles.actionsLeft}>
+          <button className={styles.actionButton}>
+            <span className={styles.buttonIcon}>➕</span>
+            Add Meal
+          </button>
+          <button className={styles.actionButton}>
+            <span className={styles.buttonIcon}>📋</span>
+            View Templates
+          </button>
+        </div>
+        <div className={styles.actionsRight}>
+          <button className={styles.clearAllButton}>
+            <span className={styles.buttonIcon}>🗑️</span>
+            Clear All
+          </button>
         </div>
       </div>
       
-      <div className={styles.calendarContainer}>
-        <FullCalendar
-          plugins={[dayGridPlugin]}
-          initialView="dayGridMonth"
-          headerToolbar={{
-            left: 'title',
-            center: '',
-            right: 'prev,next today',
-          }}
-          dayCellContent={(arg) => {
-            return <div>{arg.dayNumberText}</div>;
-          }}
-          eventContent={(arg) => {
-            const event = events.find(e => e.title === arg.event.title);
-            if (!event) return null;
+      {/* Calendar Section */}
+      <div className={styles.calendarSection}>
+        <div className={styles.sectionHeader}>
+          <h2 className={styles.sectionTitle}>Monthly View</h2>
+          <div className={styles.mealTypeLegend}>
+            <div className={styles.legendItem}>
+              <div className={`${styles.legendColor} ${styles.breakfast}`}></div>
+              <span>Breakfast</span>
+            </div>
+            <div className={styles.legendItem}>
+              <div className={`${styles.legendColor} ${styles.lunch}`}></div>
+              <span>Lunch</span>
+            </div>
+            <div className={styles.legendItem}>
+              <div className={`${styles.legendColor} ${styles.dinner}`}></div>
+              <span>Dinner</span>
+            </div>
+          </div>
+        </div>
+        
+        <div className={styles.calendarContainer}>
+          <FullCalendar
+            plugins={[dayGridPlugin]}
+            initialView="dayGridMonth"
+            headerToolbar={{
+              left: 'title',
+              center: '',
+              right: 'prev,next today',
+            }}
+            dayCellContent={(arg) => {
+              return <div className={styles.dayNumber}>{arg.dayNumberText}</div>;
+            }}
+            eventContent={(arg) => {
+              const event = events.find(e => e.title === arg.event.title);
+              if (!event) return null;
 
-            return (
-              <div className={`${styles.eventItem} ${styles[`meal${event.mealType.charAt(0).toUpperCase() + event.mealType.slice(1)}`]}`}>
-                <div className={styles.eventTitle}>{arg.event.title}</div>
-                <div className={styles.eventMealType}>
-                  {event.mealType.charAt(0).toUpperCase() + event.mealType.slice(1)}
+              return (
+                <div className={`${styles.eventItem} ${styles[`meal${event.mealType.charAt(0).toUpperCase() + event.mealType.slice(1)}`]}`}>
+                  <div className={styles.eventTitle}>{arg.event.title}</div>
+                  <div className={styles.eventMealType}>
+                    {event.mealType.charAt(0).toUpperCase() + event.mealType.slice(1)}
+                  </div>
                 </div>
-              </div>
-            );
-          }}
-          events={events}
-        />
+              );
+            }}
+            events={events}
+            height="auto"
+            dayMaxEvents={3}
+            moreLinkText="more"
+          />
+        </div>
       </div>
     </div>
   );
