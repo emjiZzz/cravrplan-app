@@ -7,9 +7,11 @@ import interactionPlugin from '@fullcalendar/interaction';
 import type { EventClickArg, EventDropArg } from '@fullcalendar/core';
 import styles from './PlanPage.module.css';
 import { usePlan } from '../hooks/usePlan';
-import type { PlanEvent } from '../context/PlanContextTypes';
+import type { PlanEvent, MealPlanTemplate } from '../context/PlanContextTypes';
 import { searchRecipes } from '../services/apiService';
 import type { Recipe } from '../types/recipeTypes';
+import TemplateModal from '../components/TemplateModal';
+import QuickSuggestionsModal from '../components/QuickSuggestionsModal';
 
 interface SwapRecipeModalProps {
   isOpen: boolean;
@@ -19,108 +21,140 @@ interface SwapRecipeModalProps {
 }
 
 const SwapRecipeModal: React.FC<SwapRecipeModalProps> = ({ isOpen, onClose, onSwap }) => {
+  const [searchTerm, setSearchTerm] = useState('');
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(false);
 
-  React.useEffect(() => {
-    if (isOpen) {
-      setLoading(true);
-      searchRecipes({ query: '', number: 12 }).then((res) => {
-        setRecipes(res.results || res);
-        setLoading(false);
-      }).catch(() => {
-        setLoading(false);
-      });
+  const handleSearch = async () => {
+    if (!searchTerm.trim()) return;
+
+    setLoading(true);
+    try {
+      const response = await searchRecipes({ query: searchTerm, number: 10 });
+      setRecipes(response.results || []);
+    } catch (error) {
+      console.error('Error searching recipes:', error);
+      setRecipes([]);
+    } finally {
+      setLoading(false);
     }
-  }, [isOpen]);
+  };
+
+  const handleRecipeSelect = (recipe: Recipe) => {
+    onSwap(recipe);
+    onClose();
+  };
 
   if (!isOpen) return null;
 
   return (
     <div className={styles.swapModalBackdrop} onClick={onClose}>
-      <div className={styles.swapModal} onClick={e => e.stopPropagation()}>
-        <h3 className={styles.swapModalTitle}>Swap Recipe</h3>
-        <p className={styles.swapModalSubtitle}>Pick a new recipe for this meal slot</p>
-        {loading ? (
-          <div className={styles.swapModalLoading}>Loading...</div>
-        ) : (
-          <div className={styles.swapModalList}>
-            {recipes.map((recipe: Recipe) => (
+      <div className={styles.swapModal} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.swapModalHeader}>
+          <h3>Swap Recipe</h3>
+          <button className={styles.swapModalClose} onClick={onClose}>×</button>
+        </div>
+
+        <div className={styles.swapModalSearch}>
+          <input
+            type="text"
+            placeholder="Search for a recipe..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+            className={styles.swapModalInput}
+          />
+          <button onClick={handleSearch} className={styles.swapModalSearchBtn}>
+            Search
+          </button>
+        </div>
+
+        <div className={styles.swapModalResults}>
+          {loading ? (
+            <div className={styles.swapModalLoading}>Searching...</div>
+          ) : (
+            recipes.map((recipe) => (
               <div
                 key={recipe.id}
                 className={styles.swapModalRecipe}
-                onClick={() => onSwap(recipe)}
+                onClick={() => handleRecipeSelect(recipe)}
               >
-                <img src={recipe.image} alt={recipe.title} className={styles.swapModalRecipeImg} />
+                <img src={recipe.image} alt={recipe.title} />
                 <div className={styles.swapModalRecipeInfo}>
-                  <div className={styles.swapModalRecipeTitle}>{recipe.title}</div>
-                  <div className={styles.swapModalRecipeMeta}>{recipe.readyInMinutes} min • {recipe.servings} servings</div>
+                  <h4>{recipe.title}</h4>
+                  <p>Ready in {recipe.readyInMinutes} minutes</p>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-        <button className={styles.swapModalClose} onClick={onClose}>Cancel</button>
+            ))
+          )}
+        </div>
       </div>
     </div>
   );
 };
 
 const PlanPage: React.FC = () => {
-  const { events, removeFromPlan, clearAll, updateEvent, addToPlan } = usePlan();
+  const { events, removeFromPlan, clearAll, updateEvent, addToPlan, templates, applyTemplate, getNutritionalStats, getQuickSuggestions } = usePlan();
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<PlanEvent | null>(null);
-  const [selectedEvents, setSelectedEvents] = useState<string[]>([]);
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
+  const [showQuickSuggestions, setShowQuickSuggestions] = useState(false);
+  const [selectedMealType, setSelectedMealType] = useState<PlanEvent['mealType']>('dinner');
 
-  // Calculate stats
-  const totalMeals = events.length;
-  const thisWeekMeals = events.filter(event => {
-    const eventDate = new Date(event.date);
-    const today = new Date();
-    const weekStart = new Date(today.setDate(today.getDate() - today.getDay()));
-    const weekEnd = new Date(weekStart);
-    weekEnd.setDate(weekStart.getDate() + 6);
-    return eventDate >= weekStart && eventDate <= weekEnd;
-  }).length;
-
-  // Calculate nutritional overview
-  const nutritionalStats = useMemo(() => {
-    const today = new Date().toISOString().split('T')[0];
-    const todayMeals = events.filter(event => event.date === today);
-
-    // Mock nutritional data (in real app, this would come from recipe API)
-    const totalCalories = todayMeals.length * 450; // Average calories per meal
-    const totalProtein = todayMeals.length * 25; // Average protein per meal
-    const totalCarbs = todayMeals.length * 45; // Average carbs per meal
-    const totalFat = todayMeals.length * 15; // Average fat per meal
-
-    return {
-      calories: totalCalories,
-      protein: totalProtein,
-      carbs: totalCarbs,
-      fat: totalFat,
-      mealCount: todayMeals.length
-    };
+  const calendarEvents = useMemo(() => {
+    return events.map(event => ({
+      id: event.id,
+      title: event.title,
+      date: event.date,
+      backgroundColor: getMealTypeColor(event.mealType),
+      borderColor: getMealTypeColor(event.mealType),
+      extendedProps: {
+        mealType: event.mealType,
+        difficulty: event.difficulty,
+        prepTime: event.prepTime,
+        cookTime: event.cookTime,
+        nutrition: event.nutrition
+      }
+    }));
   }, [events]);
 
-  const handleClearAll = () => {
-    if (events.length === 0) return;
+  const today = new Date().toISOString().split('T')[0];
+  const todayStats = getNutritionalStats(today);
+  const todayEvents = events.filter(event => event.date === today);
 
-    if (showClearConfirm) {
-      clearAll();
-      setShowClearConfirm(false);
-    } else {
-      setShowClearConfirm(true);
-      setTimeout(() => setShowClearConfirm(false), 3000);
+  const getMealTypeColor = (mealType: string) => {
+    switch (mealType) {
+      case 'breakfast': return '#FF6B6B';
+      case 'lunch': return '#4ECDC4';
+      case 'dinner': return '#45B7D1';
+      case 'snack': return '#96CEB4';
+      default: return '#546A04';
+    }
+  };
+
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case 'easy': return '#4CAF50';
+      case 'medium': return '#FF9800';
+      case 'hard': return '#F44336';
+      default: return '#546A04';
+    }
+  };
+
+  const getMealTypeIcon = (mealType: string) => {
+    switch (mealType) {
+      case 'breakfast': return '🌅';
+      case 'lunch': return '☀️';
+      case 'dinner': return '🌙';
+      case 'snack': return '🍎';
+      default: return '🍽️';
     }
   };
 
   const handleEventClick = (clickInfo: EventClickArg) => {
     const event = events.find(e => e.title === clickInfo.event.title);
     if (event) {
-      if (confirm(`Remove "${event.title}" from your meal plan?`)) {
-        removeFromPlan(event.id);
-      }
+      setSelectedEvent(event);
     }
   };
 
@@ -132,78 +166,28 @@ const PlanPage: React.FC = () => {
     }
   };
 
-  const handleCopyMeal = (eventId: string) => {
-    const event = events.find(e => e.id === eventId);
-    if (event) {
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      const tomorrowStr = tomorrow.toISOString().split('T')[0];
-
-      const newEvent = {
-        title: event.title,
-        date: tomorrowStr,
-        recipeId: event.recipeId,
-        mealType: event.mealType,
-        image: event.image
-      };
-
-      addToPlan(newEvent);
-    }
+  const handleClearAll = () => {
+    clearAll();
+    setShowClearConfirm(false);
   };
 
-  const handleBulkCopy = () => {
-    if (selectedEvents.length === 0) return;
-
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowStr = tomorrow.toISOString().split('T')[0];
-
-    selectedEvents.forEach(eventId => {
-      const event = events.find(e => e.id === eventId);
-      if (event) {
-        const newEvent = {
-          title: event.title,
-          date: tomorrowStr,
-          recipeId: event.recipeId,
-          mealType: event.mealType,
-          image: event.image
-        };
-        addToPlan(newEvent);
-      }
-    });
-
-    setSelectedEvents([]);
-  };
-
-  const handleBulkDelete = () => {
-    if (selectedEvents.length === 0) return;
-
-    if (confirm(`Delete ${selectedEvents.length} selected meals?`)) {
-      selectedEvents.forEach(eventId => {
-        removeFromPlan(eventId);
-      });
-      setSelectedEvents([]);
-    }
-  };
-
-  const toggleEventSelection = (eventId: string) => {
-    setSelectedEvents(prev =>
-      prev.includes(eventId)
-        ? prev.filter(id => id !== eventId)
-        : [...prev, eventId]
-    );
-  };
-
-  const handleSwap = (recipe: Recipe) => {
+  const handleSwapRecipe = (recipe: Recipe) => {
     if (selectedEvent) {
-      updateEvent(selectedEvent.id, {
-        ...selectedEvent,
-        title: recipe.title,
-        recipeId: recipe.id,
-        image: recipe.image,
-      });
-      setSelectedEvent(null);
+      updateEvent(selectedEvent.id, { ...selectedEvent, title: recipe.title, recipeId: recipe.id, image: recipe.image });
     }
+  };
+
+  const handleApplyTemplate = (template: MealPlanTemplate, startDate: string) => {
+    applyTemplate(template, startDate);
+  };
+
+  const handleQuickSuggestion = (mealType: PlanEvent['mealType']) => {
+    setSelectedMealType(mealType);
+    setShowQuickSuggestions(true);
+  };
+
+  const handleAddQuickMeal = (meal: Omit<PlanEvent, 'id'>) => {
+    addToPlan(meal);
   };
 
   return (
@@ -212,150 +196,258 @@ const PlanPage: React.FC = () => {
         {/* Page Header */}
         <div className={styles.pageHeader}>
           <div className={styles.headerContent}>
-            <div>
-              <h1 className={styles.pageTitle}>My Meal Plan</h1>
-              <p className={styles.pageSubtitle}>
-                Organize your weekly meals and track your culinary journey
-              </p>
-            </div>
-            <div className={styles.statsContainer}>
-              <div className={styles.statItem}>
-                <span className={styles.statNumber}>{totalMeals}</span>
-                <span className={styles.statLabel}>Total Meals</span>
-              </div>
-              <div className={styles.statItem}>
-                <span className={styles.statNumber}>{thisWeekMeals}</span>
-                <span className={styles.statLabel}>This Week</span>
-              </div>
-            </div>
+            <h1 className={styles.pageTitle}>Meal Planner</h1>
+            <p className={styles.pageSubtitle}>Plan your meals, track nutrition, and discover new recipes</p>
           </div>
+
           <div className={styles.headerActions}>
-            {selectedEvents.length > 0 && (
-              <div className={styles.bulkOperations}>
-                <span className={styles.selectedCount}>
-                  {selectedEvents.length} selected
-                </span>
-                <button
-                  className={styles.bulkCopyButton}
-                  onClick={handleBulkCopy}
-                >
-                  Copy to Tomorrow
-                </button>
-                <button
-                  className={styles.bulkDeleteButton}
-                  onClick={handleBulkDelete}
-                >
-                  Delete Selected
-                </button>
-              </div>
-            )}
             <button
-              className={`${styles.clearAllButton} ${showClearConfirm ? styles.confirmMode : ''}`}
-              onClick={handleClearAll}
-              disabled={events.length === 0}
+              className={styles.templateButton}
+              onClick={() => setShowTemplateModal(true)}
             >
-              {showClearConfirm ? 'Click to Confirm' : 'Clear All'}
+              📋 Use Template
+            </button>
+            <button
+              className={styles.quickSuggestButton}
+              onClick={() => handleQuickSuggestion('dinner')}
+            >
+              ⚡ Quick Ideas
+            </button>
+            <button
+              className={styles.clearAllButton}
+              onClick={() => setShowClearConfirm(true)}
+            >
+              Clear All
             </button>
           </div>
         </div>
 
-        {/* Nutritional Overview */}
-        {nutritionalStats.mealCount > 0 && (
-          <div className={styles.nutritionalOverview}>
-            <h3 className={styles.nutritionTitle}>Today's Nutrition</h3>
-            <div className={styles.nutritionGrid}>
-              <div className={styles.nutritionItem}>
-                <span className={styles.nutritionValue}>{nutritionalStats.calories}</span>
-                <span className={styles.nutritionLabel}>Calories</span>
-              </div>
-              <div className={styles.nutritionItem}>
-                <span className={styles.nutritionValue}>{nutritionalStats.protein}g</span>
-                <span className={styles.nutritionLabel}>Protein</span>
-              </div>
-              <div className={styles.nutritionItem}>
-                <span className={styles.nutritionValue}>{nutritionalStats.carbs}g</span>
-                <span className={styles.nutritionLabel}>Carbs</span>
-              </div>
-              <div className={styles.nutritionItem}>
-                <span className={styles.nutritionValue}>{nutritionalStats.fat}g</span>
-                <span className={styles.nutritionLabel}>Fat</span>
-              </div>
+        {/* Stats Section */}
+        <div className={styles.statsContainer}>
+          <div className={styles.statItem}>
+            <div className={styles.statIcon}>📅</div>
+            <div className={styles.statContent}>
+              <h3>{events.length}</h3>
+              <p>Planned Meals</p>
             </div>
           </div>
-        )}
 
-        {/* Calendar Container */}
+          <div className={styles.statItem}>
+            <div className={styles.statIcon}>🍽️</div>
+            <div className={styles.statContent}>
+              <h3>{todayEvents.length}</h3>
+              <p>Today's Meals</p>
+            </div>
+          </div>
+
+          <div className={styles.statItem}>
+            <div className={styles.statIcon}>🔥</div>
+            <div className={styles.statContent}>
+              <h3>{Math.round(todayStats.calories)}</h3>
+              <p>Today's Calories</p>
+            </div>
+          </div>
+
+          <div className={styles.statItem}>
+            <div className={styles.statIcon}>💪</div>
+            <div className={styles.statContent}>
+              <h3>{Math.round(todayStats.protein)}g</h3>
+              <p>Protein Today</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className={styles.quickActions}>
+          <h3 className={styles.quickActionsTitle}>Quick Add Meals</h3>
+          <div className={styles.quickActionButtons}>
+            <button
+              className={styles.quickActionBtn}
+              onClick={() => handleQuickSuggestion('breakfast')}
+            >
+              🌅 Breakfast
+            </button>
+            <button
+              className={styles.quickActionBtn}
+              onClick={() => handleQuickSuggestion('lunch')}
+            >
+              ☀️ Lunch
+            </button>
+            <button
+              className={styles.quickActionBtn}
+              onClick={() => handleQuickSuggestion('dinner')}
+            >
+              🌙 Dinner
+            </button>
+            <button
+              className={styles.quickActionBtn}
+              onClick={() => handleQuickSuggestion('snack')}
+            >
+              🍎 Snack
+            </button>
+          </div>
+        </div>
+
+        {/* Calendar */}
         <div className={styles.calendarContainer}>
           <FullCalendar
             plugins={[dayGridPlugin, interactionPlugin]}
             initialView="dayGridMonth"
-            headerToolbar={{
-              left: 'title',
-              center: '',
-              right: 'prev,next today',
-            }}
+            events={calendarEvents}
+            eventClick={handleEventClick}
+            eventDrop={handleEventDrop}
             editable={true}
-            droppable={true}
-            dayCellContent={(arg) => {
-              return <div>{arg.dayNumberText}</div>;
+            selectable={true}
+            height="auto"
+            headerToolbar={{
+              left: 'prev,next today',
+              center: 'title',
+              right: 'dayGridMonth,dayGridWeek'
             }}
-            eventContent={(arg) => {
-              const event = events.find(e => e.title === arg.event.title);
-              if (!event) return null;
+            dayMaxEvents={true}
+            eventDisplay="block"
+            eventClassNames={styles.calendarEvent}
+          />
+        </div>
 
-              const isSelected = selectedEvents.includes(event.id);
-
-              return (
-                <div className={`${styles.eventItem} ${styles[`meal${event.mealType.charAt(0).toUpperCase() + event.mealType.slice(1)}`]} ${isSelected ? styles.selected : ''}`}>
+        {/* Today's Events */}
+        {todayEvents.length > 0 && (
+          <div className={styles.todayEvents}>
+            <h3 className={styles.todayEventsTitle}>Today's Meals</h3>
+            <div className={styles.eventsList}>
+              {todayEvents.map((event) => (
+                <div key={event.id} className={styles.eventItem}>
                   <div className={styles.eventHeader}>
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      onChange={() => toggleEventSelection(event.id)}
-                      className={styles.eventCheckbox}
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                    <div className={styles.eventTitle}>{arg.event.title}</div>
+                    <span className={styles.mealTypeIcon}>
+                      {getMealTypeIcon(event.mealType)}
+                    </span>
+                    <h4 className={styles.eventTitle}>{event.title}</h4>
+                    {event.difficulty && (
+                      <span
+                        className={styles.difficultyBadge}
+                        style={{ backgroundColor: getDifficultyColor(event.difficulty) }}
+                      >
+                        {event.difficulty}
+                      </span>
+                    )}
                   </div>
-                  <div className={styles.eventMealType}>
-                    {event.mealType.charAt(0).toUpperCase() + event.mealType.slice(1)}
+
+                  <div className={styles.eventDetails}>
+                    {(event.prepTime || event.cookTime) && (
+                      <div className={styles.timeInfo}>
+                        <span>⏱️</span>
+                        <span>
+                          {event.prepTime && event.cookTime
+                            ? `${event.prepTime + event.cookTime} min`
+                            : 'Quick'
+                          }
+                        </span>
+                      </div>
+                    )}
+
+                    {event.nutrition && (
+                      <div className={styles.nutritionInfo}>
+                        <span>🔥 {Math.round(event.nutrition.calories)} cal</span>
+                        <span>💪 {Math.round(event.nutrition.protein)}g protein</span>
+                      </div>
+                    )}
                   </div>
+
                   <div className={styles.eventActions}>
                     <button
-                      className={styles.copyButton}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleCopyMeal(event.id);
-                      }}
-                      title="Copy to tomorrow"
+                      className={styles.swapButton}
+                      onClick={() => setSelectedEvent(event)}
                     >
-                      📋
+                      🔄 Swap
                     </button>
                     <button
-                      className={styles.swapButton}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedEvent(event);
-                      }}
-                      title="Swap recipe"
+                      className={styles.removeButton}
+                      onClick={() => removeFromPlan(event.id)}
                     >
-                      🔄
+                      🗑️ Remove
                     </button>
                   </div>
                 </div>
-              );
-            }}
-            events={events}
-            eventClick={handleEventClick}
-            eventDrop={handleEventDrop}
-          />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Enhanced Nutritional Overview */}
+        <div className={styles.nutritionalOverview}>
+          <h3 className={styles.nutritionTitle}>Today's Nutrition</h3>
+          <div className={styles.nutritionGrid}>
+            <div className={styles.nutritionItem}>
+              <div className={styles.nutritionIcon}>🔥</div>
+              <div className={styles.nutritionContent}>
+                <h4>{Math.round(todayStats.calories)}</h4>
+                <p>Calories</p>
+              </div>
+            </div>
+
+            <div className={styles.nutritionItem}>
+              <div className={styles.nutritionIcon}>💪</div>
+              <div className={styles.nutritionContent}>
+                <h4>{Math.round(todayStats.protein)}g</h4>
+                <p>Protein</p>
+              </div>
+            </div>
+
+            <div className={styles.nutritionItem}>
+              <div className={styles.nutritionIcon}>🌾</div>
+              <div className={styles.nutritionContent}>
+                <h4>{Math.round(todayStats.carbs)}g</h4>
+                <p>Carbs</p>
+              </div>
+            </div>
+
+            <div className={styles.nutritionItem}>
+              <div className={styles.nutritionIcon}>🥑</div>
+              <div className={styles.nutritionContent}>
+                <h4>{Math.round(todayStats.fat)}g</h4>
+                <p>Fat</p>
+              </div>
+            </div>
+          </div>
         </div>
+
+        {/* Clear Confirmation Modal */}
+        {showClearConfirm && (
+          <div className={styles.confirmModalBackdrop} onClick={() => setShowClearConfirm(false)}>
+            <div className={styles.confirmModal} onClick={(e) => e.stopPropagation()}>
+              <h3>Clear All Meals?</h3>
+              <p>This will remove all planned meals. This action cannot be undone.</p>
+              <div className={styles.confirmModalActions}>
+                <button onClick={() => setShowClearConfirm(false)}>Cancel</button>
+                <button onClick={handleClearAll} className={styles.confirmButton}>Clear All</button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Modals */}
       <SwapRecipeModal
         isOpen={!!selectedEvent}
         onClose={() => setSelectedEvent(null)}
-        onSwap={handleSwap}
+        onSwap={handleSwapRecipe}
         currentEvent={selectedEvent}
+      />
+
+      <TemplateModal
+        isOpen={showTemplateModal}
+        onClose={() => setShowTemplateModal(false)}
+        onApplyTemplate={handleApplyTemplate}
+        templates={templates}
+      />
+
+      <QuickSuggestionsModal
+        isOpen={showQuickSuggestions}
+        onClose={() => setShowQuickSuggestions(false)}
+        onAddMeal={handleAddQuickMeal}
+        mealType={selectedMealType}
+        maxTime={30}
+        getQuickSuggestions={getQuickSuggestions}
       />
     </div>
   );
