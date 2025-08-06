@@ -1,11 +1,17 @@
-/* PlanPage.module.css - Modern Design Matching App Style */
+/* PlanPage.module.css - Enhanced Modern Design Matching App Style */
 
 .planPageContainer {
   min-height: calc(100vh - 80px);
-  background: linear-gradient(135deg, #17371A 0%, #1a3f1e 50%, #17371A 100%);
+  background: linear-gradient(135deg, #17371A 0%, #1a3f1e 30%, #2d5a2f 70%, #17371A 100%);
   padding: 20px;
   position: relative;
   overflow-x: hidden;
+}
+
+.contentWrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px;
 }
 
 .planPageContainer::before {
@@ -16,25 +22,28 @@
   right: 0;
   bottom: 0;
   background:
-    radial-gradient(circle at 20% 80%, rgba(84, 106, 4, 0.08) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(84, 106, 4, 0.06) 0%, transparent 50%);
+    radial-gradient(circle at 20% 80%, rgba(84, 106, 4, 0.12) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(84, 106, 4, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(248, 247, 229, 0.03) 0%, transparent 50%);
   pointer-events: none;
   z-index: -1;
 }
 
-/* Page Header */
+/* Enhanced Page Header */
 .pageHeader {
   background: linear-gradient(135deg, #F8F7E5 0%, #f5f5f0 50%, #F8F7E5 100%);
   border-radius: 20px;
-  padding: 30px;
-  margin-bottom: 30px;
+  padding: 32px;
+  margin-bottom: 28px;
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    0 4px 16px rgba(84, 106, 4, 0.05);
-  border: 1px solid rgba(84, 106, 4, 0.1);
+    0 12px 40px rgba(0, 0, 0, 0.12),
+    0 6px 20px rgba(84, 106, 4, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(84, 106, 4, 0.15);
   position: relative;
   overflow: hidden;
   z-index: 10;
+  backdrop-filter: blur(10px);
 }
 
 .pageHeader::before {
@@ -48,32 +57,60 @@
   border-radius: 20px 20px 0 0;
 }
 
+.pageHeader::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+}
+
 .headerContent {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 40px;
+  position: relative;
+  z-index: 2;
 }
 
 .pageTitle {
   font-size: 32px;
-  font-weight: 700;
+  font-weight: 800;
   color: #17371A;
   margin: 0;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  letter-spacing: -0.5px;
+  position: relative;
+}
+
+.pageTitle::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #546A04, #17371A);
+  border-radius: 2px;
 }
 
 .pageSubtitle {
-  font-size: 18px;
+  font-size: 17px;
   color: #546A04;
-  margin: 8px 0 0 0;
+  margin: 12px 0 0 0;
   opacity: 0.9;
   font-weight: 500;
+  line-height: 1.4;
 }
 
+/* Enhanced Stats Container */
 .statsContainer {
   display: flex;
-  gap: 30px;
+  gap: 24px;
 }
 
 .statItem {
@@ -81,36 +118,67 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 20px;
-  background: rgba(255, 255, 255, 0.6);
+  padding: 20px 18px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.6));
   border-radius: 16px;
-  border: 1px solid rgba(84, 106, 4, 0.1);
-  transition: all 0.3s ease;
+  border: 1px solid rgba(84, 106, 4, 0.12);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(8px);
+}
+
+.statItem::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(84, 106, 4, 0.05), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .statItem:hover {
-  background: rgba(255, 255, 255, 0.8);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(84, 106, 4, 0.1);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
+  transform: translateY(-4px) scale(1.02);
+  box-shadow:
+    0 8px 25px rgba(84, 106, 4, 0.15),
+    0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: rgba(84, 106, 4, 0.2);
+}
+
+.statItem:hover::before {
+  opacity: 1;
 }
 
 .statNumber {
   font-size: 28px;
-  font-weight: 700;
+  font-weight: 800;
   color: #546A04;
   display: block;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 1;
 }
 
 .statLabel {
-  font-size: 14px;
+  font-size: 13px;
   color: #17371A;
-  font-weight: 500;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  position: relative;
+  z-index: 1;
 }
 
+/* Enhanced Header Actions */
 .headerActions {
   display: flex;
-  gap: 12px;
+  gap: 16px;
+  align-items: center;
 }
 
 .clearAllButton {
@@ -122,13 +190,30 @@
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.clearAllButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
 }
 
 .clearAllButton:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+}
+
+.clearAllButton:hover:not(:disabled)::before {
+  left: 100%;
 }
 
 .clearAllButton:disabled {
@@ -140,33 +225,37 @@
 .clearAllButton.confirmMode {
   background: linear-gradient(135deg, #ffc107, #e0a800);
   color: #17371A;
-  animation: pulse 1s infinite;
+  animation: pulse 1.5s infinite;
 }
 
 @keyframes pulse {
   0% {
-    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+    box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
   }
+
   50% {
-    box-shadow: 0 4px 16px rgba(255, 193, 7, 0.5);
+    box-shadow: 0 6px 25px rgba(255, 193, 7, 0.5);
   }
+
   100% {
-    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+    box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
   }
 }
 
-/* Calendar Container */
+/* Enhanced Calendar Container */
 .calendarContainer {
   background: linear-gradient(135deg, #F8F7E5 0%, #f5f5f0 50%, #F8F7E5 100%);
   border-radius: 20px;
-  padding: 30px;
+  padding: 6px;
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    0 4px 16px rgba(84, 106, 4, 0.05);
-  border: 1px solid rgba(84, 106, 4, 0.1);
+    0 12px 40px rgba(84, 106, 4, 0.08),
+    0 6px 20px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(84, 106, 4, 0.12);
   position: relative;
   overflow: hidden;
   z-index: 10;
+  backdrop-filter: blur(10px);
 }
 
 .calendarContainer::before {
@@ -180,19 +269,24 @@
   border-radius: 20px 20px 0 0;
 }
 
-/* FullCalendar Custom Styling */
+/* Enhanced FullCalendar Custom Styling */
 .calendarContainer .fc {
   font-family: 'Poppins', sans-serif;
+  border-radius: 16px;
+  overflow: hidden;
 }
 
 .calendarContainer .fc-toolbar {
-  margin-bottom: 30px;
+  margin-bottom: 12px;
+  padding: 0 8px;
 }
 
 .calendarContainer .fc-toolbar-title {
-  font-size: 24px;
+  font-size: 14px;
   font-weight: 700;
-  color: #17371A;
+  color: #546A04;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .calendarContainer .fc-button {
@@ -200,130 +294,631 @@
   color: #F8F7E5 !important;
   border: none !important;
   border-radius: 12px !important;
-  padding: 10px 20px !important;
+  padding: 10px 18px !important;
   font-weight: 600 !important;
   font-size: 14px !important;
-  transition: all 0.3s ease !important;
-  box-shadow: 0 2px 8px rgba(84, 106, 4, 0.2) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 4px 15px rgba(84, 106, 4, 0.25) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.calendarContainer .fc-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
 }
 
 .calendarContainer .fc-button:hover {
-  transform: translateY(-1px) !important;
-  box-shadow: 0 4px 12px rgba(84, 106, 4, 0.3) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(84, 106, 4, 0.35) !important;
+}
+
+.calendarContainer .fc-button:hover::before {
+  left: 100%;
 }
 
 .calendarContainer .fc-button:focus {
-  box-shadow: 0 0 0 3px rgba(84, 106, 4, 0.2) !important;
+  box-shadow: 0 0 0 3px rgba(84, 106, 4, 0.25) !important;
 }
 
-/* Day of the week header */
+/* Enhanced Day of the week header */
 .calendarContainer .fc .fc-day-header {
   background: linear-gradient(135deg, #546A04, #17371A);
   color: #F8F7E5;
-  padding: 15px 10px;
-  font-size: 16px;
-  font-weight: 600;
-  border: 1px solid rgba(84, 106, 4, 0.2);
+  padding: 16px 10px;
+  font-size: 14px;
+  font-weight: 700;
+  border: 1px solid rgba(84, 106, 4, 0.3);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
-/* Day cells */
+/* Enhanced Day cells */
 .calendarContainer .fc-daygrid-day {
-  border: 1px solid rgba(84, 106, 4, 0.1);
-  min-height: 120px;
+  border: 1px solid rgba(84, 106, 4, 0.08);
+  min-height: 28px;
   position: relative;
-  padding: 8px;
-  background: rgba(255, 255, 255, 0.5);
-  transition: all 0.3s ease;
+  padding: 2px;
+  background: linear-gradient(135deg, #F8F7E5, #f5f5f0);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .calendarContainer .fc-daygrid-day:hover {
-  background: rgba(255, 255, 255, 0.8);
-  box-shadow: 0 2px 8px rgba(84, 106, 4, 0.1);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8));
+  box-shadow: 0 4px 12px rgba(84, 106, 4, 0.1);
+  transform: scale(1.02);
 }
 
-/* Cell day number */
+/* Enhanced Cell day number */
 .calendarContainer .fc-daygrid-day-number {
-  font-size: 16px;
+  font-size: 12px;
   font-weight: 600;
-  color: #17371A;
-  margin-bottom: 8px;
+  color: #546A04;
+  margin-bottom: 4px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-/* Today's date styling */
+/* Enhanced Today's date styling */
 .calendarContainer .fc-day-today {
-  background: rgba(84, 106, 4, 0.1) !important;
+  background: linear-gradient(135deg, rgba(84, 106, 4, 0.15), rgba(84, 106, 4, 0.1)) !important;
   border: 2px solid #546A04 !important;
+  box-shadow: 0 2px 8px rgba(84, 106, 4, 0.2);
 }
 
 .calendarContainer .fc-day-today .fc-daygrid-day-number {
   color: #546A04;
-  font-weight: 700;
+  font-weight: 800;
+  font-size: 14px;
 }
 
-/* Event items (recipes) */
+/* Enhanced Event items (recipes) */
 .eventItem {
   color: white;
-  padding: 10px;
-  margin-top: 5px;
-  border-radius: 12px;
-  font-size: 12px;
+  padding: 4px 6px;
+  margin-top: 6px;
+  border-radius: 8px;
+  font-size: 11px;
   white-space: normal;
-  line-height: 1.3;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transition: all 0.3s ease;
+  line-height: 1.4;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   border: 1px solid rgba(255, 255, 255, 0.2);
+  margin-bottom: 3px;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(4px);
+}
+
+.eventItem::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .eventItem:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.eventItem:hover::before {
+  opacity: 1;
 }
 
 .eventTitle {
-  font-weight: 600;
+  font-weight: 700;
   margin-bottom: 4px;
   word-break: break-word;
   font-size: 11px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  position: relative;
+  z-index: 1;
 }
 
 .eventMealType {
   font-size: 10px;
-  opacity: 0.9;
+  opacity: 0.95;
   font-style: italic;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
+  font-weight: 600;
+  position: relative;
+  z-index: 1;
 }
 
-/* Meal type specific colors */
+/* Enhanced Meal type specific colors */
 .mealBreakfast {
-  background: linear-gradient(135deg, #FF8A65, #FF7043);
+  background: linear-gradient(135deg, #FF8A65, #FF7043, #FF5722);
 }
 
 .mealLunch {
-  background: linear-gradient(135deg, #81C784, #66BB6A);
+  background: linear-gradient(135deg, #81C784, #66BB6A, #4CAF50);
 }
 
 .mealDinner {
-  background: linear-gradient(135deg, #546A04, #17371A);
+  background: linear-gradient(135deg, #546A04, #17371A, #0d1f0f);
 }
 
-/* Responsive Design */
+/* Enhanced Nutritional Overview */
+.nutritionalOverview {
+  background: linear-gradient(135deg, #F8F7E5 0%, #f5f5f0 50%, #F8F7E5 100%);
+  border-radius: 20px;
+  padding: 28px;
+  margin-bottom: 28px;
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.12),
+    0 6px 20px rgba(84, 106, 4, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(84, 106, 4, 0.12);
+  position: relative;
+  overflow: hidden;
+  z-index: 10;
+  backdrop-filter: blur(10px);
+}
+
+.nutritionalOverview::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #546A04, #17371A, #546A04);
+  border-radius: 20px 20px 0 0;
+}
+
+.nutritionalOverview::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+  pointer-events: none;
+}
+
+.nutritionTitle {
+  font-size: 20px;
+  font-weight: 800;
+  color: #17371A;
+  margin: 0 0 20px 0;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+.nutritionGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  position: relative;
+  z-index: 2;
+}
+
+.nutritionItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 16px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.6));
+  border-radius: 14px;
+  border: 1px solid rgba(84, 106, 4, 0.12);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(8px);
+}
+
+.nutritionItem::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(84, 106, 4, 0.05), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.nutritionItem:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
+  transform: translateY(-3px) scale(1.03);
+  box-shadow:
+    0 8px 25px rgba(84, 106, 4, 0.15),
+    0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: rgba(84, 106, 4, 0.2);
+}
+
+.nutritionItem:hover::before {
+  opacity: 1;
+}
+
+.nutritionValue {
+  font-size: 20px;
+  font-weight: 800;
+  color: #546A04;
+  display: block;
+  margin-bottom: 4px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 1;
+}
+
+.nutritionLabel {
+  font-size: 11px;
+  color: #17371A;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Enhanced Event Actions */
+.eventActions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+  gap: 4px;
+}
+
+.copyButton {
+  background: rgba(255, 255, 255, 0.25);
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: white;
+  backdrop-filter: blur(4px);
+}
+
+.copyButton:hover {
+  background: rgba(255, 255, 255, 0.4);
+  transform: scale(1.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.swapButton {
+  background: rgba(255, 255, 255, 0.25);
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: white;
+  backdrop-filter: blur(4px);
+}
+
+.swapButton:hover {
+  background: rgba(255, 255, 255, 0.4);
+  transform: scale(1.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Enhanced Bulk Operations */
+.bulkOperations {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-right: 16px;
+}
+
+.selectedCount {
+  font-size: 13px;
+  font-weight: 700;
+  color: #546A04;
+  background: linear-gradient(135deg, rgba(84, 106, 4, 0.15), rgba(84, 106, 4, 0.1));
+  padding: 6px 12px;
+  border-radius: 18px;
+  border: 1px solid rgba(84, 106, 4, 0.25);
+  backdrop-filter: blur(8px);
+}
+
+.bulkCopyButton,
+.bulkDeleteButton {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  position: relative;
+  overflow: hidden;
+}
+
+.bulkCopyButton::before,
+.bulkDeleteButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.bulkCopyButton {
+  background: linear-gradient(135deg, #546A04, #17371A);
+  color: #F8F7E5;
+  box-shadow: 0 4px 15px rgba(84, 106, 4, 0.25);
+}
+
+.bulkCopyButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(84, 106, 4, 0.35);
+}
+
+.bulkCopyButton:hover::before {
+  left: 100%;
+}
+
+.bulkDeleteButton {
+  background: linear-gradient(135deg, #dc3545, #c82333);
+  color: white;
+  box-shadow: 0 4px 15px rgba(220, 53, 69, 0.25);
+}
+
+.bulkDeleteButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(220, 53, 69, 0.35);
+}
+
+.bulkDeleteButton:hover::before {
+  left: 100%;
+}
+
+/* Enhanced Event Header and Selection */
+.eventHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.eventCheckbox {
+  width: 14px;
+  height: 14px;
+  accent-color: #546A04;
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.eventItem.selected {
+  border: 2px solid #546A04;
+  box-shadow: 0 0 0 3px rgba(84, 106, 4, 0.4);
+  transform: scale(1.02);
+}
+
+/* Enhanced Modal Styles */
+.swapModalBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+}
+
+.swapModal {
+  background: linear-gradient(135deg, #F8F7E5 0%, #f5f5f0 50%, #F8F7E5 100%);
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  padding: 32px 28px 24px 28px;
+  max-width: 480px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  border: 1px solid rgba(84, 106, 4, 0.15);
+  backdrop-filter: blur(10px);
+}
+
+.swapModal::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #546A04, #17371A, #546A04);
+  border-radius: 20px 20px 0 0;
+}
+
+.swapModalTitle {
+  font-size: 24px;
+  font-weight: 800;
+  color: #17371A;
+  margin-bottom: 6px;
+  text-align: center;
+  letter-spacing: -0.5px;
+}
+
+.swapModalSubtitle {
+  font-size: 14px;
+  color: #546A04;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.swapModalLoading {
+  text-align: center;
+  color: #546A04;
+  font-size: 16px;
+  margin: 32px 0;
+  font-weight: 600;
+}
+
+.swapModalList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.swapModalRecipe {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: linear-gradient(135deg, #fff, #f8f8f8);
+  border-radius: 12px;
+  border: 1px solid #e0e0d0;
+  box-shadow: 0 4px 12px rgba(84, 106, 4, 0.08);
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.swapModalRecipe::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(84, 106, 4, 0.05), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.swapModalRecipe:hover {
+  border: 1.5px solid #546A04;
+  box-shadow: 0 6px 20px rgba(84, 106, 4, 0.15);
+  transform: translateY(-2px);
+}
+
+.swapModalRecipe:hover::before {
+  opacity: 1;
+}
+
+.swapModalRecipeImg {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 10px;
+  background: #f5f5f0;
+  border: 1px solid #e0e0d0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.swapModalRecipeInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.swapModalRecipeTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: #17371A;
+  margin-bottom: 3px;
+  line-height: 1.3;
+}
+
+.swapModalRecipeMeta {
+  font-size: 12px;
+  color: #546A04;
+  font-weight: 500;
+}
+
+.swapModalClose {
+  margin-top: 4px;
+  align-self: center;
+  background: linear-gradient(135deg, #546A04, #17371A);
+  color: #F8F7E5;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 28px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(84, 106, 4, 0.25);
+  position: relative;
+  overflow: hidden;
+}
+
+.swapModalClose::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.swapModalClose:hover {
+  background: linear-gradient(135deg, #17371A, #546A04);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(84, 106, 4, 0.35);
+}
+
+.swapModalClose:hover::before {
+  left: 100%;
+}
+
+/* Enhanced Responsive Design */
 @media (max-width: 768px) {
   .planPageContainer {
-    padding: 15px;
+    padding: 20px;
+  }
+
+  .contentWrapper {
+    padding: 0 15px;
   }
 
   .pageHeader {
-    padding: 20px;
-    margin-bottom: 20px;
+    padding: 28px;
+    margin-bottom: 24px;
   }
 
   .headerContent {
     flex-direction: column;
-    gap: 20px;
+    gap: 24px;
     text-align: center;
   }
 
@@ -332,7 +927,7 @@
   }
 
   .pageSubtitle {
-    font-size: 16px;
+    font-size: 15px;
   }
 
   .statsContainer {
@@ -340,7 +935,7 @@
   }
 
   .statItem {
-    padding: 15px;
+    padding: 16px;
   }
 
   .statNumber {
@@ -348,39 +943,113 @@
   }
 
   .calendarContainer {
-    padding: 20px;
+    padding: 4px;
   }
 
   .calendarContainer .fc-toolbar-title {
-    font-size: 20px;
+    font-size: 12px;
+  }
+
+  .bulkOperations {
+    flex-direction: column;
+    gap: 10px;
+    margin-right: 12px;
+  }
+
+  .bulkCopyButton,
+  .bulkDeleteButton {
+    padding: 6px 12px;
+    font-size: 11px;
+  }
+
+  .nutritionalOverview {
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+
+  .nutritionTitle {
+    font-size: 18px;
+  }
+
+  .nutritionGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .nutritionItem {
+    padding: 14px;
+  }
+
+  .nutritionValue {
+    font-size: 18px;
   }
 }
 
 @media (max-width: 480px) {
+  .contentWrapper {
+    padding: 0 10px;
+  }
+
   .pageTitle {
     font-size: 24px;
   }
 
   .pageSubtitle {
-    font-size: 14px;
+    font-size: 13px;
   }
 
   .statsContainer {
     flex-direction: column;
-    gap: 15px;
+    gap: 16px;
   }
 
   .calendarContainer {
-    padding: 15px;
+    padding: 2px;
+  }
+
+  .nutritionalOverview {
+    padding: 20px;
+  }
+
+  .nutritionTitle {
+    font-size: 16px;
+  }
+
+  .nutritionGrid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .nutritionItem {
+    padding: 12px;
+  }
+
+  .nutritionValue {
+    font-size: 16px;
+  }
+
+  .bulkOperations {
+    margin-right: 10px;
+  }
+
+  .selectedCount {
+    font-size: 11px;
+    padding: 4px 10px;
+  }
+
+  .bulkCopyButton,
+  .bulkDeleteButton {
+    padding: 5px 10px;
+    font-size: 10px;
   }
 
   .calendarContainer .fc-daygrid-day {
-    min-height: 100px;
-    padding: 5px;
+    min-height: 12px;
+    padding: 1px;
   }
 
   .eventItem {
-    padding: 8px;
-    font-size: 10px;
+    font-size: 9px;
+    padding: 2px 3px;
   }
 }

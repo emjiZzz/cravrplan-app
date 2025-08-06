@@ -27,7 +27,7 @@ const RecipeDetailPage: React.FC = () => {
         } else {
           setError('No recipe ID provided.');
         }
-      } catch (err) {
+      } catch {
         setError('Failed to load recipe details.');
       } finally {
         setLoading(false);
@@ -185,7 +185,7 @@ const RecipeDetailPage: React.FC = () => {
               <div className={styles.instructionsList}>
                 {recipe.extendedIngredients && recipe.extendedIngredients.length > 0 ? (
                   <div className={styles.ingredientsGrid}>
-                    {recipe.extendedIngredients.map((ingredient, index) => (
+                    {recipe.extendedIngredients.map((ingredient) => (
                       <div key={ingredient.id} className={styles.ingredientCard}>
                         <div className={styles.ingredientImage}>
                           {ingredient.image ? (
