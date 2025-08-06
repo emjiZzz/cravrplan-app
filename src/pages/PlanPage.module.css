@@ -1,4 +1,5 @@
-/* PlanPage.module.css - Enhanced Modern Design Matching App Style */
+
+/* PlanPage.moule.css - Enhanced Modern Design Matching App Style */
 
 .planPageContainer {
   min-height: calc(100vh - 80px);
@@ -1052,4 +1053,219 @@
     font-size: 9px;
     padding: 2px 3px;
   }
+=======
+/* src/pages/PlanPage.module.css */
+.planPageContainer {
+  padding: 20px;
+  margin: 0;
+  background: transparent;
+  min-height: 100%;
+  position: relative;
+}
+
+/* Page Header */
+.pageHeader {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 0;
+  padding: 16px 24px;
+  margin-bottom: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.headerContent {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+.pageTitle {
+  font-size: 22px;
+  font-weight: 500;
+  color: #202124;
+  margin: 0;
+  font-family: 'Google Sans', 'Roboto', sans-serif;
+}
+
+.statsContainer {
+  display: flex;
+  gap: 24px;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.statNumber {
+  font-size: 18px;
+  font-weight: 500;
+  color: #1a73e8;
+  display: block;
+  font-family: 'Google Sans', 'Roboto', sans-serif;
+}
+
+.statLabel {
+  font-size: 12px;
+  color: #5f6368;
+  margin-top: 2px;
+  font-family: 'Google Sans', 'Roboto', sans-serif;
+}
+
+.headerActions {
+  display: flex;
+  gap: 12px;
+}
+
+.clearAllButton {
+  background-color: #1a73e8;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Google Sans', 'Roboto', sans-serif;
+  text-transform: none;
+}
+
+.clearAllButton:hover {
+  background-color: #1557b0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.calendarTitle {
+  font-size: 28px;
+  font-weight: bold;
+  color: var(--text-dark);
+  margin-bottom: 20px;
+}
+
+/* Calendar styling */
+.calendarContainer {
+  font-family: 'Google Sans', 'Roboto', sans-serif;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  margin-top: 20px;
+}
+
+.calendarContainer .fc-toolbar-chunk .fc-button {
+  background-color: transparent;
+  color: #5f6368;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-weight: 500;
+  font-size: 13px;
+  transition: all 0.2s ease;
+  font-family: 'Google Sans', 'Roboto', sans-serif;
+}
+
+.calendarContainer .fc-toolbar-chunk .fc-button:hover {
+  background-color: #f8f9fa;
+  color: #202124;
+  border-color: #dadce0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Day of the week header */
+.calendarContainer .fc .fc-day-header {
+  background-color: #f8f9fa;
+  color: #5f6368;
+  padding: 12px 8px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid #e8eaed;
+  font-family: 'Google Sans', 'Roboto', sans-serif;
+}
+
+/* Day cells */
+.calendarContainer .fc-daygrid-day {
+  border: 1px solid #e8eaed;
+  min-height: 100px;
+  position: relative;
+  /* Ensure positioning context */
+  padding: 4px;
+  /* Add some padding for the number */
+  background-color: white;
+}
+
+/* Cell day number */
+.calendarContainer .fc-daygrid-day-number {
+  font-size: 13px;
+  font-weight: 500;
+  color: #202124;
+  font-family: 'Google Sans', 'Roboto', sans-serif;
+}
+
+/* Today's date styling */
+.calendarContainer .fc-day-today {
+  background-color: #e8f0fe;
+  border: 2px solid #1a73e8;
+}
+
+/* Meal labels - removed */
+
+/* Event items (recipes) */
+.eventItem {
+  color: white;
+  padding: 6px 8px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  border-radius: 4px;
+  font-size: 11px;
+  white-space: normal;
+  line-height: 1.2;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Google Sans', 'Roboto', sans-serif;
+}
+
+.eventItem:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.eventTitle {
+  font-weight: 500;
+  margin-bottom: 1px;
+  word-break: break-word;
+  font-size: 11px;
+}
+
+.eventMealType {
+  font-size: 9px;
+  opacity: 0.9;
+  font-style: normal;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* Meal type specific colors */
+.mealBreakfast {
+  background-color: #fbbc04;
+}
+
+.mealLunch {
+  background-color: #34a853;
+}
+
+.mealDinner {
+  background-color: #ea4335;
 }
