@@ -378,6 +378,40 @@ const PlanPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Plan Analytics */}
+      <div className={styles.analyticsHeader}>
+        {/* Enhanced Stats */}
+        <div className={styles.statsContainer}>
+          <div className={styles.statItem}>
+            <div className={styles.statContent}>
+              <h3>{events.length}</h3>
+              <p>Total Meals</p>
+            </div>
+          </div>
+
+          <div className={styles.statItem}>
+            <div className={styles.statContent}>
+              <h3>{todayEvents.length}</h3>
+              <p>Today's Meals</p>
+            </div>
+          </div>
+
+          <div className={styles.statItem}>
+            <div className={styles.statContent}>
+              <h3>{Math.round(todayStats.calories)}</h3>
+              <p>Today's Calories</p>
+            </div>
+          </div>
+
+          <div className={styles.statItem}>
+            <div className={styles.statContent}>
+              <h3>{Math.round(todayStats.protein)}g</h3>
+              <p>Protein Today</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className={styles.headerActions}>
         <div className={styles.actionGroup}>
           <button
@@ -403,48 +437,6 @@ const PlanPage: React.FC = () => {
           >
             Clear All
           </button>
-        </div>
-      </div>
-
-      {/* Plan Analytics */}
-      <div className={styles.analyticsHeader}>
-        <h2 className={styles.analyticsTitle}>
-          Plan Analytics
-        </h2>
-
-        {/* Enhanced Stats */}
-        <div className={styles.statsContainer}>
-          <div className={styles.statItem}>
-            <div className={styles.statIcon}>📅</div>
-            <div className={styles.statContent}>
-              <h3>{events.length}</h3>
-              <p>Total Meals</p>
-            </div>
-          </div>
-
-          <div className={styles.statItem}>
-            <div className={styles.statIcon}>🍽️</div>
-            <div className={styles.statContent}>
-              <h3>{todayEvents.length}</h3>
-              <p>Today's Meals</p>
-            </div>
-          </div>
-
-          <div className={styles.statItem}>
-            <div className={styles.statIcon}>🔥</div>
-            <div className={styles.statContent}>
-              <h3>{Math.round(todayStats.calories)}</h3>
-              <p>Today's Calories</p>
-            </div>
-          </div>
-
-          <div className={styles.statItem}>
-            <div className={styles.statIcon}>💪</div>
-            <div className={styles.statContent}>
-              <h3>{Math.round(todayStats.protein)}g</h3>
-              <p>Protein Today</p>
-            </div>
-          </div>
         </div>
       </div>
 

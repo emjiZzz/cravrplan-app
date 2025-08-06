@@ -88,16 +88,16 @@ const FridgePage: React.FC = () => {
 
   return (
     <div className={styles.fridgePageContainer}>
-      {/* Header - Matching Recipe Detail Page */}
-      <div className={styles.recipeHeader}>
+      {/* Enhanced Header */}
+      <div className={styles.pageHeader}>
         <button className={styles.backButton} onClick={() => navigate(-1)}>
           &larr;
         </button>
-        <h1 className={styles.title}>My Fridge</h1>
+        <div className={styles.headerContent}>
+          <h1 className={styles.pageTitle}>My Fridge</h1>
+          <p className={styles.pageSubtitle}>Add ingredients from your fridge and discover delicious recipes you can make</p>
+        </div>
       </div>
-      <p className={styles.subtitle}>
-        Add ingredients from your fridge and discover delicious recipes you can make
-      </p>
 
       <div className={styles.mainContent}>
         {/* Left Side - Ingredient Selection */}

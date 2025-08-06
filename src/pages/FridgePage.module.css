@@ -22,15 +22,55 @@
   z-index: -1;
 }
 
-.recipeHeader {
+.pageHeader {
+  text-align: center;
+  margin-bottom: 30px;
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
-  margin-bottom: 24px;
-  position: relative;
-  padding: 30px 20px 0 20px;
-  z-index: 20;
+}
+
+.headerContent {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.pageTitle {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #F8F7E5;
+  margin: 0 0 10px 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #F8F7E5 0%, #e8e7d5 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.pageSubtitle {
+  font-size: 1.2rem;
+  color: #F8F7E5;
+  margin: 0;
+  opacity: 0.9;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.headerActions {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+  padding: 20px;
+}
+
+.actionGroup {
+  display: flex;
+  gap: 10px;
+  align-items: center;
 }
 
 .backButton {
@@ -54,24 +94,6 @@
   background: rgba(84, 106, 4, 0.3);
   border-color: #546A04;
   transform: translateX(-3px);
-}
-
-.title {
-  font-size: 32px;
-  font-weight: 700;
-  color: #F8F7E5;
-  margin: 0;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.subtitle {
-  font-size: 18px;
-  color: #F8F7E5;
-  margin: 0 0 24px 0;
-  opacity: 0.9;
-  text-align: center;
-  position: relative;
-  z-index: 20;
 }
 
 /* Main Content */
@@ -608,28 +630,18 @@
 }
 
 @media (max-width: 768px) {
-  .recipeHeader {
-    flex-direction: row;
+  .pageTitle {
+    font-size: 2.5rem;
+  }
+
+  .pageSubtitle {
+    font-size: 1rem;
+  }
+
+  .headerActions {
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
     gap: 15px;
-    padding: 15px 20px 0 20px;
-  }
-
-  .backButton {
-    position: relative;
-    left: auto;
-    width: 45px;
-    height: 45px;
-    font-size: 20px;
-  }
-
-  .title {
-    font-size: 28px;
-  }
-
-  .subtitle {
-    font-size: 16px;
   }
 
   .mainContent {
@@ -675,27 +687,12 @@
 }
 
 @media (max-width: 480px) {
-  .recipeHeader {
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 15px 0 15px;
+  .pageTitle {
+    font-size: 2rem;
   }
 
-  .backButton {
-    position: relative;
-    left: auto;
-    width: 40px;
-    height: 40px;
-    font-size: 18px;
-  }
-
-  .title {
-    font-size: 24px;
-  }
-
-  .subtitle {
-    font-size: 14px;
+  .pageSubtitle {
+    font-size: 0.9rem;
   }
 
   .mainContent {

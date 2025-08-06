@@ -79,13 +79,16 @@ const RecipeDetailPage: React.FC = () => {
 
   return (
     <div className={styles.pageContainer}>
-      <div className={styles.recipeHeader}>
-        <button onClick={() => navigate(-1)} className={styles.backButton}>&larr;</button>
-        <h2 className={styles.recipeTitle}>{recipe.title}</h2>
+      {/* Enhanced Header */}
+      <div className={styles.pageHeader}>
+        <button onClick={() => navigate(-1)} className={styles.backButton}>
+          &larr;
+        </button>
+        <div className={styles.headerContent}>
+          <h1 className={styles.pageTitle}>{recipe.title}</h1>
+          <p className={styles.pageSubtitle}>Discover ingredients, cooking instructions, and add to your meal plan</p>
+        </div>
       </div>
-      <p className={styles.recipeSubtitle}>
-        Discover ingredients, cooking instructions, and add to your meal plan
-      </p>
 
       <div className={styles.contentWrapper}>
         <div className={styles.imageSection}>
