@@ -188,12 +188,7 @@ const RecipesPage: React.FC = () => {
             }}
             className={styles.searchInput}
           />
-          <button
-            onClick={handleSearch}
-            className={styles.searchButton}
-          >
-            Search
-          </button>
+
         </div>
 
         {/* Filter Dropdowns */}
