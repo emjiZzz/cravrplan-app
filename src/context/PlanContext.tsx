@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import type { ReactNode } from 'react';
-import { PlanContext, type PlanContextType, type MealPlanTemplate } from './PlanContextTypes';
+import { PlanContext, type PlanContextType, type MealPlanTemplate, type PlanEvent } from './PlanContextTypes';
 import { searchRecipes } from '../services/apiService';
 
 // Function to automatically generate nutrition data based on recipe characteristics
@@ -209,6 +209,7 @@ const defaultTemplates: MealPlanTemplate[] = [
 
 export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
   const [events, setEvents] = useState<PlanContextType['events']>([]);
+  const [trashedEvents, setTrashedEvents] = useState<PlanEvent[]>([]);
   const [templates] = useState<MealPlanTemplate[]>(defaultTemplates);
 
   const addToPlan: PlanContextType['addToPlan'] = (event) => {
@@ -225,6 +226,30 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
 
   const removeFromPlan: PlanContextType['removeFromPlan'] = (id) => {
     setEvents(prev => prev.filter(event => event.id !== id));
+  };
+
+  const moveToTrash: PlanContextType['moveToTrash'] = (id) => {
+    const eventToTrash = events.find(event => event.id === id);
+    if (eventToTrash) {
+      setEvents(prev => prev.filter(event => event.id !== id));
+      setTrashedEvents(prev => [...prev, eventToTrash]);
+    }
+  };
+
+  const restoreFromTrash: PlanContextType['restoreFromTrash'] = (id) => {
+    const eventToRestore = trashedEvents.find(event => event.id === id);
+    if (eventToRestore) {
+      setTrashedEvents(prev => prev.filter(event => event.id !== id));
+      setEvents(prev => [...prev, eventToRestore]);
+    }
+  };
+
+  const deleteFromTrash: PlanContextType['deleteFromTrash'] = (id) => {
+    setTrashedEvents(prev => prev.filter(event => event.id !== id));
+  };
+
+  const clearTrash: PlanContextType['clearTrash'] = () => {
+    setTrashedEvents([]);
   };
 
   const updateEvent: PlanContextType['updateEvent'] = (id, updatedEvent) => {
@@ -321,9 +346,14 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
   return (
     <PlanContext.Provider value={{
       events,
+      trashedEvents,
       templates,
       addToPlan,
       removeFromPlan,
+      moveToTrash,
+      restoreFromTrash,
+      deleteFromTrash,
+      clearTrash,
       updateEvent,
       clearAll,
       getEventsForDate,

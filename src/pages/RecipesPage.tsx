@@ -173,7 +173,6 @@ const RecipesPage: React.FC = () => {
   return (
     <div className={styles.recipesPageContainer}>
       <div className={styles.contentWrapper}>
-
         {/* Search Bar */}
         <div className={styles.searchBar}>
           <input
@@ -188,7 +187,6 @@ const RecipesPage: React.FC = () => {
             }}
             className={styles.searchInput}
           />
-
         </div>
 
         {/* Filter Dropdowns */}
@@ -206,7 +204,6 @@ const RecipesPage: React.FC = () => {
                 </option>
               ))}
             </select>
-
             <select
               className={styles.filterDropdown}
               value={selectedDiet}

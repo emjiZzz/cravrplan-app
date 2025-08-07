@@ -139,7 +139,7 @@ const RecipeDetailPage: React.FC = () => {
         name: 'Wooden Spoon',
         description: 'Stirring utensil for cooking',
         icon: '🥄',
-        priority: 'helpful'
+        priority: 'essential'
       });
     }
 
@@ -175,7 +175,7 @@ const RecipeDetailPage: React.FC = () => {
         name: 'Colander',
         description: 'For draining pasta and vegetables',
         icon: '🕳️',
-        priority: 'helpful'
+        priority: 'essential'
       });
     }
 

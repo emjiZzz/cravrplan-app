@@ -40,9 +40,14 @@ export interface NutritionalStats {
 
 export interface PlanContextType {
   events: PlanEvent[];
+  trashedEvents: PlanEvent[];
   templates: MealPlanTemplate[];
   addToPlan: (event: Omit<PlanEvent, 'id'>) => void;
   removeFromPlan: (id: string) => void;
+  moveToTrash: (id: string) => void;
+  restoreFromTrash: (id: string) => void;
+  deleteFromTrash: (id: string) => void;
+  clearTrash: () => void;
   updateEvent: (id: string, updatedEvent: PlanEvent) => void;
   clearAll: () => void;
   getEventsForDate: (date: string) => PlanEvent[];

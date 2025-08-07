@@ -25,7 +25,6 @@ const FridgePage: React.FC = () => {
   const [maxMissing, setMaxMissing] = useState(3);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Popular ingredients organized by category
   const ingredientCategories = {
     'Vegetables': ['tomato', 'onion', 'garlic', 'bell pepper', 'carrot', 'potato', 'spinach', 'lettuce', 'cucumber', 'mushroom'],
     'Proteins': ['chicken', 'beef', 'fish', 'eggs', 'pork', 'shrimp', 'tofu'],
@@ -88,7 +87,6 @@ const FridgePage: React.FC = () => {
 
   return (
     <div className={styles.fridgePageContainer}>
-      {/* Enhanced Header */}
       <div className={styles.pageHeader}>
         <button className={styles.backButton} onClick={() => navigate(-1)}>
           &larr;
@@ -100,7 +98,6 @@ const FridgePage: React.FC = () => {
       </div>
 
       <div className={styles.mainContent}>
-        {/* Left Side - Ingredient Selection */}
         <div className={styles.ingredientSection}>
           <div className={styles.sectionCard}>
             <h2 className={styles.sectionTitle}>
@@ -108,7 +105,6 @@ const FridgePage: React.FC = () => {
               Add Ingredients
             </h2>
 
-            {/* Search Bar */}
             <div className={styles.searchBar}>
               <input
                 type="text"
@@ -119,7 +115,6 @@ const FridgePage: React.FC = () => {
               />
             </div>
 
-            {/* Custom Ingredient Input */}
             <div className={styles.customInputSection}>
               <div className={styles.inputGroup}>
                 <input
@@ -136,7 +131,6 @@ const FridgePage: React.FC = () => {
               </div>
             </div>
 
-            {/* Ingredient Categories */}
             <div className={styles.categoriesContainer}>
               {Object.entries(ingredientCategories).map(([category, ingredients]) => {
                 const filteredIngredients = ingredients.filter(ingredient =>
@@ -171,9 +165,7 @@ const FridgePage: React.FC = () => {
           </div>
         </div>
 
-        {/* Right Side - Selected Ingredients & Recipes */}
         <div className={styles.resultsSection}>
-          {/* Selected Ingredients Card */}
           <div className={styles.sectionCard}>
             <h2 className={styles.sectionTitle}>
               <span className={styles.titleIcon}>📋</span>
@@ -206,7 +198,6 @@ const FridgePage: React.FC = () => {
                   ))}
                 </div>
 
-                {/* Search Controls */}
                 <div className={styles.searchControls}>
                   <div className={styles.controlGroup}>
                     <label htmlFor="maxMissing" className={styles.controlLabel}>
@@ -251,7 +242,6 @@ const FridgePage: React.FC = () => {
             )}
           </div>
 
-          {/* Recipe Results */}
           {recipes.length > 0 && (
             <div className={styles.sectionCard}>
               <h2 className={styles.sectionTitle}>
