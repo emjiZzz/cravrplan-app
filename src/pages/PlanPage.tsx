@@ -251,7 +251,12 @@ const SwapRecipeModal: React.FC<SwapRecipeModalProps> = ({ isOpen, onClose, onSw
 };
 
 // Custom Grid Calendar Component
-const GridCalendar: React.FC<{ events: PlanEvent[]; onEventClick: (event: PlanEvent) => void }> = ({ events, onEventClick }) => {
+const GridCalendar: React.FC<{
+  events: PlanEvent[];
+  onEventClick: (event: PlanEvent) => void;
+  onDeleteRecipe: (recipeId: number) => void;
+  onShowSwapModal: () => void;
+}> = ({ events, onEventClick, onDeleteRecipe, onShowSwapModal }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedRecipe, setSelectedRecipe] = useState<PlanEvent | null>(null);
   const [showRecipeModal, setShowRecipeModal] = useState(false);
@@ -365,6 +370,9 @@ const GridCalendar: React.FC<{ events: PlanEvent[]; onEventClick: (event: PlanEv
                 >
                   <div className={`${styles.mealTypeIndicator} ${styles[event.mealType]}`}>
                     {getMealTypeIcon(event.mealType)}
+                  </div>
+                  <div className={styles.mealTypeTitle}>
+                    for {event.mealType}
                   </div>
                   {event.image && (
                     <img
@@ -542,6 +550,8 @@ const GridCalendar: React.FC<{ events: PlanEvent[]; onEventClick: (event: PlanEv
                     📖 See Recipe Instructions
                   </button>
                 </div>
+
+
               </div>
             </div>
           </div>
@@ -781,48 +791,10 @@ const PlanPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Plan Analytics */}
-      <div className={styles.analyticsHeader}>
-        {/* Enhanced Stats */}
-        <div className={styles.statsContainer}>
-          <div className={styles.statItem}>
-            <div className={styles.statContent}>
-              <h3>{events.length}</h3>
-              <p>Total Meals</p>
-            </div>
-          </div>
 
-          <div className={styles.statItem}>
-            <div className={styles.statContent}>
-              <h3>{todayEvents.length}</h3>
-              <p>Today's Meals</p>
-            </div>
-          </div>
-
-          <div className={styles.statItem}>
-            <div className={styles.statContent}>
-              <h3>{Math.round(todayStats.calories)}</h3>
-              <p>Today's Calories</p>
-            </div>
-          </div>
-
-          <div className={styles.statItem}>
-            <div className={styles.statContent}>
-              <h3>{Math.round(todayStats.protein)}g</h3>
-              <p>Protein Today</p>
-            </div>
-          </div>
-        </div>
-      </div>
 
       <div className={styles.headerActions}>
         <div className={styles.actionGroup}>
-          <button
-            className={styles.primaryButton}
-            onClick={() => setShowTemplateModal(true)}
-          >
-            Templates
-          </button>
           <button
             className={styles.primaryButton}
             onClick={() => handleQuickSuggestion('dinner')}
@@ -854,6 +826,8 @@ const PlanPage: React.FC = () => {
             <GridCalendar
               events={events}
               onEventClick={handleEventClick}
+              onDeleteRecipe={removeFromPlan}
+              onShowSwapModal={() => setShowSwapModal(true)}
             />
           </div>
 

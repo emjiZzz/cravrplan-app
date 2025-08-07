@@ -74,9 +74,9 @@
   gap: 15px;
   justify-content: center;
   align-items: center;
-  margin-bottom: 30px;
   flex-wrap: wrap;
-  padding: 15px;
+  padding: 12px 0;
+  margin-bottom: 40px;
 }
 
 .actionGroup {
@@ -1073,6 +1073,20 @@
   background: rgba(156, 39, 176, 0.9);
 }
 
+.mealTypeTitle {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: capitalize;
+  z-index: 2;
+}
+
 .calendarEventImage {
   width: 100%;
   height: 50px;
@@ -1269,9 +1283,9 @@
   }
 
   .headerActions {
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
+    gap: 10px;
+    padding: 8px 0;
+    margin-bottom: 30px;
   }
 
   .actionGroup {
