@@ -4,6 +4,85 @@ import type { ReactNode } from 'react';
 import { PlanContext, type PlanContextType, type MealPlanTemplate } from './PlanContextTypes';
 import { searchRecipes } from '../services/apiService';
 
+// Function to automatically generate nutrition data based on recipe characteristics
+const generateNutritionData = (recipe: any, mealType: string) => {
+  // Base nutrition values based on meal type
+  const baseNutrition = {
+    breakfast: { calories: 350, protein: 15, carbs: 45, fat: 12 },
+    lunch: { calories: 450, protein: 20, carbs: 55, fat: 18 },
+    dinner: { calories: 550, protein: 25, carbs: 60, fat: 22 },
+    snack: { calories: 200, protein: 8, carbs: 25, fat: 8 }
+  };
+
+  // Get base values for the meal type
+  const base = baseNutrition[mealType as keyof typeof baseNutrition] || baseNutrition.lunch;
+
+  // Adjust based on recipe characteristics
+  let calories = base.calories;
+  let protein = base.protein;
+  let carbs = base.carbs;
+  let fat = base.fat;
+
+  // Adjust based on recipe title/keywords
+  const title = recipe.title?.toLowerCase() || '';
+
+  // High protein indicators
+  if (title.includes('chicken') || title.includes('fish') || title.includes('salmon') ||
+    title.includes('beef') || title.includes('meat') || title.includes('protein')) {
+    protein += 10;
+    calories += 50;
+  }
+
+  // High carb indicators
+  if (title.includes('pasta') || title.includes('rice') || title.includes('bread') ||
+    title.includes('potato') || title.includes('noodle')) {
+    carbs += 15;
+    calories += 80;
+  }
+
+  // Low calorie indicators
+  if (title.includes('salad') || title.includes('soup') || title.includes('light') ||
+    title.includes('vegetable')) {
+    calories -= 100;
+    fat -= 5;
+  }
+
+  // High fat indicators
+  if (title.includes('cheese') || title.includes('cream') || title.includes('butter') ||
+    title.includes('fried') || title.includes('bacon')) {
+    fat += 8;
+    calories += 60;
+  }
+
+  // Vegetarian adjustments
+  if (recipe.vegetarian || title.includes('vegetarian') || title.includes('vegan')) {
+    protein -= 5;
+    carbs += 10;
+  }
+
+  // Quick/easy meal adjustments (usually lower calories)
+  if (recipe.readyInMinutes && recipe.readyInMinutes <= 15) {
+    calories -= 50;
+    protein -= 3;
+  }
+
+  // Servings adjustment
+  if (recipe.servings) {
+    const servingFactor = recipe.servings;
+    calories = Math.round(calories / servingFactor);
+    protein = Math.round(protein / servingFactor);
+    carbs = Math.round(carbs / servingFactor);
+    fat = Math.round(fat / servingFactor);
+  }
+
+  return {
+    calories: Math.max(150, Math.round(calories)),
+    protein: Math.max(5, Math.round(protein)),
+    carbs: Math.max(10, Math.round(carbs)),
+    fat: Math.max(3, Math.round(fat))
+  };
+};
+
 // Hook to use the plan context
 export const usePlan = () => {
   const context = React.useContext(PlanContext);
@@ -133,9 +212,13 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
   const [templates] = useState<MealPlanTemplate[]>(defaultTemplates);
 
   const addToPlan: PlanContextType['addToPlan'] = (event) => {
+    // Automatically add nutrition data if missing
+    const nutrition = event.nutrition || generateNutritionData(event, event.mealType);
+
     const newEvent = {
       ...event,
       id: Date.now().toString(),
+      nutrition
     };
     setEvents(prev => [...prev, newEvent]);
   };
@@ -162,10 +245,14 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
       const eventDate = new Date(start);
       eventDate.setDate(start.getDate() + index);
 
+      // Ensure nutrition data is included
+      const nutrition = event.nutrition || generateNutritionData(event, event.mealType);
+
       return {
         ...event,
         id: Date.now().toString() + index,
         date: eventDate.toISOString().split('T')[0],
+        nutrition
       };
     });
 
@@ -184,6 +271,19 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
       }
       return stats;
     }, { calories: 0, protein: 0, carbs: 0, fat: 0 });
+  };
+
+  // Function to ensure all events have nutrition data
+  const ensureNutritionData = () => {
+    setEvents(prev => prev.map(event => {
+      if (!event.nutrition) {
+        return {
+          ...event,
+          nutrition: generateNutritionData(event, event.mealType)
+        };
+      }
+      return event;
+    }));
   };
 
   const getQuickSuggestions: PlanContextType['getQuickSuggestions'] = async (mealType, maxTime = 30) => {
@@ -210,12 +310,7 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
         prepTime: Math.floor(recipe.readyInMinutes * 0.4),
         cookTime: Math.floor(recipe.readyInMinutes * 0.6),
         servings: recipe.servings,
-        nutrition: {
-          calories: recipe.nutrition?.nutrients?.find(n => n.name === 'Calories')?.amount || 400,
-          protein: recipe.nutrition?.nutrients?.find(n => n.name === 'Protein')?.amount || 20,
-          carbs: recipe.nutrition?.nutrients?.find(n => n.name === 'Carbohydrates')?.amount || 45,
-          fat: recipe.nutrition?.nutrients?.find(n => n.name === 'Fat')?.amount || 15
-        }
+        nutrition: generateNutritionData(recipe, mealType)
       }));
     } catch (error) {
       console.error('Error getting quick suggestions:', error);
@@ -234,7 +329,8 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
       getEventsForDate,
       applyTemplate,
       getNutritionalStats,
-      getQuickSuggestions
+      getQuickSuggestions,
+      ensureNutritionData,
     }}>
       {children}
     </PlanContext.Provider>

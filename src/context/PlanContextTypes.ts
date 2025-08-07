@@ -49,6 +49,7 @@ export interface PlanContextType {
   applyTemplate: (template: MealPlanTemplate, startDate: string) => void;
   getNutritionalStats: (date: string) => NutritionalStats;
   getQuickSuggestions: (mealType: PlanEvent['mealType'], maxTime?: number) => Promise<PlanEvent[]>;
+  ensureNutritionData: () => void;
 }
 
 export const PlanContext = createContext<PlanContextType | undefined>(undefined); 

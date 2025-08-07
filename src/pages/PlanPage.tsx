@@ -1,18 +1,16 @@
 
 /* src/pages/PlanPage.tsx */
 
-import React, { useState, useMemo, useEffect } from 'react';
-import FullCalendar from '@fullcalendar/react';
+import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import styles from './PlanPage.module.css';
+import { usePlan } from '../context/PlanContext';
+import type { Recipe } from '../types/recipeTypes';
+import type { PlanEvent, MealPlanTemplate } from '../context/PlanContextTypes';
+import type { EventClickArg, EventDropArg } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import type { EventClickArg, EventDropArg } from '@fullcalendar/core';
-import styles from './PlanPage.module.css';
-import { usePlan } from '../hooks/usePlan';
-import type { PlanEvent, MealPlanTemplate } from '../context/PlanContextTypes';
-import { searchRecipes } from '../services/apiService';
-import type { Recipe } from '../types/recipeTypes';
-import TemplateModal from '../components/TemplateModal';
-import QuickSuggestionsModal from '../components/QuickSuggestionsModal';
+import FullCalendar from '@fullcalendar/react';
 
 interface SwapRecipeModalProps {
   isOpen: boolean;
@@ -22,61 +20,91 @@ interface SwapRecipeModalProps {
 }
 
 const SwapRecipeModal: React.FC<SwapRecipeModalProps> = ({ isOpen, onClose, onSwap, currentEvent }) => {
-  const [searchTerm, setSearchTerm] = useState('');
   const [recipes, setRecipes] = useState<Recipe[]>([]);
-  const [suggestedRecipes, setSuggestedRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(false);
-  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
-  const [activeTab, setActiveTab] = useState<'search' | 'suggestions'>('suggestions');
-
-  useEffect(() => {
-    if (isOpen && currentEvent) {
-      loadSuggestedRecipes();
-    }
-  }, [isOpen, currentEvent]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [activeTab, setActiveTab] = useState<'search' | 'suggestions'>('search');
 
   const loadSuggestedRecipes = async () => {
     if (!currentEvent) return;
 
-    setLoadingSuggestions(true);
+    setLoading(true);
     try {
-      const mealType = currentEvent.mealType;
-      const searchParams: any = {
-        number: 8,
-        addRecipeInformation: true,
-        fillIngredients: true
-      };
+      // Mock suggested recipes based on meal type
+      const suggestions: Recipe[] = [
+        {
+          id: 101,
+          title: "Quick Breakfast Bowl",
+          image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop",
+          imageType: "jpg",
+          servings: 1,
+          readyInMinutes: 10,
+          aggregateLikes: 45,
+          healthScore: 85,
+          spoonacularScore: 92,
+          pricePerServing: 250,
+          analyzedInstructions: [],
+          cheap: false,
+          cuisines: ["American"],
+          dairyFree: false,
+          diets: ["Vegetarian"],
+          gaps: "GAPS",
+          glutenFree: false,
+          instructions: "Quick and healthy breakfast bowl",
+          ketogenic: false,
+          lowFodmap: false,
+          occasions: ["Breakfast"],
+          sustainable: true,
+          vegan: false,
+          vegetarian: true,
+          veryHealthy: true,
+          veryPopular: false,
+          whole30: false,
+          weightWatcherSmartPoints: 8,
+          dishTypes: ["Breakfast"],
+          extendedIngredients: [],
+          summary: "A quick and nutritious breakfast bowl"
+        },
+        {
+          id: 102,
+          title: "Light Lunch Salad",
+          image: "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=400&h=300&fit=crop",
+          imageType: "jpg",
+          servings: 2,
+          readyInMinutes: 15,
+          aggregateLikes: 67,
+          healthScore: 78,
+          spoonacularScore: 88,
+          pricePerServing: 320,
+          analyzedInstructions: [],
+          cheap: false,
+          cuisines: ["Mediterranean"],
+          dairyFree: true,
+          diets: ["Vegetarian"],
+          gaps: "GAPS",
+          glutenFree: true,
+          instructions: "Fresh and light lunch salad",
+          ketogenic: false,
+          lowFodmap: false,
+          occasions: ["Lunch"],
+          sustainable: true,
+          vegan: true,
+          vegetarian: true,
+          veryHealthy: true,
+          veryPopular: false,
+          whole30: false,
+          weightWatcherSmartPoints: 12,
+          dishTypes: ["Main Course"],
+          extendedIngredients: [],
+          summary: "A refreshing and healthy lunch option"
+        }
+      ];
 
-      switch (mealType) {
-        case 'breakfast':
-          searchParams.query = 'breakfast healthy';
-          searchParams.diet = 'vegetarian';
-          searchParams.maxReadyTime = 20;
-          break;
-        case 'lunch':
-          searchParams.query = 'lunch quick';
-          searchParams.maxReadyTime = 30;
-          break;
-        case 'dinner':
-          searchParams.query = 'dinner family';
-          searchParams.maxReadyTime = 45;
-          break;
-        case 'snack':
-          searchParams.query = 'snack healthy';
-          searchParams.diet = 'vegetarian';
-          searchParams.maxReadyTime = 15;
-          break;
-        default:
-          searchParams.query = 'quick easy';
-      }
-
-      const response = await searchRecipes(searchParams);
-      setSuggestedRecipes(response.results || []);
+      setRecipes(suggestions);
     } catch (error) {
-      console.error('Error loading suggested recipes:', error);
-      setSuggestedRecipes([]);
+      console.error('Error loading suggestions:', error);
     } finally {
-      setLoadingSuggestions(false);
+      setLoading(false);
     }
   };
 
@@ -85,11 +113,46 @@ const SwapRecipeModal: React.FC<SwapRecipeModalProps> = ({ isOpen, onClose, onSw
 
     setLoading(true);
     try {
-      const response = await searchRecipes({ query: searchTerm, number: 10 });
-      setRecipes(response.results || []);
+      // Mock search results
+      const searchResults: Recipe[] = [
+        {
+          id: 201,
+          title: `Search Result: ${searchTerm}`,
+          image: "https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=400&h=300&fit=crop",
+          imageType: "jpg",
+          servings: 2,
+          readyInMinutes: 25,
+          aggregateLikes: 89,
+          healthScore: 72,
+          spoonacularScore: 85,
+          pricePerServing: 280,
+          analyzedInstructions: [],
+          cheap: true,
+          cuisines: ["International"],
+          dairyFree: true,
+          diets: ["High-Protein"],
+          gaps: "GAPS",
+          glutenFree: false,
+          instructions: "Search result recipe",
+          ketogenic: false,
+          lowFodmap: false,
+          occasions: ["Dinner"],
+          sustainable: false,
+          vegan: false,
+          vegetarian: false,
+          veryHealthy: false,
+          veryPopular: true,
+          whole30: false,
+          weightWatcherSmartPoints: 10,
+          dishTypes: ["Main Course"],
+          extendedIngredients: [],
+          summary: "A search result recipe"
+        }
+      ];
+
+      setRecipes(searchResults);
     } catch (error) {
       console.error('Error searching recipes:', error);
-      setRecipes([]);
     } finally {
       setLoading(false);
     }
@@ -99,6 +162,12 @@ const SwapRecipeModal: React.FC<SwapRecipeModalProps> = ({ isOpen, onClose, onSw
     onSwap(recipe);
     onClose();
   };
+
+  React.useEffect(() => {
+    if (isOpen && activeTab === 'suggestions') {
+      loadSuggestedRecipes();
+    }
+  }, [isOpen, activeTab]);
 
   if (!isOpen) return null;
 
@@ -112,107 +181,373 @@ const SwapRecipeModal: React.FC<SwapRecipeModalProps> = ({ isOpen, onClose, onSw
 
         <div className={styles.swapModalTabs}>
           <button
-            className={`${styles.swapModalTab} ${activeTab === 'suggestions' ? styles.active : ''}`}
-            onClick={() => setActiveTab('suggestions')}
-          >
-            Smart Suggestions
-          </button>
-          <button
             className={`${styles.swapModalTab} ${activeTab === 'search' ? styles.active : ''}`}
             onClick={() => setActiveTab('search')}
           >
             Search Recipes
           </button>
+          <button
+            className={`${styles.swapModalTab} ${activeTab === 'suggestions' ? styles.active : ''}`}
+            onClick={() => setActiveTab('suggestions')}
+          >
+            Suggested Recipes
+          </button>
         </div>
 
-        {activeTab === 'suggestions' && (
-          <div className={styles.swapModalContent}>
+        <div className={styles.swapModalContent}>
+          {activeTab === 'search' && (
             <div className={styles.swapModalSection}>
-              <h4>Perfect for {currentEvent?.mealType || 'meal'}</h4>
-              {loadingSuggestions ? (
-                <div className={styles.swapModalLoading}>Finding perfect recipes...</div>
-              ) : (
-                <div className={styles.swapModalResults}>
-                  {suggestedRecipes.map((recipe) => (
-                    <div
-                      key={recipe.id}
-                      className={styles.swapModalRecipe}
-                      onClick={() => handleRecipeSelect(recipe)}
-                    >
-                      <img
-                        src={recipe.image || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik0xMDAgMTUwTDIwMCAxMDBMMzAwIDE1MEwyMDAgMjAwTDEwMCAxNTBaIiBmaWxsPSIjRENEQ0RDIi8+Cjx0ZXh0IHg9IjIwMCIgeT0iMjUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiPkltYWdlPC90ZXh0Pgo8L3N2Zz4K'}
-                        alt={recipe.title}
-                      />
-                      <div className={styles.swapModalRecipeInfo}>
-                        <h4>{recipe.title}</h4>
-                        <p>{recipe.readyInMinutes} min • {recipe.servings || 2} servings</p>
-                        {recipe.diets && recipe.diets.length > 0 && (
-                          <p>{recipe.diets.join(', ')}</p>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                  {suggestedRecipes.length === 0 && !loadingSuggestions && (
-                    <div className={styles.swapModalEmpty}>
-                      <p>No suggestions available. Try searching instead.</p>
-                    </div>
-                  )}
+              <h4>Search for a new recipe</h4>
+              <div className={styles.swapModalSearch}>
+                <input
+                  type="text"
+                  placeholder="Search recipes..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className={styles.swapModalInput}
+                />
+                <button
+                  onClick={handleSearch}
+                  className={styles.swapModalSearchBtn}
+                  disabled={loading}
+                >
+                  {loading ? 'Searching...' : 'Search'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          <div className={styles.swapModalResults}>
+            {loading ? (
+              <div className={styles.swapModalLoading}>Loading...</div>
+            ) : (
+              recipes.map((recipe) => (
+                <div
+                  key={recipe.id}
+                  className={styles.swapModalRecipe}
+                  onClick={() => handleRecipeSelect(recipe)}
+                >
+                  <img src={recipe.image} alt={recipe.title} />
+                  <div className={styles.swapModalRecipeInfo}>
+                    <h4>{recipe.title}</h4>
+                    <p>{recipe.summary}</p>
+                    {recipe.diets.length > 0 && (
+                      <p>{recipe.diets.join(', ')}</p>
+                    )}
+                  </div>
                 </div>
-              )}
-            </div>
+              ))
+            )}
+            {recipes.length === 0 && !loading && searchTerm && (
+              <div className={styles.swapModalEmpty}>
+                <p>No recipes found. Try a different search term.</p>
+              </div>
+            )}
           </div>
-        )}
+        </div>
+      </div>
+    </div>
+  );
+};
 
-        {activeTab === 'search' && (
-          <div className={styles.swapModalContent}>
-            <div className={styles.swapModalSearch}>
-              <input
-                type="text"
-                placeholder="Search for recipes..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                className={styles.swapModalInput}
-              />
-              <button onClick={handleSearch} className={styles.swapModalSearchBtn}>
-                Search
-              </button>
-            </div>
+// Custom Grid Calendar Component
+const GridCalendar: React.FC<{ events: PlanEvent[]; onEventClick: (event: PlanEvent) => void }> = ({ events, onEventClick }) => {
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedRecipe, setSelectedRecipe] = useState<PlanEvent | null>(null);
+  const [showRecipeModal, setShowRecipeModal] = useState(false);
+  const navigate = useNavigate();
 
-            <div className={styles.swapModalResults}>
-              {loading ? (
-                <div className={styles.swapModalLoading}>Searching recipes...</div>
-              ) : (
-                recipes.map((recipe) => (
-                  <div
-                    key={recipe.id}
-                    className={styles.swapModalRecipe}
-                    onClick={() => handleRecipeSelect(recipe)}
-                  >
+  const getDaysInMonth = (date: Date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const firstDayOfWeek = firstDay.getDay();
+
+    return { daysInMonth, firstDayOfWeek };
+  };
+
+  const getEventsForDate = (date: string) => {
+    return events.filter(event => event.date === date);
+  };
+
+  const getNutritionColor = (nutrition: any, type: 'calories' | 'protein' | 'carbs' | 'fat') => {
+    const colors = {
+      calories: '#9C27B0', // Purple
+      protein: '#4CAF50',  // Green
+      carbs: '#FFC107',    // Yellow
+      fat: '#F44336'       // Red
+    };
+
+    const maxValues = {
+      calories: 2000,
+      protein: 50,
+      carbs: 300,
+      fat: 65
+    };
+
+    const percentage = Math.min((nutrition?.[type] || 0) / maxValues[type], 1);
+    const color = colors[type];
+
+    return {
+      backgroundColor: color,
+      opacity: 0.3 + (percentage * 0.7),
+      percentage: Math.round(percentage * 100)
+    };
+  };
+
+  const getMealTypeIcon = (mealType: string) => {
+    switch (mealType) {
+      case 'breakfast': return '🌅';
+      case 'lunch': return '☀️';
+      case 'dinner': return '🌙';
+      case 'snack': return '🍎';
+      default: return '🍽️';
+    }
+  };
+
+  const handleImageClick = (event: PlanEvent, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedRecipe(event);
+    setShowRecipeModal(true);
+  };
+
+  const handleViewRecipeInstructions = () => {
+    if (selectedRecipe) {
+      setShowRecipeModal(false);
+      navigate(`/recipes/${selectedRecipe.recipeId}`);
+    }
+  };
+
+  const { daysInMonth, firstDayOfWeek } = getDaysInMonth(currentDate);
+  const monthName = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+  const renderCalendarDays = () => {
+    const days = [];
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    // Add day headers
+    dayNames.forEach(day => {
+      days.push(
+        <div key={`header-${day}`} className={styles.calendarDayHeader}>
+          {day}
+        </div>
+      );
+    });
+
+    // Add empty cells for days before the first day of the month
+    for (let i = 0; i < firstDayOfWeek; i++) {
+      days.push(<div key={`empty-${i}`} className={styles.calendarDayEmpty} />);
+    }
+
+    // Add days of the month
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+      const dateString = date.toISOString().split('T')[0];
+      const dayEvents = getEventsForDate(dateString);
+
+      days.push(
+        <div key={day} className={styles.calendarDay}>
+          <div className={styles.calendarDayNumber}>{day}</div>
+          <div className={styles.calendarDayEvents}>
+            {dayEvents.map((event, index) => {
+              const caloriesColor = getNutritionColor(event.nutrition, 'calories');
+              const proteinColor = getNutritionColor(event.nutrition, 'protein');
+              const carbsColor = getNutritionColor(event.nutrition, 'carbs');
+              const fatColor = getNutritionColor(event.nutrition, 'fat');
+
+              return (
+                <div
+                  key={event.id}
+                  className={styles.calendarEventCard}
+                  onClick={() => onEventClick(event)}
+                >
+                  <div className={`${styles.mealTypeIndicator} ${styles[event.mealType]}`}>
+                    {getMealTypeIcon(event.mealType)}
+                  </div>
+                  {event.image && (
                     <img
-                      src={recipe.image || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik0xMDAgMTUwTDIwMCAxMDBMMzAwIDE1MEwyMDAgMjAwTDEwMCAxNTBaIiBmaWxsPSIjRENEQ0RDIi8+Cjx0ZXh0IHg9IjIwMCIgeT0iMjUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiPkltYWdlPC90ZXh0Pgo8L3N2Zz4K'}
-                      alt={recipe.title}
+                      src={event.image}
+                      alt={event.title}
+                      className={styles.calendarEventImage}
+                      onClick={(e) => handleImageClick(event, e)}
                     />
-                    <div className={styles.swapModalRecipeInfo}>
-                      <h4>{recipe.title}</h4>
-                      <p>{recipe.readyInMinutes} min • {recipe.servings || 2} servings</p>
-                      {recipe.diets && recipe.diets.length > 0 && (
-                        <p>{recipe.diets.join(', ')}</p>
+                  )}
+                  <div className={styles.calendarEventInfo}>
+                    <div className={styles.calendarEventNutrition}>
+                      {event.nutrition && (
+                        <>
+                          <div
+                            className={styles.nutritionIndicator}
+                            style={{ backgroundColor: caloriesColor.backgroundColor, opacity: caloriesColor.opacity }}
+                            data-percentage={`${caloriesColor.percentage}% Calories`}
+                            title={`${Math.round(event.nutrition.calories)} calories (${caloriesColor.percentage}%)`}
+                          />
+                          <div
+                            className={styles.nutritionIndicator}
+                            style={{ backgroundColor: proteinColor.backgroundColor, opacity: proteinColor.opacity }}
+                            data-percentage={`${proteinColor.percentage}% Protein`}
+                            title={`${Math.round(event.nutrition.protein)}g protein (${proteinColor.percentage}%)`}
+                          />
+                          <div
+                            className={styles.nutritionIndicator}
+                            style={{ backgroundColor: carbsColor.backgroundColor, opacity: carbsColor.opacity }}
+                            data-percentage={`${carbsColor.percentage}% Carbs`}
+                            title={`${Math.round(event.nutrition.carbs)}g carbs (${carbsColor.percentage}%)`}
+                          />
+                          <div
+                            className={styles.nutritionIndicator}
+                            style={{ backgroundColor: fatColor.backgroundColor, opacity: fatColor.opacity }}
+                            data-percentage={`${fatColor.percentage}% Fat`}
+                            title={`${Math.round(event.nutrition.fat)}g fat (${fatColor.percentage}%)`}
+                          />
+                        </>
                       )}
                     </div>
                   </div>
-                ))
-              )}
-              {recipes.length === 0 && !loading && searchTerm && (
-                <div className={styles.swapModalEmpty}>
-                  <p>No recipes found. Try a different search term.</p>
                 </div>
-              )}
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
+
+    return days;
+  };
+
+  return (
+    <>
+      <div className={styles.gridCalendar}>
+        <div className={styles.calendarHeader}>
+          <button
+            onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1))}
+            className={styles.calendarNavButton}
+          >
+            ‹
+          </button>
+          <h3 className={styles.calendarTitle}>{monthName}</h3>
+          <button
+            onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1))}
+            className={styles.calendarNavButton}
+          >
+            ›
+          </button>
+        </div>
+
+        <div className={styles.calendarGrid}>
+          {renderCalendarDays()}
+        </div>
+
+        {/* Nutrition Legend */}
+        <div className={styles.nutritionLegend}>
+          <h4>Nutrition Legend</h4>
+          <div className={styles.legendItems}>
+            <div className={styles.legendItem}>
+              <div className={styles.legendColor} style={{ backgroundColor: '#9C27B0' }}></div>
+              <span>Calories</span>
+            </div>
+            <div className={styles.legendItem}>
+              <div className={styles.legendColor} style={{ backgroundColor: '#4CAF50' }}></div>
+              <span>Protein</span>
+            </div>
+            <div className={styles.legendItem}>
+              <div className={styles.legendColor} style={{ backgroundColor: '#FFC107' }}></div>
+              <span>Carbs</span>
+            </div>
+            <div className={styles.legendItem}>
+              <div className={styles.legendColor} style={{ backgroundColor: '#F44336' }}></div>
+              <span>Fats</span>
             </div>
           </div>
-        )}
+        </div>
       </div>
-    </div>
+
+      {/* Recipe Details Modal */}
+      {showRecipeModal && selectedRecipe && (
+        <div className={styles.recipeModalBackdrop} onClick={() => setShowRecipeModal(false)}>
+          <div className={styles.recipeModal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.recipeModalHeader}>
+              <h3>{selectedRecipe.title}</h3>
+              <button className={styles.recipeModalClose} onClick={() => setShowRecipeModal(false)}>×</button>
+            </div>
+
+            <div className={styles.recipeModalContent}>
+              {selectedRecipe.image && (
+                <img
+                  src={selectedRecipe.image}
+                  alt={selectedRecipe.title}
+                  className={styles.recipeModalImage}
+                />
+              )}
+
+              <div className={styles.recipeModalInfo}>
+                <div className={styles.recipeModalSection}>
+                  <h4>Meal Details</h4>
+                  <div className={styles.recipeModalDetails}>
+                    <div className={styles.recipeDetailItem}>
+                      <span>Meal Type:</span>
+                      <span>{selectedRecipe.mealType.charAt(0).toUpperCase() + selectedRecipe.mealType.slice(1)}</span>
+                    </div>
+                    <div className={styles.recipeDetailItem}>
+                      <span>Difficulty:</span>
+                      <span>{selectedRecipe.difficulty || 'Easy'}</span>
+                    </div>
+                    {selectedRecipe.prepTime && selectedRecipe.cookTime && (
+                      <div className={styles.recipeDetailItem}>
+                        <span>Total Time:</span>
+                        <span>{selectedRecipe.prepTime + selectedRecipe.cookTime} minutes</span>
+                      </div>
+                    )}
+                    {selectedRecipe.servings && (
+                      <div className={styles.recipeDetailItem}>
+                        <span>Servings:</span>
+                        <span>{selectedRecipe.servings}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {selectedRecipe.nutrition && (
+                  <div className={styles.recipeModalSection}>
+                    <h4>Nutrition Information</h4>
+                    <div className={styles.recipeModalNutrition}>
+                      <div className={styles.nutritionItem}>
+                        <span>Calories:</span>
+                        <span>{Math.round(selectedRecipe.nutrition.calories)} cal</span>
+                      </div>
+                      <div className={styles.nutritionItem}>
+                        <span>Protein:</span>
+                        <span>{Math.round(selectedRecipe.nutrition.protein)}g</span>
+                      </div>
+                      <div className={styles.nutritionItem}>
+                        <span>Carbohydrates:</span>
+                        <span>{Math.round(selectedRecipe.nutrition.carbs)}g</span>
+                      </div>
+                      <div className={styles.nutritionItem}>
+                        <span>Fat:</span>
+                        <span>{Math.round(selectedRecipe.nutrition.fat)}g</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Recipe Instructions Button */}
+                <div className={styles.recipeModalSection}>
+                  <button
+                    className={styles.recipeInstructionsButton}
+                    onClick={handleViewRecipeInstructions}
+                  >
+                    📖 See Recipe Instructions
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 
@@ -226,8 +561,14 @@ const PlanPage: React.FC = () => {
     templates,
     applyTemplate,
     getNutritionalStats,
-    getQuickSuggestions
+    getQuickSuggestions,
+    ensureNutritionData
   } = usePlan();
+
+  // Ensure all events have nutrition data when component mounts
+  React.useEffect(() => {
+    ensureNutritionData();
+  }, [ensureNutritionData]);
 
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<PlanEvent | null>(null);
@@ -290,22 +631,17 @@ const PlanPage: React.FC = () => {
     }
   };
 
-  const handleEventClick = (clickInfo: EventClickArg) => {
-    const event = events.find(e => e.title === clickInfo.event.title);
-    if (event) {
-      setSelectedEvent(event);
-    }
+  const handleEventClick = (event: PlanEvent) => {
+    setSelectedEvent(event);
   };
 
   const handleEventDrop = (dropInfo: EventDropArg) => {
-    const event = events.find(e => e.title === dropInfo.event.title);
-    if (event && dropInfo.event.start) {
-      const newDate = dropInfo.event.start.toISOString().split('T')[0];
+    const event = events.find(e => e.id === dropInfo.event.id);
+    if (event) {
+      const newDate = dropInfo.event.startStr;
       updateEvent(event.id, { ...event, date: newDate });
     }
   };
-
-
 
   const handleClearAll = () => {
     clearAll();
@@ -314,23 +650,88 @@ const PlanPage: React.FC = () => {
 
   const handleSwapRecipe = (recipe: Recipe) => {
     if (selectedEvent) {
-      updateEvent(selectedEvent.id, {
+      // Generate nutrition data automatically based on recipe characteristics
+      const generateNutritionData = (recipe: Recipe, mealType: string) => {
+        const baseNutrition = {
+          breakfast: { calories: 350, protein: 15, carbs: 45, fat: 12 },
+          lunch: { calories: 450, protein: 20, carbs: 55, fat: 18 },
+          dinner: { calories: 550, protein: 25, carbs: 60, fat: 22 },
+          snack: { calories: 200, protein: 8, carbs: 25, fat: 8 }
+        };
+
+        const base = baseNutrition[mealType as keyof typeof baseNutrition] || baseNutrition.lunch;
+        const title = recipe.title?.toLowerCase() || '';
+
+        let calories = base.calories;
+        let protein = base.protein;
+        let carbs = base.carbs;
+        let fat = base.fat;
+
+        // Adjust based on recipe characteristics
+        if (title.includes('chicken') || title.includes('fish') || title.includes('salmon') ||
+          title.includes('beef') || title.includes('meat') || title.includes('protein')) {
+          protein += 10;
+          calories += 50;
+        }
+
+        if (title.includes('pasta') || title.includes('rice') || title.includes('bread') ||
+          title.includes('potato') || title.includes('noodle')) {
+          carbs += 15;
+          calories += 80;
+        }
+
+        if (title.includes('salad') || title.includes('soup') || title.includes('light') ||
+          title.includes('vegetable')) {
+          calories -= 100;
+          fat -= 5;
+        }
+
+        if (title.includes('cheese') || title.includes('cream') || title.includes('butter') ||
+          title.includes('fried') || title.includes('bacon')) {
+          fat += 8;
+          calories += 60;
+        }
+
+        if (recipe.vegetarian || title.includes('vegetarian') || title.includes('vegan')) {
+          protein -= 5;
+          carbs += 10;
+        }
+
+        if (recipe.readyInMinutes && recipe.readyInMinutes <= 15) {
+          calories -= 50;
+          protein -= 3;
+        }
+
+        if (recipe.servings) {
+          const servingFactor = recipe.servings;
+          calories = Math.round(calories / servingFactor);
+          protein = Math.round(protein / servingFactor);
+          carbs = Math.round(carbs / servingFactor);
+          fat = Math.round(fat / servingFactor);
+        }
+
+        return {
+          calories: Math.max(150, Math.round(calories)),
+          protein: Math.max(5, Math.round(protein)),
+          carbs: Math.max(10, Math.round(carbs)),
+          fat: Math.max(3, Math.round(fat))
+        };
+      };
+
+      const updatedEvent: PlanEvent = {
         ...selectedEvent,
         title: recipe.title,
-        recipeId: recipe.id,
         image: recipe.image,
-        nutrition: {
-          calories: recipe.nutrition?.nutrients?.find(n => n.name === 'Calories')?.amount || 0,
-          protein: recipe.nutrition?.nutrients?.find(n => n.name === 'Protein')?.amount || 0,
-          carbs: recipe.nutrition?.nutrients?.find(n => n.name === 'Carbohydrates')?.amount || 0,
-          fat: recipe.nutrition?.nutrients?.find(n => n.name === 'Fat')?.amount || 0
-        }
-      });
+        nutrition: generateNutritionData(recipe, selectedEvent.mealType)
+      };
+      updateEvent(selectedEvent.id, updatedEvent);
+      setSelectedEvent(null);
     }
   };
 
   const handleApplyTemplate = (template: MealPlanTemplate, startDate: string) => {
     applyTemplate(template, startDate);
+    setShowTemplateModal(false);
   };
 
   const handleQuickSuggestion = (mealType: PlanEvent['mealType']) => {
@@ -340,37 +741,39 @@ const PlanPage: React.FC = () => {
 
   const handleAddQuickMeal = (meal: Omit<PlanEvent, 'id'>) => {
     addToPlan(meal);
+    setShowQuickSuggestions(false);
   };
 
   const getWeeklyStats = () => {
     const today = new Date();
     const weekStart = new Date(today);
-    weekStart.setDate(weekStart.getDate() - weekStart.getDay());
-    const weekEnd = new Date(weekStart);
-    weekEnd.setDate(weekEnd.getDate() + 6);
+    weekStart.setDate(today.getDate() - today.getDay());
 
-    let totalCalories = 0;
-    let totalProtein = 0;
-    let totalCarbs = 0;
-    let totalFat = 0;
+    const weeklyStats = {
+      calories: 0,
+      protein: 0,
+      carbs: 0,
+      fat: 0
+    };
 
-    for (let d = new Date(weekStart); d <= weekEnd; d.setDate(d.getDate() + 1)) {
-      const dateStr = d.toISOString().split('T')[0];
-      const stats = getNutritionalStats(dateStr);
-      totalCalories += stats.calories;
-      totalProtein += stats.protein;
-      totalCarbs += stats.carbs;
-      totalFat += stats.fat;
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(weekStart);
+      date.setDate(weekStart.getDate() + i);
+      const dateString = date.toISOString().split('T')[0];
+      const dayStats = getNutritionalStats(dateString);
+
+      weeklyStats.calories += dayStats.calories;
+      weeklyStats.protein += dayStats.protein;
+      weeklyStats.carbs += dayStats.carbs;
+      weeklyStats.fat += dayStats.fat;
     }
 
-    return { totalCalories, totalProtein, totalCarbs, totalFat };
+    return weeklyStats;
   };
-
-  const weeklyStats = getWeeklyStats();
 
   return (
     <div className={styles.planPageContainer}>
-      {/* Enhanced Header */}
+      {/* Page Header */}
       <div className={styles.pageHeader}>
         <div className={styles.headerContent}>
           <h1 className={styles.pageTitle}>Smart Meal Planner</h1>
@@ -428,8 +831,6 @@ const PlanPage: React.FC = () => {
           </button>
         </div>
 
-
-
         <div className={styles.actionGroup}>
           <button
             className={styles.clearAllButton}
@@ -448,27 +849,11 @@ const PlanPage: React.FC = () => {
             Smart Calendar
           </h2>
 
-
-
-          {/* Calendar */}
+          {/* Custom Grid Calendar */}
           <div className={styles.calendarContainer}>
-            <FullCalendar
-              plugins={[dayGridPlugin, interactionPlugin]}
-              initialView="dayGridMonth"
-              events={calendarEvents}
-              eventClick={handleEventClick}
-              eventDrop={handleEventDrop}
-              editable={true}
-              selectable={true}
-              height="auto"
-              headerToolbar={{
-                left: 'prev,next today',
-                center: 'title',
-                right: 'dayGridMonth,dayGridWeek'
-              }}
-              dayMaxEvents={true}
-              eventDisplay="block"
-              eventClassNames={styles.calendarEvent}
+            <GridCalendar
+              events={events}
+              onEventClick={handleEventClick}
             />
           </div>
 
@@ -498,18 +883,17 @@ const PlanPage: React.FC = () => {
                         <span>
                           {event.prepTime && event.cookTime
                             ? `${event.prepTime + event.cookTime} min`
-                            : 'Quick'
-                          }
+                            : 'Time not specified'}
                         </span>
                       </div>
-                      <div className={styles.nutritionInfo}>
-                        <span>🔥</span>
-                        <span>{event.nutrition ? Math.round(event.nutrition.calories) : 0} cal</span>
-                      </div>
-                      <div className={styles.nutritionInfo}>
-                        <span>💪</span>
-                        <span>{event.nutrition ? Math.round(event.nutrition.protein) : 0}g protein</span>
-                      </div>
+                      {event.nutrition && (
+                        <div className={styles.nutritionInfo}>
+                          <span>🍽️</span>
+                          <span>
+                            {Math.round(event.nutrition.calories)} cal | {Math.round(event.nutrition.protein)}g protein
+                          </span>
+                        </div>
+                      )}
                     </div>
 
                     <div className={styles.eventActions}>
@@ -520,7 +904,7 @@ const PlanPage: React.FC = () => {
                           setShowSwapModal(true);
                         }}
                       >
-                        Swap
+                        Swap Recipe
                       </button>
                       <button
                         className={styles.removeButton}
@@ -539,11 +923,11 @@ const PlanPage: React.FC = () => {
           )}
 
           {/* Empty State */}
-          {todayEvents.length === 0 && (
+          {events.length === 0 && (
             <div className={styles.emptyState}>
-              <div className={styles.emptyIcon}>🍽️</div>
-              <h3>No meals planned for today</h3>
-              <p>Start by adding some delicious meals to your plan!</p>
+              <div className={styles.emptyIcon}>📅</div>
+              <h3>No meals planned yet</h3>
+              <p>Start by adding some meals to your plan</p>
               <button
                 className={styles.addMealButton}
                 onClick={() => handleQuickSuggestion('dinner')}
@@ -555,7 +939,7 @@ const PlanPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Enhanced Modals */}
+      {/* Modals */}
       <SwapRecipeModal
         isOpen={showSwapModal}
         onClose={() => setShowSwapModal(false)}
@@ -563,88 +947,40 @@ const PlanPage: React.FC = () => {
         currentEvent={selectedEvent}
       />
 
-      <TemplateModal
-        isOpen={showTemplateModal}
-        onClose={() => setShowTemplateModal(false)}
-        onApplyTemplate={handleApplyTemplate}
-        templates={templates}
-      />
-
-      <QuickSuggestionsModal
-        isOpen={showQuickSuggestions}
-        onClose={() => setShowQuickSuggestions(false)}
-        onAddMeal={handleAddQuickMeal}
-        mealType={selectedMealType}
-        maxTime={30}
-        getQuickSuggestions={getQuickSuggestions}
-      />
-
-      {/* Enhanced Confirmation Modals */}
+      {/* Clear All Confirmation Modal */}
       {showClearConfirm && (
         <div className={styles.confirmModalBackdrop} onClick={() => setShowClearConfirm(false)}>
           <div className={styles.confirmModal} onClick={(e) => e.stopPropagation()}>
-            <h3>Clear All Meals?</h3>
-            <p>This will remove all planned meals from your calendar. This action cannot be undone.</p>
+            <h3>Clear All Meals</h3>
+            <p>Are you sure you want to remove all planned meals? This action cannot be undone.</p>
             <div className={styles.confirmModalActions}>
               <button onClick={() => setShowClearConfirm(false)}>Cancel</button>
-              <button onClick={handleClearAll} className={styles.confirmButton}>Clear All</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showRemoveConfirm && selectedEvent && (
-        <div className={styles.confirmModalBackdrop} onClick={() => setShowRemoveConfirm(false)}>
-          <div className={styles.confirmModal} onClick={(e) => e.stopPropagation()}>
-            <h3>Remove Meal?</h3>
-            <p>Are you sure you want to remove "{selectedEvent.title}" from your meal plan?</p>
-            <div className={styles.confirmModalActions}>
-              <button onClick={() => setShowRemoveConfirm(false)}>Cancel</button>
-              <button
-                onClick={() => {
-                  removeFromPlan(selectedEvent.id);
-                  setShowRemoveConfirm(false);
-                  setSelectedEvent(null);
-                }}
-                className={styles.confirmButton}
-              >
-                Remove
+              <button className={styles.confirmButton} onClick={handleClearAll}>
+                Clear All
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Nutrition Analytics Modal */}
-      {showNutritionModal && (
-        <div className={styles.confirmModalBackdrop} onClick={() => setShowNutritionModal(false)}>
-          <div className={styles.nutritionModal} onClick={(e) => e.stopPropagation()}>
-            <h3>Nutrition Analytics</h3>
-            <div className={styles.nutritionAnalytics}>
-              <div className={styles.analyticsSection}>
-                <h4>Weekly Overview</h4>
-                <div className={styles.analyticsGrid}>
-                  <div className={styles.analyticsItem}>
-                    <span>Total Calories</span>
-                    <span>{Math.round(weeklyStats.totalCalories)}</span>
-                  </div>
-                  <div className={styles.analyticsItem}>
-                    <span>Total Protein</span>
-                    <span>{Math.round(weeklyStats.totalProtein)}g</span>
-                  </div>
-                  <div className={styles.analyticsItem}>
-                    <span>Total Carbs</span>
-                    <span>{Math.round(weeklyStats.totalCarbs)}g</span>
-                  </div>
-                  <div className={styles.analyticsItem}>
-                    <span>Total Fat</span>
-                    <span>{Math.round(weeklyStats.totalFat)}g</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+      {/* Remove Confirmation Modal */}
+      {showRemoveConfirm && selectedEvent && (
+        <div className={styles.confirmModalBackdrop} onClick={() => setShowRemoveConfirm(false)}>
+          <div className={styles.confirmModal} onClick={(e) => e.stopPropagation()}>
+            <h3>Remove Meal</h3>
+            <p>Are you sure you want to remove "{selectedEvent.title}" from your plan?</p>
             <div className={styles.confirmModalActions}>
-              <button onClick={() => setShowNutritionModal(false)}>Close</button>
+              <button onClick={() => setShowRemoveConfirm(false)}>Cancel</button>
+              <button
+                className={styles.confirmButton}
+                onClick={() => {
+                  removeFromPlan(selectedEvent.id);
+                  setShowRemoveConfirm(false);
+                  setSelectedEvent(null);
+                }}
+              >
+                Remove
+              </button>
             </div>
           </div>
         </div>
