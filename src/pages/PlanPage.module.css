@@ -1044,8 +1044,6 @@
   justify-content: space-between;
   align-items: center;
   padding: 25px 30px;
-  border-bottom: 1px solid rgba(84, 106, 4, 0.1);
-  background: rgba(84, 106, 4, 0.05);
   border-radius: 20px 20px 0 0;
 }
 
@@ -1096,10 +1094,8 @@
 }
 
 .recipeModalSection {
-  background: rgba(255, 255, 255, 0.7);
   border-radius: 12px;
   padding: 20px;
-  border: 1px solid rgba(84, 106, 4, 0.1);
 }
 
 .recipeModalSection h4 {
@@ -1176,16 +1172,17 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  background: transparent;
-  color: #546A04;
+  background: linear-gradient(135deg, rgba(84, 106, 4, 0.8) 0%, rgba(84, 106, 4, 0.6) 100%);
+  color: #FFFFFF;
   border: 2px solid rgba(84, 106, 4, 0.3);
   margin-top: 10px;
 }
 
 .recipeInstructionsButton:hover {
-  background: rgba(84, 106, 4, 0.1);
+  background: linear-gradient(135deg, rgba(84, 106, 4, 0.9) 0%, rgba(84, 106, 4, 0.7) 100%);
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(84, 106, 4, 0.2);
+  box-shadow: 0 8px 20px rgba(84, 106, 4, 0.2);
+  border-color: rgba(84, 106, 4, 0.5);
 }
 
 /* Empty Calendar State */

@@ -1,5 +1,5 @@
 
-/* src/pages/PlanPage.tsx */
+
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -24,222 +24,8 @@ interface AddMealModalProps {
 }
 
 const SwapRecipeModal: React.FC<SwapRecipeModalProps> = ({ isOpen, onClose, onSwap, currentEvent }) => {
-  const [recipes, setRecipes] = useState<Recipe[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [activeTab, setActiveTab] = useState<'search' | 'suggestions'>('search');
-
-  const loadSuggestedRecipes = async () => {
-    if (!currentEvent) return;
-
-    setLoading(true);
-    const suggestions: Recipe[] = [
-      {
-        id: 101,
-        title: "Quick Breakfast Bowl",
-        image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop",
-        imageType: "jpg",
-        servings: 1,
-        readyInMinutes: 10,
-        aggregateLikes: 45,
-        healthScore: 85,
-        spoonacularScore: 92,
-        pricePerServing: 250,
-        analyzedInstructions: [],
-        cheap: false,
-        cuisines: ["American"],
-        dairyFree: false,
-        diets: ["Vegetarian"],
-        gaps: "GAPS",
-        glutenFree: false,
-        instructions: "Quick and healthy breakfast bowl",
-        ketogenic: false,
-        lowFodmap: false,
-        occasions: ["Breakfast"],
-        sustainable: true,
-        vegan: false,
-        vegetarian: true,
-        veryHealthy: true,
-        veryPopular: false,
-        whole30: false,
-        weightWatcherSmartPoints: 8,
-        dishTypes: ["Breakfast"],
-        extendedIngredients: [],
-        summary: "A quick and nutritious breakfast bowl"
-      },
-      {
-        id: 102,
-        title: "Light Lunch Salad",
-        image: "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=400&h=300&fit=crop",
-        imageType: "jpg",
-        servings: 2,
-        readyInMinutes: 15,
-        aggregateLikes: 67,
-        healthScore: 78,
-        spoonacularScore: 88,
-        pricePerServing: 320,
-        analyzedInstructions: [],
-        cheap: false,
-        cuisines: ["Mediterranean"],
-        dairyFree: true,
-        diets: ["Vegetarian"],
-        gaps: "GAPS",
-        glutenFree: true,
-        instructions: "Fresh and light lunch salad",
-        ketogenic: false,
-        lowFodmap: false,
-        occasions: ["Lunch"],
-        sustainable: true,
-        vegan: true,
-        vegetarian: true,
-        veryHealthy: true,
-        veryPopular: false,
-        whole30: false,
-        weightWatcherSmartPoints: 12,
-        dishTypes: ["Main Course"],
-        extendedIngredients: [],
-        summary: "A refreshing and healthy lunch option"
-      }
-    ];
-
-    setRecipes(suggestions);
-    setLoading(false);
-  };
-
-  const handleSearch = async () => {
-    if (!searchTerm.trim()) return;
-
-    setLoading(true);
-    const searchResults: Recipe[] = [
-      {
-        id: 201,
-        title: `Search Result: ${searchTerm}`,
-        image: "https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=400&h=300&fit=crop",
-        imageType: "jpg",
-        servings: 2,
-        readyInMinutes: 25,
-        aggregateLikes: 89,
-        healthScore: 72,
-        spoonacularScore: 85,
-        pricePerServing: 280,
-        analyzedInstructions: [],
-        cheap: true,
-        cuisines: ["International"],
-        dairyFree: true,
-        diets: ["High-Protein"],
-        gaps: "GAPS",
-        glutenFree: false,
-        instructions: "Search result recipe",
-        ketogenic: false,
-        lowFodmap: false,
-        occasions: ["Dinner"],
-        sustainable: false,
-        vegan: false,
-        vegetarian: false,
-        veryHealthy: false,
-        veryPopular: true,
-        whole30: false,
-        weightWatcherSmartPoints: 10,
-        dishTypes: ["Main Course"],
-        extendedIngredients: [],
-        summary: "A search result recipe"
-      }
-    ];
-
-    setRecipes(searchResults);
-    setLoading(false);
-  };
-
-  const handleRecipeSelect = (recipe: Recipe) => {
-    onSwap(recipe);
-    onClose();
-  };
-
-  React.useEffect(() => {
-    if (isOpen && activeTab === 'suggestions') {
-      loadSuggestedRecipes();
-    }
-  }, [isOpen, activeTab]);
-
   if (!isOpen) return null;
-
-  return (
-    <div className={styles.swapModalBackdrop} onClick={onClose}>
-      <div className={styles.swapModal} onClick={(e) => e.stopPropagation()}>
-        <div className={styles.swapModalHeader}>
-          <h3>Swap Recipe</h3>
-          <button className={styles.swapModalClose} onClick={onClose}>×</button>
-        </div>
-
-        <div className={styles.swapModalTabs}>
-          <button
-            className={`${styles.swapModalTab} ${activeTab === 'search' ? styles.active : ''}`}
-            onClick={() => setActiveTab('search')}
-          >
-            Search Recipes
-          </button>
-          <button
-            className={`${styles.swapModalTab} ${activeTab === 'suggestions' ? styles.active : ''}`}
-            onClick={() => setActiveTab('suggestions')}
-          >
-            Suggested Recipes
-          </button>
-        </div>
-
-        <div className={styles.swapModalContent}>
-          {activeTab === 'search' && (
-            <div className={styles.swapModalSection}>
-              <h4>Search for a new recipe</h4>
-              <div className={styles.swapModalSearch}>
-                <input
-                  type="text"
-                  placeholder="Search recipes..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className={styles.swapModalInput}
-                />
-                <button
-                  onClick={handleSearch}
-                  className={styles.swapModalSearchBtn}
-                  disabled={loading}
-                >
-                  {loading ? 'Searching...' : 'Search'}
-                </button>
-              </div>
-            </div>
-          )}
-
-          <div className={styles.swapModalResults}>
-            {loading ? (
-              <div className={styles.swapModalLoading}>Loading...</div>
-            ) : (
-              recipes.map((recipe) => (
-                <div
-                  key={recipe.id}
-                  className={styles.swapModalRecipe}
-                  onClick={() => handleRecipeSelect(recipe)}
-                >
-                  <img src={recipe.image} alt={recipe.title} />
-                  <div className={styles.swapModalRecipeInfo}>
-                    <h4>{recipe.title}</h4>
-                    <p>{recipe.summary}</p>
-                    {recipe.diets.length > 0 && (
-                      <p>{recipe.diets.join(', ')}</p>
-                    )}
-                  </div>
-                </div>
-              ))
-            )}
-            {recipes.length === 0 && !loading && searchTerm && (
-              <div className={styles.swapModalEmpty}>
-                <p>No recipes found. Try a different search term.</p>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  return null;
 };
 
 const AddMealModal: React.FC<AddMealModalProps> = ({ isOpen, onClose, onAddCustomRecipe, onBrowseRecipes, selectedDate }) => {
@@ -337,7 +123,6 @@ const AddMealModal: React.FC<AddMealModalProps> = ({ isOpen, onClose, onAddCusto
                   <option value="breakfast">Breakfast</option>
                   <option value="lunch">Lunch</option>
                   <option value="dinner">Dinner</option>
-                  <option value="snack">Snack</option>
                 </select>
               </div>
 
@@ -476,12 +261,19 @@ const GridCalendar: React.FC<{
                     onClick={() => onEventClick(event)}
                   >
                     {event.image && (
-                      <img
-                        src={event.image}
-                        alt={event.title}
-                        className={styles.calendarEventImage}
-                        onClick={(e) => handleImageClick(event, e)}
-                      />
+                      <div className={styles.calendarEventImageContainer}>
+                        <img
+                          src={event.image}
+                          alt={event.title}
+                          className={styles.calendarEventImage}
+                          onClick={(e) => handleImageClick(event, e)}
+                        />
+                        <div className={styles.calendarEventMealType}>
+                          <span className={styles.mealTypeIndicator} title={event.mealType}>
+                            {getMealTypeIcon(event.mealType)}
+                          </span>
+                        </div>
+                      </div>
                     )}
                     <div className={styles.calendarEventInfo}>
                       <div className={styles.calendarEventNutrition}>
@@ -519,7 +311,6 @@ const GridCalendar: React.FC<{
         );
       }
     } else if (view === 'week') {
-      // Week view: show current week
       const startOfWeek = new Date(currentDate);
       startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
 
@@ -550,12 +341,19 @@ const GridCalendar: React.FC<{
                     onClick={() => onEventClick(event)}
                   >
                     {event.image && (
-                      <img
-                        src={event.image}
-                        alt={event.title}
-                        className={styles.calendarEventImage}
-                        onClick={(e) => handleImageClick(event, e)}
-                      />
+                      <div className={styles.calendarEventImageContainer}>
+                        <img
+                          src={event.image}
+                          alt={event.title}
+                          className={styles.calendarEventImage}
+                          onClick={(e) => handleImageClick(event, e)}
+                        />
+                        <div className={styles.calendarEventMealType}>
+                          <span className={styles.mealTypeIndicator} title={event.mealType}>
+                            {getMealTypeIcon(event.mealType)}
+                          </span>
+                        </div>
+                      </div>
                     )}
                     <div className={styles.calendarEventInfo}>
                       <div className={styles.calendarEventNutrition}>
@@ -677,6 +475,74 @@ const PlanPage: React.FC = () => {
   const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
   const todayEvents = events.filter(event => event.date === todayString);
 
+  const generateNutritionData = (title: string, mealType: string, recipe?: Recipe) => {
+    const baseNutrition = {
+      breakfast: { calories: 350, protein: 15, carbs: 45, fat: 12 },
+      lunch: { calories: 450, protein: 20, carbs: 55, fat: 18 },
+      dinner: { calories: 550, protein: 25, carbs: 60, fat: 22 },
+      snack: { calories: 200, protein: 8, carbs: 25, fat: 8 }
+    };
+
+    const base = baseNutrition[mealType as keyof typeof baseNutrition] || baseNutrition.lunch;
+    const titleLower = title.toLowerCase();
+
+    let calories = base.calories;
+    let protein = base.protein;
+    let carbs = base.carbs;
+    let fat = base.fat;
+
+    if (titleLower.includes('chicken') || titleLower.includes('fish') || titleLower.includes('salmon') ||
+      titleLower.includes('beef') || titleLower.includes('meat') || titleLower.includes('protein')) {
+      protein += 10;
+      calories += 50;
+    }
+
+    if (titleLower.includes('pasta') || titleLower.includes('rice') || titleLower.includes('bread') ||
+      titleLower.includes('potato') || titleLower.includes('noodle')) {
+      carbs += 15;
+      calories += 80;
+    }
+
+    if (titleLower.includes('salad') || titleLower.includes('soup') || titleLower.includes('light') ||
+      titleLower.includes('vegetable')) {
+      calories -= 100;
+      fat -= 5;
+    }
+
+    if (titleLower.includes('cheese') || titleLower.includes('cream') || titleLower.includes('butter') ||
+      titleLower.includes('fried') || titleLower.includes('bacon')) {
+      fat += 8;
+      calories += 60;
+    }
+
+    if (recipe) {
+      if (recipe.vegetarian || titleLower.includes('vegetarian') || titleLower.includes('vegan')) {
+        protein -= 5;
+        carbs += 10;
+      }
+
+      if (recipe.readyInMinutes && recipe.readyInMinutes <= 15) {
+        calories -= 50;
+        protein -= 3;
+      }
+
+      if (recipe.servings) {
+        const servingFactor = recipe.servings;
+        calories = Math.round(calories / servingFactor);
+        protein = Math.round(protein / servingFactor);
+        carbs = Math.round(carbs / servingFactor);
+        fat = Math.round(fat / servingFactor);
+      }
+    }
+
+    return {
+      calories: Math.max(150, Math.round(calories)),
+      protein: Math.max(5, Math.round(protein)),
+      carbs: Math.max(10, Math.round(carbs)),
+      fat: Math.max(3, Math.round(fat))
+    };
+  };
+
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'easy': return '#4CAF50';
@@ -710,77 +576,11 @@ const PlanPage: React.FC = () => {
 
   const handleSwapRecipe = (recipe: Recipe) => {
     if (selectedEvent) {
-      const generateNutritionData = (recipe: Recipe, mealType: string) => {
-        const baseNutrition = {
-          breakfast: { calories: 350, protein: 15, carbs: 45, fat: 12 },
-          lunch: { calories: 450, protein: 20, carbs: 55, fat: 18 },
-          dinner: { calories: 550, protein: 25, carbs: 60, fat: 22 },
-          snack: { calories: 200, protein: 8, carbs: 25, fat: 8 }
-        };
-
-        const base = baseNutrition[mealType as keyof typeof baseNutrition] || baseNutrition.lunch;
-        const title = recipe.title?.toLowerCase() || '';
-
-        let calories = base.calories;
-        let protein = base.protein;
-        let carbs = base.carbs;
-        let fat = base.fat;
-
-        if (title.includes('chicken') || title.includes('fish') || title.includes('salmon') ||
-          title.includes('beef') || title.includes('meat') || title.includes('protein')) {
-          protein += 10;
-          calories += 50;
-        }
-
-        if (title.includes('pasta') || title.includes('rice') || title.includes('bread') ||
-          title.includes('potato') || title.includes('noodle')) {
-          carbs += 15;
-          calories += 80;
-        }
-
-        if (title.includes('salad') || title.includes('soup') || title.includes('light') ||
-          title.includes('vegetable')) {
-          calories -= 100;
-          fat -= 5;
-        }
-
-        if (title.includes('cheese') || title.includes('cream') || title.includes('butter') ||
-          title.includes('fried') || title.includes('bacon')) {
-          fat += 8;
-          calories += 60;
-        }
-
-        if (recipe.vegetarian || title.includes('vegetarian') || title.includes('vegan')) {
-          protein -= 5;
-          carbs += 10;
-        }
-
-        if (recipe.readyInMinutes && recipe.readyInMinutes <= 15) {
-          calories -= 50;
-          protein -= 3;
-        }
-
-        if (recipe.servings) {
-          const servingFactor = recipe.servings;
-          calories = Math.round(calories / servingFactor);
-          protein = Math.round(protein / servingFactor);
-          carbs = Math.round(carbs / servingFactor);
-          fat = Math.round(fat / servingFactor);
-        }
-
-        return {
-          calories: Math.max(150, Math.round(calories)),
-          protein: Math.max(5, Math.round(protein)),
-          carbs: Math.max(10, Math.round(carbs)),
-          fat: Math.max(3, Math.round(fat))
-        };
-      };
-
       const updatedEvent: PlanEvent = {
         ...selectedEvent,
         title: recipe.title,
         image: recipe.image,
-        nutrition: generateNutritionData(recipe, selectedEvent.mealType)
+        nutrition: generateNutritionData(recipe.title, selectedEvent.mealType, recipe)
       };
       updateEvent(selectedEvent.id, updatedEvent);
       setSelectedEvent(null);
@@ -800,54 +600,6 @@ const PlanPage: React.FC = () => {
   };
 
   const handleAddCustomRecipe = (recipeData: { title: string; mealType: string; date: string }) => {
-    const generateNutritionData = (title: string, mealType: string) => {
-      const baseNutrition = {
-        breakfast: { calories: 350, protein: 15, carbs: 45, fat: 12 },
-        lunch: { calories: 450, protein: 20, carbs: 55, fat: 18 },
-        dinner: { calories: 550, protein: 25, carbs: 60, fat: 22 },
-        snack: { calories: 200, protein: 8, carbs: 25, fat: 8 }
-      };
-
-      const base = baseNutrition[mealType as keyof typeof baseNutrition] || baseNutrition.lunch;
-      const titleLower = title.toLowerCase();
-
-      let calories = base.calories;
-      let protein = base.protein;
-      let carbs = base.carbs;
-      let fat = base.fat;
-
-      if (titleLower.includes('chicken') || titleLower.includes('fish') || titleLower.includes('salmon') ||
-        titleLower.includes('beef') || titleLower.includes('meat') || titleLower.includes('protein')) {
-        protein += 10;
-        calories += 50;
-      }
-
-      if (titleLower.includes('pasta') || titleLower.includes('rice') || titleLower.includes('bread') ||
-        titleLower.includes('potato') || titleLower.includes('noodle')) {
-        carbs += 15;
-        calories += 80;
-      }
-
-      if (titleLower.includes('salad') || titleLower.includes('soup') || titleLower.includes('light') ||
-        titleLower.includes('vegetable')) {
-        calories -= 100;
-        fat -= 5;
-      }
-
-      if (titleLower.includes('cheese') || titleLower.includes('cream') || titleLower.includes('butter') ||
-        titleLower.includes('fried') || titleLower.includes('bacon')) {
-        fat += 8;
-        calories += 60;
-      }
-
-      return {
-        calories: Math.max(150, Math.round(calories)),
-        protein: Math.max(5, Math.round(protein)),
-        carbs: Math.max(10, Math.round(carbs)),
-        fat: Math.max(3, Math.round(fat))
-      };
-    };
-
     const newEvent: Omit<PlanEvent, 'id'> = {
       title: recipeData.title,
       date: recipeData.date,
@@ -875,8 +627,6 @@ const PlanPage: React.FC = () => {
           <p className={styles.pageSubtitle}>Plan, track, and optimize your nutrition journey</p>
         </div>
       </div>
-
-
 
       <div className={styles.mainContent}>
         <div className={styles.contentWrapper}>
@@ -1133,7 +883,7 @@ const PlanPage: React.FC = () => {
         <div className={styles.recipeModalBackdrop} onClick={() => setShowRecipeModal(false)}>
           <div className={styles.recipeModal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.recipeModalHeader}>
-              <h3>{selectedRecipe.title}</h3>
+              <h3 style={{ textAlign: 'center', flex: 1 }}>{selectedRecipe.title}</h3>
               <button className={styles.recipeModalClose} onClick={() => setShowRecipeModal(false)}>×</button>
             </div>
 
@@ -1178,19 +928,31 @@ const PlanPage: React.FC = () => {
                     <h4>Nutrition Information</h4>
                     <div className={styles.recipeModalNutrition}>
                       <div className={styles.nutritionItem}>
-                        <span>Calories:</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#9C27B0' }}></div>
+                          <span>Calories:</span>
+                        </div>
                         <span>{Math.round(selectedRecipe.nutrition.calories)} cal</span>
                       </div>
                       <div className={styles.nutritionItem}>
-                        <span>Protein:</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#4CAF50' }}></div>
+                          <span>Protein:</span>
+                        </div>
                         <span>{Math.round(selectedRecipe.nutrition.protein)}g</span>
                       </div>
                       <div className={styles.nutritionItem}>
-                        <span>Carbohydrates:</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#FFC107' }}></div>
+                          <span>Carbohydrates:</span>
+                        </div>
                         <span>{Math.round(selectedRecipe.nutrition.carbs)}g</span>
                       </div>
                       <div className={styles.nutritionItem}>
-                        <span>Fat:</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#F44336' }}></div>
+                          <span>Fat:</span>
+                        </div>
                         <span>{Math.round(selectedRecipe.nutrition.fat)}g</span>
                       </div>
                     </div>
