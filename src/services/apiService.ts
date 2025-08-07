@@ -10,6 +10,12 @@ import type {
 const API_BASE_URL = 'https://api.spoonacular.com/recipes';
 const API_KEY = import.meta.env.VITE_SPOONACULAR_API_KEY || 'your-api-key-here';
 
+// Configuration options
+const CONFIG = {
+  LOG_API_ERRORS: import.meta.env.DEV, // Only log errors in development
+  USE_MOCK_DATA_FALLBACK: true, // Always fallback to mock data on API errors
+};
+
 // Mock data for development when API key is not available
 const mockRecipes: Recipe[] = [
   {
@@ -750,7 +756,7 @@ for (let i = 16; i <= 25; i++) {
 }
 
 // Helper function to build query parameters
-const buildQueryParams = (params: Record<string, any>): string => {
+const buildQueryParams = (params: Record<string, string | number | boolean | string[]>): string => {
   const searchParams = new URLSearchParams();
 
   Object.entries(params).forEach(([key, value]) => {
@@ -804,6 +810,43 @@ class RecipeApiService {
     }
   }
 
+  // Search recipes by ingredients
+  async searchRecipesByIngredients(ingredients: string[], maxMissingIngredients: number = 3): Promise<Recipe[]> {
+    if (this.useMockData) {
+      return this.getMockRecipesByIngredients(ingredients, maxMissingIngredients);
+    }
+
+    try {
+      const ingredientsString = ingredients.join(',');
+      const queryParams = buildQueryParams({
+        ingredients: ingredientsString,
+        ranking: 2, // Maximize used ingredients
+        ignorePantry: true,
+        number: 20,
+        apiKey: API_KEY,
+        addRecipeInformation: true,
+        fillIngredients: true
+      });
+
+      const response = await fetch(`${API_BASE_URL}/findByIngredients?${queryParams}`);
+
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      // Filter results based on maxMissingIngredients
+      return data.filter((recipe: { missedIngredientCount: number }) =>
+        recipe.missedIngredientCount <= maxMissingIngredients
+      );
+    } catch (error) {
+      console.error('Error searching recipes by ingredients:', error);
+      // Fallback to mock data on error
+      return this.getMockRecipesByIngredients(ingredients, maxMissingIngredients);
+    }
+  }
+
   // Get detailed recipe information
   async getRecipeDetails(recipeId: number): Promise<RecipeDetailResponse> {
     if (this.useMockData) {
@@ -816,7 +859,8 @@ class RecipeApiService {
         addRecipeInformation: true,
         fillIngredients: true,
         addWinePairing: true,
-        addTasteData: true
+        addTasteData: true,
+        addRecipeNutrition: true
       });
 
       const response = await fetch(`${API_BASE_URL}/${recipeId}/information?${queryParams}`);
@@ -841,11 +885,35 @@ class RecipeApiService {
     }
 
     try {
-      const [cuisinesResponse, dietsResponse, intolerancesResponse] = await Promise.all([
-        fetch(`${API_BASE_URL}/cuisines?apiKey=${API_KEY}`),
-        fetch(`${API_BASE_URL}/diets?apiKey=${API_KEY}`),
-        fetch(`${API_BASE_URL}/intolerances?apiKey=${API_KEY}`)
-      ]);
+      // Try the correct Spoonacular API endpoints for filters
+      const endpoints = [
+        { name: 'cuisines', url: `${API_BASE_URL}/cuisines?apiKey=${API_KEY}` },
+        { name: 'diets', url: `${API_BASE_URL}/diets?apiKey=${API_KEY}` },
+        { name: 'intolerances', url: `${API_BASE_URL}/intolerances?apiKey=${API_KEY}` }
+      ];
+
+      const responses = await Promise.allSettled(
+        endpoints.map(endpoint => fetch(endpoint.url))
+      );
+
+      // Check if any responses failed
+      const failedResponses = responses.filter(
+        response => response.status === 'rejected' ||
+          (response.status === 'fulfilled' && !response.value.ok)
+      );
+
+      if (failedResponses.length > 0) {
+        // Only log warning if configured
+        if (CONFIG.LOG_API_ERRORS) {
+          console.warn('Some filter endpoints returned errors, using mock data');
+        }
+        return this.getMockFilterOptions();
+      }
+
+      // Parse successful responses
+      const [cuisinesResponse, dietsResponse, intolerancesResponse] = responses.map(
+        response => (response as PromiseFulfilledResult<Response>).value
+      );
 
       const [cuisines, diets, intolerances] = await Promise.all([
         cuisinesResponse.json(),
@@ -854,9 +922,9 @@ class RecipeApiService {
       ]);
 
       return {
-        cuisines: cuisines.map((c: any) => ({ name: c.cuisine, value: c.cuisine })),
-        diets: diets.map((d: any) => ({ name: d.name, value: d.name })),
-        intolerances: intolerances.map((i: any) => ({ name: i.name, value: i.name })),
+        cuisines: cuisines.map((c: { cuisine: string }) => ({ name: c.cuisine, value: c.cuisine })),
+        diets: diets.map((d: { name: string }) => ({ name: d.name, value: d.name })),
+        intolerances: intolerances.map((i: { name: string }) => ({ name: i.name, value: i.name })),
         mealTypes: [
           { name: "Breakfast", value: "breakfast" },
           { name: "Lunch", value: "lunch" },
@@ -865,7 +933,10 @@ class RecipeApiService {
         ]
       };
     } catch (error) {
-      console.error('Error fetching filter options:', error);
+      // Only log error if configured
+      if (CONFIG.LOG_API_ERRORS) {
+        console.error('Error fetching filter options:', error);
+      }
       return this.getMockFilterOptions();
     }
   }
@@ -921,6 +992,50 @@ class RecipeApiService {
 
     return {
       ...recipe,
+      nutrition: {
+        nutrients: [
+          { name: "Calories", amount: 450, unit: "kcal", percentOfDailyNeeds: 22.5 },
+          { name: "Protein", amount: 25, unit: "g", percentOfDailyNeeds: 50 },
+          { name: "Fat", amount: 18, unit: "g", percentOfDailyNeeds: 27.7 },
+          { name: "Carbohydrates", amount: 35, unit: "g", percentOfDailyNeeds: 11.7 },
+          { name: "Fiber", amount: 8, unit: "g", percentOfDailyNeeds: 32 },
+          { name: "Sugar", amount: 12, unit: "g", percentOfDailyNeeds: 13.3 },
+          { name: "Sodium", amount: 680, unit: "mg", percentOfDailyNeeds: 28.3 },
+          { name: "Potassium", amount: 420, unit: "mg", percentOfDailyNeeds: 8.9 },
+          { name: "Vitamin C", amount: 15, unit: "mg", percentOfDailyNeeds: 16.7 },
+          { name: "Iron", amount: 3.2, unit: "mg", percentOfDailyNeeds: 17.8 },
+          { name: "Calcium", amount: 180, unit: "mg", percentOfDailyNeeds: 18 }
+        ],
+        properties: [
+          { name: "Glycemic Index", amount: 45, unit: "" },
+          { name: "Glycemic Load", amount: 8, unit: "" }
+        ],
+        flavonoids: [
+          { name: "Quercetin", amount: 2.5, unit: "mg" },
+          { name: "Kaempferol", amount: 1.2, unit: "mg" }
+        ],
+        ingredients: [
+          {
+            id: 1,
+            name: "corn tortillas",
+            amount: 2,
+            unit: "pieces",
+            nutrients: [
+              { name: "Calories", amount: 120, unit: "kcal", percentOfDailyNeeds: 6 },
+              { name: "Carbohydrates", amount: 24, unit: "g", percentOfDailyNeeds: 8 }
+            ]
+          }
+        ],
+        caloricBreakdown: {
+          percentProtein: 22.2,
+          percentFat: 36,
+          percentCarbs: 31.1
+        },
+        weightPerServing: {
+          amount: 250,
+          unit: "g"
+        }
+      },
       winePairing: {
         pairedWines: ["Chardonnay", "Pinot Noir"],
         pairingText: "This dish pairs well with a light Chardonnay or a medium-bodied Pinot Noir.",
@@ -974,6 +1089,14 @@ class RecipeApiService {
       ]
     };
   }
+
+  private getMockRecipesByIngredients(ingredients: string[], maxMissingIngredients: number = 3): Recipe[] {
+    return mockRecipes.filter(recipe => {
+      const recipeIngredients = recipe.extendedIngredients.map(ing => ing.name.toLowerCase());
+      const missingCount = ingredients.filter(ing => !recipeIngredients.includes(ing.toLowerCase())).length;
+      return missingCount <= maxMissingIngredients;
+    });
+  }
 }
 
 // Export singleton instance
@@ -983,3 +1106,5 @@ export const recipeApiService = new RecipeApiService();
 export const searchRecipes = (params: RecipeSearchParams) => recipeApiService.searchRecipes(params);
 export const getRecipeDetails = (recipeId: number) => recipeApiService.getRecipeDetails(recipeId);
 export const getFilterOptions = () => recipeApiService.getFilterOptions();
+export const searchRecipesByIngredients = (ingredients: string[], maxMissingIngredients: number = 3) => recipeApiService.searchRecipesByIngredients(ingredients, maxMissingIngredients);
+
