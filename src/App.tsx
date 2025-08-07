@@ -1,6 +1,7 @@
 import Header from './Header/Header';
 import LoginPage from './pages/Auth/LoginPage';
 import SignUpPage from './pages/Auth/SignUpPage';
+import LandingPage from './pages/LandingPage';
 
 import RecipesPage from './pages/RecipesPage';
 import PlanPage from './pages/PlanPage';
@@ -16,16 +17,17 @@ function App() {
   const location = useLocation();
   const isLoginPage = location.pathname === '/login';
   const isSignUpPage = location.pathname === '/signup';
+  const isLandingPage = location.pathname === '/';
 
   return (
     <PlanProvider>
       <ShoppingListProvider>
         <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-          {!isLoginPage && !isSignUpPage && <Header />}
+          {!isLoginPage && !isSignUpPage && !isLandingPage && <Header />}
 
           <main style={{ flex: 1, overflow: 'auto' }}>
             <Routes>
-              <Route path="/" element={<h2>Welcome to CravrPlan! Navigate using the links!</h2>} />
+              <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignUpPage />} />
               <Route path="/recipes" element={<RecipesPage />} />

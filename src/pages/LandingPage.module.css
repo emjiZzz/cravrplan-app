@@ -1,0 +1,553 @@
+/* LandingPage.module.css - Matches App Design System */
+
+.landingContainer {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #17371A 0%, #1a3f1e 50%, #17371A 100%);
+  position: relative;
+  overflow-x: hidden;
+}
+
+.landingContainer::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(circle at 20% 80%, rgba(84, 106, 4, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(84, 106, 4, 0.06) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Hero Section */
+.heroSection {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: linear-gradient(135deg, #17371A 0%, #1a3f1e 100%);
+}
+
+.heroBackground {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+}
+
+.heroBgImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.8) saturate(1.2);
+}
+
+.heroOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg,
+      rgba(0, 0, 0, 0.3) 0%,
+      rgba(0, 0, 0, 0.2) 50%,
+      rgba(0, 0, 0, 0.3) 100%);
+}
+
+.heroContent {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  max-width: 900px;
+  padding: 0 20px;
+  color: #FFFFFF;
+}
+
+.logoContainer {
+  margin-bottom: 40px;
+}
+
+.heroLogo {
+  height: 140px;
+  width: auto;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.3));
+}
+
+.heroTitle {
+  font-size: 4rem;
+  font-weight: 700;
+  margin: 0 0 25px 0;
+  line-height: 1.2;
+  color: #FFFFFF;
+  letter-spacing: -1px;
+}
+
+.highlight {
+  color: #FFD700;
+}
+
+.heroSubtitle {
+  font-size: 1.4rem;
+  margin: 0 0 50px 0;
+  line-height: 1.6;
+  color: #FFFFFF;
+  font-weight: 400;
+  opacity: 0.9;
+}
+
+.heroActions {
+  display: flex;
+  gap: 25px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.primaryButton {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: #000000;
+  padding: 18px 36px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.primaryButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255, 215, 0, 0.3);
+}
+
+.secondaryButton {
+  background: rgba(255, 255, 255, 0.1);
+  color: #FFFFFF;
+  padding: 18px 36px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.secondaryButton:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+}
+
+/* Container */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Features Section */
+.featuresSection {
+  padding: 100px 0;
+  background: linear-gradient(135deg, #17371A 0%, #1a3f1e 100%);
+  color: #FFFFFF;
+  position: relative;
+}
+
+.featuresSection::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(circle at 20% 80%, rgba(84, 106, 4, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(84, 106, 4, 0.06) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.sectionTitle {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  text-align: center;
+  margin: 0 0 25px 0;
+  letter-spacing: -1px;
+}
+
+.sectionSubtitle {
+  font-size: 1.3rem;
+  color: #FFFFFF;
+  text-align: center;
+  margin: 0 0 80px 0;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  font-weight: 400;
+  opacity: 0.9;
+}
+
+.featuresGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 30px;
+  margin-top: 80px;
+  position: relative;
+  z-index: 1;
+}
+
+.featureCard {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 40px 25px;
+  border-radius: 16px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: all 0.4s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.featureCard:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+}
+
+.featureIcon {
+  font-size: 3.5rem;
+  margin-bottom: 20px;
+  display: block;
+}
+
+.featureTitle {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #FFFFFF;
+  margin: 0 0 15px 0;
+}
+
+.featureDescription {
+  font-size: 1rem;
+  color: #FFFFFF;
+  line-height: 1.5;
+  margin: 0;
+  font-weight: 400;
+  opacity: 0.9;
+}
+
+/* Stats Section */
+.statsSection {
+  padding: 100px 0;
+  background: linear-gradient(135deg, #546A04, #17371A);
+  color: #FFFFFF;
+  position: relative;
+  overflow: hidden;
+}
+
+.statsSection::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.08) 0%, transparent 50%);
+  opacity: 0.3;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 50px;
+  position: relative;
+  z-index: 1;
+}
+
+.statCard {
+  text-align: center;
+  padding: 40px 25px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.statCard:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+}
+
+.statNumber {
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: #FFD700;
+  margin-bottom: 15px;
+}
+
+.statLabel {
+  font-size: 1.2rem;
+  font-weight: 500;
+  opacity: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #FFFFFF;
+}
+
+/* CTA Section */
+.ctaSection {
+  padding: 100px 0;
+  background: linear-gradient(135deg, #17371A 0%, #1a3f1e 100%);
+  color: #FFFFFF;
+  position: relative;
+}
+
+.ctaSection::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(circle at 20% 80%, rgba(84, 106, 4, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(84, 106, 4, 0.06) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.ctaTitle {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  text-align: center;
+  margin: 0 0 25px 0;
+  letter-spacing: -1px;
+}
+
+.ctaSubtitle {
+  font-size: 1.3rem;
+  color: #FFFFFF;
+  text-align: center;
+  margin: 0 0 50px 0;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  font-weight: 400;
+  opacity: 0.9;
+}
+
+.ctaActions {
+  display: flex;
+  gap: 25px;
+  justify-content: center;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
+}
+
+.ctaPrimaryButton {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: #000000;
+  padding: 18px 36px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.ctaPrimaryButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255, 215, 0, 0.3);
+}
+
+.ctaSecondaryButton {
+  background: rgba(255, 255, 255, 0.1);
+  color: #FFFFFF;
+  padding: 18px 36px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.ctaSecondaryButton:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+}
+
+/* Quick Actions Section */
+.quickActionsSection {
+  padding: 100px 0;
+  background: linear-gradient(135deg, #17371A 0%, #1a3f1e 100%);
+  color: #FFFFFF;
+  position: relative;
+}
+
+.quickActionsSection::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(circle at 20% 80%, rgba(84, 106, 4, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(84, 106, 4, 0.06) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.quickActionsTitle {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  text-align: center;
+  margin: 0 0 60px 0;
+  letter-spacing: -1px;
+}
+
+.quickActionsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+  position: relative;
+  z-index: 1;
+}
+
+.quickActionCard {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 40px 30px;
+  border-radius: 16px;
+  text-align: center;
+  border: none;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.quickActionCard:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+}
+
+.quickActionIcon {
+  font-size: 3rem;
+  margin-bottom: 20px;
+  display: block;
+}
+
+.quickActionCard h4 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #FFFFFF;
+  margin: 0 0 15px 0;
+}
+
+.quickActionCard p {
+  font-size: 1rem;
+  color: #FFFFFF;
+  margin: 0;
+  line-height: 1.6;
+  font-weight: 400;
+  opacity: 0.9;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .heroTitle {
+    font-size: 3rem;
+  }
+
+  .heroSubtitle {
+    font-size: 1.2rem;
+  }
+
+  .heroActions {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .primaryButton,
+  .secondaryButton {
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .featuresGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .quickActionsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .sectionTitle,
+  .ctaTitle {
+    font-size: 2.5rem;
+  }
+
+  .quickActionsTitle {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .heroTitle {
+    font-size: 2.5rem;
+  }
+
+  .heroLogo {
+    height: 100px;
+  }
+
+  .featuresGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .ctaActions {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .ctaPrimaryButton,
+  .ctaSecondaryButton {
+    width: 100%;
+    max-width: 320px;
+  }
+}
