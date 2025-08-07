@@ -14,7 +14,7 @@ const RecipeDetailPage: React.FC = () => {
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'ingredients' | 'instructions'>('ingredients');
+  const [activeTab, setActiveTab] = useState<'ingredients' | 'instructions' | 'cookware'>('ingredients');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
@@ -75,6 +75,114 @@ const RecipeDetailPage: React.FC = () => {
       return recipe.dishTypes[0];
     }
     return 'International';
+  };
+
+  // Helper function to determine cookware based on recipe
+  const getRequiredCookware = () => {
+    const cookware = [];
+    const recipeText = `${recipe.title} ${recipe.summary || ''} ${recipe.instructions || ''}`.toLowerCase();
+
+    // Basic cookware that's usually needed
+    cookware.push({
+      name: 'Chef\'s Knife',
+      description: 'Sharp cutting knife for chopping ingredients',
+      icon: '🔪',
+      priority: 'essential'
+    });
+
+    cookware.push({
+      name: 'Cutting Board',
+      description: 'Safe surface for chopping and preparing ingredients',
+      icon: '🪵',
+      priority: 'essential'
+    });
+
+    // Determine cookware based on recipe content
+    if (recipeText.includes('fry') || recipeText.includes('pan') || recipeText.includes('sauté')) {
+      cookware.push({
+        name: 'Frying Pan',
+        description: 'Large non-stick pan for frying and sautéing',
+        icon: '🍳',
+        priority: 'essential'
+      });
+    }
+
+    if (recipeText.includes('boil') || recipeText.includes('simmer') || recipeText.includes('sauce')) {
+      cookware.push({
+        name: 'Saucepan',
+        description: 'Medium-sized pot for boiling and simmering',
+        icon: '🥘',
+        priority: 'essential'
+      });
+    }
+
+    if (recipeText.includes('bake') || recipeText.includes('oven') || recipeText.includes('roast')) {
+      cookware.push({
+        name: 'Baking Sheet',
+        description: 'Flat pan for baking and roasting',
+        icon: '🍪',
+        priority: 'essential'
+      });
+    }
+
+    if (recipeText.includes('mix') || recipeText.includes('whisk') || recipeText.includes('beat')) {
+      cookware.push({
+        name: 'Mixing Bowl',
+        description: 'Large bowl for combining ingredients',
+        icon: '🥣',
+        priority: 'essential'
+      });
+    }
+
+    if (recipeText.includes('stir') || recipeText.includes('spoon')) {
+      cookware.push({
+        name: 'Wooden Spoon',
+        description: 'Stirring utensil for cooking',
+        icon: '🥄',
+        priority: 'helpful'
+      });
+    }
+
+    if (recipeText.includes('measure') || recipeText.includes('cup') || recipeText.includes('tablespoon')) {
+      cookware.push({
+        name: 'Measuring Cups & Spoons',
+        description: 'For accurate ingredient measurements',
+        icon: '🧂',
+        priority: 'essential'
+      });
+    }
+
+    if (recipeText.includes('grill') || recipeText.includes('bbq')) {
+      cookware.push({
+        name: 'Grill Pan',
+        description: 'Pan with ridges for grilling indoors',
+        icon: '🔥',
+        priority: 'essential'
+      });
+    }
+
+    if (recipeText.includes('blend') || recipeText.includes('puree') || recipeText.includes('smoothie')) {
+      cookware.push({
+        name: 'Blender',
+        description: 'For blending and pureeing ingredients',
+        icon: '⚡',
+        priority: 'essential'
+      });
+    }
+
+    if (recipeText.includes('strain') || recipeText.includes('drain')) {
+      cookware.push({
+        name: 'Colander',
+        description: 'For draining pasta and vegetables',
+        icon: '🕳️',
+        priority: 'helpful'
+      });
+    }
+
+    // Remove duplicates based on name
+    return cookware.filter((item, index, self) =>
+      index === self.findIndex(t => t.name === item.name)
+    );
   };
 
   return (
@@ -176,6 +284,13 @@ const RecipeDetailPage: React.FC = () => {
               Ingredients
             </button>
             <button
+              className={`${styles.tabButton} ${activeTab === 'cookware' ? styles.active : ''}`}
+              onClick={() => setActiveTab('cookware')}
+            >
+              <span className={styles.tabIcon}>🍳</span>
+              Find Cookware
+            </button>
+            <button
               className={`${styles.tabButton} ${activeTab === 'instructions' ? styles.active : ''}`}
               onClick={() => setActiveTab('instructions')}
             >
@@ -215,6 +330,24 @@ const RecipeDetailPage: React.FC = () => {
                   <p className={styles.noIngredients}>No ingredients information available.</p>
                 )}
               </div>
+            ) : activeTab === 'cookware' ? (
+              <div className={styles.instructionsList}>
+                <div className={styles.ingredientsGrid}>
+                  {getRequiredCookware().map((item, index) => (
+                    <div key={index} className={styles.ingredientCard}>
+                      <div className={styles.ingredientImage}>
+                        <div className={styles.ingredientPlaceholder}>
+                          {item.icon}
+                        </div>
+                      </div>
+                      <div className={styles.ingredientInfo}>
+                        <span className={styles.ingredientName}>{item.name}</span>
+                        <span className={styles.ingredientAmount}>{item.description}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             ) : (
               <div className={styles.instructionsList}>
                 {(() => {
@@ -233,33 +366,7 @@ const RecipeDetailPage: React.FC = () => {
                                 <span className={styles.stepText}>{step.step}</span>
                               </div>
 
-                              {/* Step Images - Ingredients */}
-                              {step.ingredients && step.ingredients.length > 0 && (
-                                <div className={styles.stepImages}>
-                                  <div className={styles.stepImageSection}>
-                                    <h4 className={styles.stepImageTitle}>Ingredients:</h4>
-                                    <div className={styles.stepImageGrid}>
-                                      {step.ingredients.map((ingredient) => (
-                                        <div key={ingredient.id} className={styles.stepImageItem}>
-                                          {ingredient.image ? (
-                                            <img
-                                              src={`https://spoonacular.com/cdn/ingredients_100x100/${ingredient.image}`}
-                                              alt={ingredient.name}
-                                              className={styles.stepImg}
-                                              title={ingredient.name}
-                                            />
-                                          ) : (
-                                            <div className={styles.stepImagePlaceholder}>
-                                              🥬
-                                            </div>
-                                          )}
-                                          <span className={styles.stepImageLabel}>{ingredient.name}</span>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
+
 
 
                             </li>
