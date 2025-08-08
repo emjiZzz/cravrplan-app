@@ -5,7 +5,6 @@ import LandingPage from './pages/LandingPage';
 
 import RecipesPage from './pages/RecipesPage';
 import PlanPage from './pages/PlanPage';
-import ShopPage from './pages/ShopPage';
 import RecipeDetailPage from './pages/RecipeDetailPage';
 import FridgePage from './pages/FridgePage';
 import { PlanProvider } from './context/PlanContext';
@@ -33,7 +32,7 @@ function App() {
               <Route path="/recipes" element={<RecipesPage />} />
               <Route path="/recipes/:id" element={<RecipeDetailPage />} />
               <Route path="/plan" element={<PlanPage />} />
-              <Route path="/shop" element={<ShopPage />} />
+              {/* Shop page removed */}
               <Route path="/fridge" element={<FridgePage />} />
             </Routes>
           </main>

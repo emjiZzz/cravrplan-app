@@ -5,15 +5,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './PlanPage.module.css';
 import { usePlan } from '../context/PlanContext';
-import type { Recipe } from '../types/recipeTypes';
 import type { PlanEvent } from '../context/PlanContextTypes';
-
-interface SwapRecipeModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSwap: (recipe: Recipe) => void;
-  currentEvent: PlanEvent | null;
-}
 
 interface AddMealModalProps {
   isOpen: boolean;
@@ -22,11 +14,6 @@ interface AddMealModalProps {
   onBrowseRecipes: () => void;
   selectedDate: string;
 }
-
-const SwapRecipeModal: React.FC<SwapRecipeModalProps> = ({ isOpen, onClose, onSwap, currentEvent }) => {
-  if (!isOpen) return null;
-  return null;
-};
 
 const AddMealModal: React.FC<AddMealModalProps> = ({ isOpen, onClose, onAddCustomRecipe, onBrowseRecipes, selectedDate }) => {
   const [recipeTitle, setRecipeTitle] = useState('');
@@ -451,7 +438,6 @@ const PlanPage: React.FC = () => {
     restoreFromTrash,
     deleteFromTrash,
     clearTrash,
-    updateEvent,
     addToPlan,
     ensureNutritionData
   } = usePlan();
@@ -461,8 +447,7 @@ const PlanPage: React.FC = () => {
   }, [ensureNutritionData]);
 
   const [showClearConfirm, setShowClearConfirm] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<PlanEvent | null>(null);
-  const [showSwapModal, setShowSwapModal] = useState(false);
+
   const [showTrashModal, setShowTrashModal] = useState(false);
   const [showRecipeModal, setShowRecipeModal] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState<PlanEvent | null>(null);
@@ -475,7 +460,7 @@ const PlanPage: React.FC = () => {
   const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
   const todayEvents = events.filter(event => event.date === todayString);
 
-  const generateNutritionData = (title: string, mealType: string, recipe?: Recipe) => {
+  const generateNutritionData = (title: string, mealType: string) => {
     const baseNutrition = {
       breakfast: { calories: 350, protein: 15, carbs: 45, fat: 12 },
       lunch: { calories: 450, protein: 20, carbs: 55, fat: 18 },
@@ -515,25 +500,7 @@ const PlanPage: React.FC = () => {
       calories += 60;
     }
 
-    if (recipe) {
-      if (recipe.vegetarian || titleLower.includes('vegetarian') || titleLower.includes('vegan')) {
-        protein -= 5;
-        carbs += 10;
-      }
-
-      if (recipe.readyInMinutes && recipe.readyInMinutes <= 15) {
-        calories -= 50;
-        protein -= 3;
-      }
-
-      if (recipe.servings) {
-        const servingFactor = recipe.servings;
-        calories = Math.round(calories / servingFactor);
-        protein = Math.round(protein / servingFactor);
-        carbs = Math.round(carbs / servingFactor);
-        fat = Math.round(fat / servingFactor);
-      }
-    }
+    // Additional adjustments could go here if recipe data is available
 
     return {
       calories: Math.max(150, Math.round(calories)),
@@ -572,20 +539,10 @@ const PlanPage: React.FC = () => {
       moveToTrash(event.id);
     });
     setShowClearConfirm(false);
+    alert('All meals were moved to Trash.');
   };
 
-  const handleSwapRecipe = (recipe: Recipe) => {
-    if (selectedEvent) {
-      const updatedEvent: PlanEvent = {
-        ...selectedEvent,
-        title: recipe.title,
-        image: recipe.image,
-        nutrition: generateNutritionData(recipe.title, selectedEvent.mealType, recipe)
-      };
-      updateEvent(selectedEvent.id, updatedEvent);
-      setSelectedEvent(null);
-    }
-  };
+  // no-op; swap flow handled via navigation to Recipes/RecipeDetail
 
   const handleViewRecipeInstructions = () => {
     if (selectedRecipe) {
@@ -597,6 +554,14 @@ const PlanPage: React.FC = () => {
   const handleDayClick = (date: string) => {
     setSelectedDate(date);
     setShowAddMealModal(true);
+    // Feedback for opening add meal flow
+    setTimeout(() => {
+      try {
+        // Non-blocking toast alternative using alert for now
+        // alert can be noisy; keep minimal
+        console.log('Add Meal dialog opened for date:', date);
+      } catch { }
+    }, 0);
   };
 
   const handleAddCustomRecipe = (recipeData: { title: string; mealType: string; date: string }) => {
@@ -652,12 +617,14 @@ const PlanPage: React.FC = () => {
                   <button
                     className={styles.clearAllButton}
                     onClick={() => setShowClearConfirm(true)}
+                    disabled={events.length === 0}
                   >
                     Clear All
                   </button>
                   <button
                     className={styles.trashButton}
                     onClick={() => setShowTrashModal(true)}
+                    disabled={trashedEvents.length === 0}
                     title={`Trash (${trashedEvents.length} items)`}
                   >
                     Trash ({trashedEvents.length})
@@ -768,8 +735,15 @@ const PlanPage: React.FC = () => {
                         <button
                           className={styles.swapButton}
                           onClick={() => {
-                            setSelectedEvent(event);
-                            setShowSwapModal(true);
+                            navigate('/recipes', {
+                              state: {
+                                swapFor: {
+                                  eventId: event.id,
+                                  date: event.date,
+                                  mealType: event.mealType,
+                                }
+                              }
+                            });
                           }}
                         >
                           Swap Recipe
@@ -778,6 +752,7 @@ const PlanPage: React.FC = () => {
                           className={styles.removeButton}
                           onClick={() => {
                             moveToTrash(event.id);
+                            alert('Moved to Trash.');
                           }}
                         >
                           Move to Trash
@@ -792,12 +767,7 @@ const PlanPage: React.FC = () => {
         </div>
       </div>
 
-      <SwapRecipeModal
-        isOpen={showSwapModal}
-        onClose={() => setShowSwapModal(false)}
-        onSwap={handleSwapRecipe}
-        currentEvent={selectedEvent}
-      />
+      {/* Swap modal not used; navigation-based swap flow is active */}
 
       <AddMealModal
         isOpen={showAddMealModal}
@@ -810,12 +780,14 @@ const PlanPage: React.FC = () => {
       {showClearConfirm && (
         <div className={styles.confirmModalBackdrop} onClick={() => setShowClearConfirm(false)}>
           <div className={styles.confirmModal} onClick={(e) => e.stopPropagation()}>
-            <h3>Move All to Trash</h3>
-            <p>Are you sure you want to move all planned meals to trash? You can restore them later from the trash.</p>
+            <h3>Clear All Meals</h3>
+            <p>Are you sure you want to move all meals to Trash?</p>
             <div className={styles.confirmModalActions}>
               <button onClick={() => setShowClearConfirm(false)}>Cancel</button>
-              <button className={styles.confirmButton} onClick={handleClearAll}>
-                Move All to Trash
+              <button className={styles.confirmButton} onClick={() => {
+                handleClearAll();
+              }}>
+                Clear All
               </button>
             </div>
           </div>
@@ -842,6 +814,7 @@ const PlanPage: React.FC = () => {
                         className={styles.restoreButton}
                         onClick={() => {
                           restoreFromTrash(event.id);
+                          alert('Meal restored from Trash.');
                         }}
                         title="Restore"
                       >
@@ -851,6 +824,7 @@ const PlanPage: React.FC = () => {
                         className={styles.deleteButton}
                         onClick={() => {
                           deleteFromTrash(event.id);
+                          alert('Meal permanently deleted.');
                         }}
                         title="Delete permanently"
                       >
@@ -869,6 +843,7 @@ const PlanPage: React.FC = () => {
                   onClick={() => {
                     clearTrash();
                     setShowTrashModal(false);
+                    alert('Trash emptied successfully.');
                   }}
                 >
                   Empty Trash

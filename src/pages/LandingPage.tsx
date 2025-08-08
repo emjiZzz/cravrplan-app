@@ -18,11 +18,7 @@ const LandingPage: React.FC = () => {
       title: 'Meal Planning',
       description: 'Plan your meals with our interactive calendar and nutritional tracking'
     },
-    {
-      icon: '🛒',
-      title: 'Shopping Lists',
-      description: 'Generate shopping lists automatically from your meal plans'
-    },
+    // Shopping Lists feature removed
     {
       icon: '🥬',
       title: 'Fridge to Recipe',
@@ -168,14 +164,7 @@ const LandingPage: React.FC = () => {
               <p>Create your weekly meal plan</p>
             </button>
 
-            <button
-              onClick={() => navigate('/shop')}
-              className={styles.quickActionCard}
-            >
-              <div className={styles.quickActionIcon}>🛒</div>
-              <h4>Shopping List</h4>
-              <p>Generate your grocery list</p>
-            </button>
+            {/* Shopping list quick action removed */}
           </div>
         </div>
       </section>

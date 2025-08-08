@@ -125,8 +125,9 @@ const RecipesPage: React.FC = () => {
   }, [selectedMenu, selectedDiet, currentPage, searchQuery, showFavoritesOnly]);
 
   const handleRecipeClick = (recipeId: number) => {
-    // Navigate to recipe detail page using React Router's navigate function
-    navigate(`/recipes/${recipeId}`);
+    // Preserve swap state if present when moving into detail
+    const state = (location.state as any) || undefined;
+    navigate(`/recipes/${recipeId}`, { state });
   };
 
   const handleNextPage = () => {
@@ -305,7 +306,7 @@ const RecipesPage: React.FC = () => {
         {/* No Results */}
         {!loading && !error && recipes.length === 0 && (
           <div className={styles.noResults}>
-            <p>No recipes found. Try adjusting your search criteria.</p>
+            <p>No recipes to display. You haven't added any favorites or your search returned no results.</p>
           </div>
         )}
 

@@ -2,7 +2,7 @@
 /* src/pages/RecipeDetailPage.tsx */
 
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { getRecipeDetails } from '../services/apiService';
 import type { Recipe } from '../types/recipeTypes';
 import styles from './RecipeDetailPage.module.css';
@@ -11,6 +11,7 @@ import AddToPlanModal from '../components/AddToPlanModal';
 const RecipeDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -222,10 +223,10 @@ const RecipeDetailPage: React.FC = () => {
           <div
             className={styles.addToPlanOverlay}
             onClick={() => setIsModalOpen(true)}
-            title="Add to Meal Plan"
+            title={location.state && (location.state as any).swapFor ? 'Swap this meal' : 'Add to Meal Plan'}
           >
             <div className={styles.addToPlanText}>
-              ADD THIS TO MEAL PLAN?
+              {(location.state && (location.state as any).swapFor) ? 'SWAP THIS MEAL?' : 'ADD THIS TO MEAL PLAN?'}
             </div>
           </div>
         </div>
@@ -422,6 +423,7 @@ const RecipeDetailPage: React.FC = () => {
             title: recipe.title,
             image: recipe.image,
           }}
+          swapFor={(location.state && (location.state as any).swapFor) || undefined}
         />
       )}
     </div>

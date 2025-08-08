@@ -53,12 +53,7 @@ const Header: React.FC = () => {
           >
             MEAL PLAN
           </button>
-          <button
-            onClick={() => handleNavClick('/shop')}
-            className={location.pathname === '/shop' ? styles.active : ''}
-          >
-            GROCERY
-          </button>
+          {null}
         </nav>
 
         <div className={styles.authLinks}>
