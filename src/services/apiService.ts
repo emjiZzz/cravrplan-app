@@ -880,65 +880,9 @@ class RecipeApiService {
 
   // Get available filter options
   async getFilterOptions(): Promise<FilterOptionsResponse> {
-    if (this.useMockData) {
-      return this.getMockFilterOptions();
-    }
-
-    try {
-      // Try the correct Spoonacular API endpoints for filters
-      const endpoints = [
-        { name: 'cuisines', url: `${API_BASE_URL}/cuisines?apiKey=${API_KEY}` },
-        { name: 'diets', url: `${API_BASE_URL}/diets?apiKey=${API_KEY}` },
-        { name: 'intolerances', url: `${API_BASE_URL}/intolerances?apiKey=${API_KEY}` }
-      ];
-
-      const responses = await Promise.allSettled(
-        endpoints.map(endpoint => fetch(endpoint.url))
-      );
-
-      // Check if any responses failed
-      const failedResponses = responses.filter(
-        response => response.status === 'rejected' ||
-          (response.status === 'fulfilled' && !response.value.ok)
-      );
-
-      if (failedResponses.length > 0) {
-        // Only log warning if configured
-        if (CONFIG.LOG_API_ERRORS) {
-          console.warn('Some filter endpoints returned errors, using mock data');
-        }
-        return this.getMockFilterOptions();
-      }
-
-      // Parse successful responses
-      const [cuisinesResponse, dietsResponse, intolerancesResponse] = responses.map(
-        response => (response as PromiseFulfilledResult<Response>).value
-      );
-
-      const [cuisines, diets, intolerances] = await Promise.all([
-        cuisinesResponse.json(),
-        dietsResponse.json(),
-        intolerancesResponse.json()
-      ]);
-
-      return {
-        cuisines: cuisines.map((c: { cuisine: string }) => ({ name: c.cuisine, value: c.cuisine })),
-        diets: diets.map((d: { name: string }) => ({ name: d.name, value: d.name })),
-        intolerances: intolerances.map((i: { name: string }) => ({ name: i.name, value: i.name })),
-        mealTypes: [
-          { name: "Breakfast", value: "breakfast" },
-          { name: "Lunch", value: "lunch" },
-          { name: "Dinner", value: "dinner" },
-          { name: "Snack", value: "snack" }
-        ]
-      };
-    } catch (error) {
-      // Only log error if configured
-      if (CONFIG.LOG_API_ERRORS) {
-        console.error('Error fetching filter options:', error);
-      }
-      return this.getMockFilterOptions();
-    }
+    // For now, always use mock data since the Spoonacular filter endpoints are not reliable
+    // This prevents 404 errors and provides a consistent user experience
+    return this.getMockFilterOptions();
   }
 
   // Mock data methods

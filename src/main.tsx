@@ -12,7 +12,12 @@ import { BrowserRouter } from 'react-router-dom'; // Import BrowserRouter
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     {/* Wrap the App component with BrowserRouter */}
-    <BrowserRouter>
+    <BrowserRouter
+      future={{
+        v7_startTransition: true,
+        v7_relativeSplatPath: true
+      }}
+    >
       <App />
     </BrowserRouter>
   </React.StrictMode>,

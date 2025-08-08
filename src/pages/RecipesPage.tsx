@@ -127,7 +127,18 @@ const RecipesPage: React.FC = () => {
   const handleRecipeClick = (recipeId: number) => {
     // Preserve swap state if present when moving into detail
     const state = (location.state as any) || undefined;
-    navigate(`/recipes/${recipeId}`, { state });
+
+    // Preserve selectedDate from URL if present
+    const urlParams = new URLSearchParams(location.search);
+    const selectedDate = urlParams.get('selectedDate');
+
+    // Build the navigation URL with selectedDate if it exists
+    let navigateUrl = `/recipes/${recipeId}`;
+    if (selectedDate) {
+      navigateUrl += `?selectedDate=${selectedDate}`;
+    }
+
+    navigate(navigateUrl, { state });
   };
 
   const handleNextPage = () => {

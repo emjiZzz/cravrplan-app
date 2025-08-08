@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import styles from './PlanPage.module.css';
 import { usePlan } from '../context/PlanContext';
 import type { PlanEvent } from '../context/PlanContextTypes';
+import ConfirmationModal from '../components/ConfirmationModal';
 
 interface AddMealModalProps {
   isOpen: boolean;
@@ -223,8 +224,8 @@ const GridCalendar: React.FC<{
       }
 
       for (let day = 1; day <= daysInMonth; day++) {
-        const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
-        const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        // Use a more reliable date string generation to avoid timezone issues
+        const dateString = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         const dayEvents = getEventsForDate(dateString);
 
         days.push(
@@ -263,6 +264,29 @@ const GridCalendar: React.FC<{
                       </div>
                     )}
                     <div className={styles.calendarEventInfo}>
+                      {!event.image && (
+                        <div style={{ marginBottom: '8px' }}>
+                          <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#2E3A1A', marginBottom: '4px' }}>
+                            {event.title}
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                            <span style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              width: '24px',
+                              height: '24px',
+                              background: 'rgba(84, 106, 4, 0.1)',
+                              borderRadius: '50%',
+                              fontSize: '0.9rem',
+                              color: '#546A04',
+                              border: '1px solid rgba(84, 106, 4, 0.2)'
+                            }} title={event.mealType}>
+                              {getMealTypeIcon(event.mealType)}
+                            </span>
+                          </div>
+                        </div>
+                      )}
                       <div className={styles.calendarEventNutrition}>
                         {event.nutrition && (
                           <>
@@ -304,6 +328,7 @@ const GridCalendar: React.FC<{
       for (let i = 0; i < 7; i++) {
         const date = new Date(startOfWeek);
         date.setDate(startOfWeek.getDate() + i);
+        // Use a more reliable date string generation to avoid timezone issues
         const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
         const dayEvents = getEventsForDate(dateString);
 
@@ -343,6 +368,29 @@ const GridCalendar: React.FC<{
                       </div>
                     )}
                     <div className={styles.calendarEventInfo}>
+                      {!event.image && (
+                        <div style={{ marginBottom: '8px' }}>
+                          <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#2E3A1A', marginBottom: '4px' }}>
+                            {event.title}
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                            <span style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              width: '24px',
+                              height: '24px',
+                              background: 'rgba(84, 106, 4, 0.1)',
+                              borderRadius: '50%',
+                              fontSize: '0.9rem',
+                              color: '#546A04',
+                              border: '1px solid rgba(84, 106, 4, 0.2)'
+                            }} title={event.mealType}>
+                              {getMealTypeIcon(event.mealType)}
+                            </span>
+                          </div>
+                        </div>
+                      )}
                       <div className={styles.calendarEventNutrition}>
                         {event.nutrition && (
                           <>
@@ -444,7 +492,7 @@ const PlanPage: React.FC = () => {
 
   React.useEffect(() => {
     ensureNutritionData();
-  }, [ensureNutritionData]);
+  }, []);
 
   const [showClearConfirm, setShowClearConfirm] = useState(false);
 
@@ -455,6 +503,10 @@ const PlanPage: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState('');
   const [calendarView, setCalendarView] = useState<'month' | 'week'>('month');
   const [showAllMeals, setShowAllMeals] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [confirmMessage, setConfirmMessage] = useState('');
 
   const today = new Date();
   const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
@@ -539,7 +591,10 @@ const PlanPage: React.FC = () => {
       moveToTrash(event.id);
     });
     setShowClearConfirm(false);
-    alert('All meals were moved to Trash.');
+  };
+
+  const handleConfirmClearAll = () => {
+    handleClearAll();
   };
 
   // no-op; swap flow handled via navigation to Recipes/RecipeDetail
@@ -552,6 +607,7 @@ const PlanPage: React.FC = () => {
   };
 
   const handleDayClick = (date: string) => {
+    console.log('Calendar day clicked, date:', date);
     setSelectedDate(date);
     setShowAddMealModal(true);
     // Feedback for opening add meal flow
@@ -581,7 +637,9 @@ const PlanPage: React.FC = () => {
   };
 
   const handleBrowseRecipes = () => {
-    navigate('/recipes');
+    // Pass the selected date to the recipes page so it can be used when adding meals
+    console.log('Browse recipes clicked, selectedDate:', selectedDate);
+    navigate(`/recipes?selectedDate=${selectedDate}`);
   };
 
   return (
@@ -751,8 +809,10 @@ const PlanPage: React.FC = () => {
                         <button
                           className={styles.removeButton}
                           onClick={() => {
-                            moveToTrash(event.id);
-                            alert('Moved to Trash.');
+                            setConfirmMessage(`Are you sure you want to move "${event.title}" to Trash?`);
+                            setShowConfirmModal(true);
+                            // Store the event ID for confirmation
+                            setSelectedRecipe(event);
                           }}
                         >
                           Move to Trash
@@ -813,8 +873,10 @@ const PlanPage: React.FC = () => {
                       <button
                         className={styles.restoreButton}
                         onClick={() => {
-                          restoreFromTrash(event.id);
-                          alert('Meal restored from Trash.');
+                          setConfirmMessage(`Are you sure you want to restore "${event.title}" from Trash?`);
+                          setShowConfirmModal(true);
+                          // Store the event for confirmation
+                          setSelectedRecipe(event);
                         }}
                         title="Restore"
                       >
@@ -823,8 +885,10 @@ const PlanPage: React.FC = () => {
                       <button
                         className={styles.deleteButton}
                         onClick={() => {
-                          deleteFromTrash(event.id);
-                          alert('Meal permanently deleted.');
+                          setConfirmMessage(`Are you sure you want to permanently delete "${event.title}"? This action cannot be undone.`);
+                          setShowConfirmModal(true);
+                          // Store the event for confirmation
+                          setSelectedRecipe(event);
                         }}
                         title="Delete permanently"
                       >
@@ -841,9 +905,8 @@ const PlanPage: React.FC = () => {
                 <button
                   className={styles.clearTrashButton}
                   onClick={() => {
-                    clearTrash();
-                    setShowTrashModal(false);
-                    alert('Trash emptied successfully.');
+                    setConfirmMessage('Are you sure you want to empty the trash? This action cannot be undone.');
+                    setShowConfirmModal(true);
                   }}
                 >
                   Empty Trash
@@ -947,6 +1010,49 @@ const PlanPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        onConfirm={() => {
+          setShowConfirmModal(false);
+          // Handle different actions based on the message
+          if (confirmMessage.includes('move') && selectedRecipe) {
+            moveToTrash(selectedRecipe.id);
+
+          } else if (confirmMessage.includes('restore') && selectedRecipe) {
+            restoreFromTrash(selectedRecipe.id);
+
+          } else if (confirmMessage.includes('permanently delete') && selectedRecipe) {
+            deleteFromTrash(selectedRecipe.id);
+
+          } else if (confirmMessage.includes('empty the trash')) {
+            clearTrash();
+            setShowTrashModal(false);
+
+          }
+        }}
+        title="Confirm Action"
+        message={confirmMessage}
+        confirmText="Confirm"
+        cancelText="Cancel"
+        type="info"
+      />
+
+
+
+      {/* Error Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        onConfirm={() => setShowErrorModal(false)}
+        title="Error"
+        message={errorMessage}
+        confirmText="OK"
+        cancelText="Cancel"
+        type="error"
+      />
     </div>
   );
 };

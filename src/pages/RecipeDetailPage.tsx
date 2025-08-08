@@ -18,6 +18,14 @@ const RecipeDetailPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'ingredients' | 'instructions' | 'cookware'>('ingredients');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // Get selectedDate from URL parameters
+  const getSelectedDateFromURL = () => {
+    const urlParams = new URLSearchParams(location.search);
+    const selectedDate = urlParams.get('selectedDate') || '';
+    console.log('RecipeDetailPage - selectedDate from URL:', selectedDate);
+    return selectedDate;
+  };
+
   useEffect(() => {
     const fetchRecipe = async () => {
       setLoading(true);
@@ -424,6 +432,7 @@ const RecipeDetailPage: React.FC = () => {
             image: recipe.image,
           }}
           swapFor={(location.state && (location.state as any).swapFor) || undefined}
+          selectedDate={getSelectedDateFromURL()}
         />
       )}
     </div>
