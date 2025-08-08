@@ -37,7 +37,7 @@ const Header: React.FC = () => {
         <nav className={`${styles.navigation} ${isPlanPage ? styles.planPage : ''}`}>
           <button
             onClick={() => handleNavClick('/recipes')}
-            className={location.pathname === '/recipes' ? styles.active : ''}
+            className={location.pathname === '/recipes' || location.pathname.startsWith('/recipes/') ? styles.active : ''}
           >
             RECIPES
           </button>

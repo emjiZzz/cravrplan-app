@@ -13,7 +13,6 @@ interface FridgeRecipe extends Recipe {
 
 interface Ingredient {
   name: string;
-  quantity?: string;
 }
 
 const FridgePage: React.FC = () => {
@@ -60,11 +59,7 @@ const FridgePage: React.FC = () => {
     setSelectedIngredients(selectedIngredients.filter(ing => ing.name !== ingredientName));
   };
 
-  const updateIngredientQuantity = (ingredientName: string, quantity: string) => {
-    setSelectedIngredients(selectedIngredients.map(ing =>
-      ing.name === ingredientName ? { ...ing, quantity } : ing
-    ));
-  };
+
 
   const searchRecipes = async () => {
     if (selectedIngredients.length === 0) return;
@@ -88,9 +83,6 @@ const FridgePage: React.FC = () => {
   return (
     <div className={styles.fridgePageContainer}>
       <div className={styles.pageHeader}>
-        <button className={styles.backButton} onClick={() => navigate(-1)}>
-          &larr;
-        </button>
         <div className={styles.headerContent}>
           <h1 className={styles.pageTitle}>My Fridge</h1>
           <p className={styles.pageSubtitle}>Add ingredients from your fridge and discover delicious recipes you can make</p>
@@ -179,13 +171,6 @@ const FridgePage: React.FC = () => {
                     <div key={index} className={styles.selectedIngredientItem}>
                       <div className={styles.ingredientDetails}>
                         <span className={styles.ingredientName}>{ingredient.name}</span>
-                        <input
-                          type="text"
-                          placeholder="Qty"
-                          value={ingredient.quantity || ''}
-                          onChange={(e) => updateIngredientQuantity(ingredient.name, e.target.value)}
-                          className={styles.quantityInput}
-                        />
                       </div>
                       <button
                         onClick={() => removeIngredient(ingredient.name)}
@@ -264,10 +249,16 @@ const FridgePage: React.FC = () => {
                       />
                       <div className={styles.recipeOverlay}>
                         <div className={styles.recipeStats}>
-                          <span className={styles.usedCount}>
+                          <span
+                            className={styles.usedCount}
+                            title={recipe.usedIngredients?.map(ing => ing.name).join(', ') || 'No ingredients used'}
+                          >
                             ✓ {recipe.usedIngredientCount} used
                           </span>
-                          <span className={styles.missedCount}>
+                          <span
+                            className={styles.missedCount}
+                            title={recipe.missedIngredients?.map(ing => ing.name).join(', ') || 'No missing ingredients'}
+                          >
                             ✗ {recipe.missedIngredientCount} missing
                           </span>
                         </div>
