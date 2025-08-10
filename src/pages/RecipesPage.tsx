@@ -74,8 +74,8 @@ const RecipesPage: React.FC = () => {
 
       try {
         const searchParams: RecipeSearchParams = {
-          number: 12, // 12 recipes per page
-          offset: currentPage * 12
+          number: 20, // 20 recipes per page
+          offset: currentPage * 20
         };
 
         // Add search query if provided
@@ -120,7 +120,7 @@ const RecipesPage: React.FC = () => {
     };
 
     // Debounce search to avoid too many API calls
-    const timeoutId = setTimeout(searchRecipesWithFilters, 500);
+    const timeoutId = setTimeout(searchRecipesWithFilters, 300);
     return () => clearTimeout(timeoutId);
   }, [selectedMenu, selectedDiet, currentPage, searchQuery, showFavoritesOnly]);
 
@@ -152,15 +152,18 @@ const RecipesPage: React.FC = () => {
   const handleMenuChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedMenu(e.target.value);
     setCurrentPage(0); // Reset to first page when changing filters
+    setLoading(true); // Show loading immediately
   };
 
   const handleDietChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedDiet(e.target.value);
     setCurrentPage(0); // Reset to first page when changing filters
+    setLoading(true); // Show loading immediately
   };
 
   const handleSearch = () => {
     setCurrentPage(0); // Reset to first page when searching
+    setLoading(true); // Show loading immediately
     const urlParams = new URLSearchParams(location.search);
     urlParams.set('search', searchQuery);
     navigate(`${location.pathname}?${urlParams.toString()}`);
@@ -243,6 +246,24 @@ const RecipesPage: React.FC = () => {
           <div className={styles.loadingContainer}>
             <div className={styles.loadingSpinner}></div>
             <p>Searching recipes...</p>
+            {/* Skeleton loading for better UX */}
+            <div className={styles.recipesGrid}>
+              {Array.from({ length: 20 }).map((_, index) => (
+                <div key={index} className={`${styles.recipeCard} ${styles.skeleton}`}>
+                  <div className={styles.recipeImage}>
+                    <div className={styles.skeletonImage}></div>
+                  </div>
+                  <div className={styles.recipeContent}>
+                    <div className={styles.skeletonTitle}></div>
+                    <div className={styles.skeletonDescription}></div>
+                    <div className={styles.skeletonTags}>
+                      <div className={styles.skeletonTag}></div>
+                      <div className={styles.skeletonTag}></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
@@ -305,6 +326,7 @@ const RecipesPage: React.FC = () => {
                     {recipe.veryHealthy && (
                       <span className={`${styles.recipeTag} ${styles.healthyTag}`}>
                         Healthy
+
                       </span>
                     )}
                   </div>
