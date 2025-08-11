@@ -10,7 +10,7 @@ import { useNavigate, useLocation } from 'react-router-dom'; // Import useNaviga
 
 // Import new components
 import RecipeCard from '../components/RecipeCard';
-import { ErrorMessage, EmptyState, SearchLoading } from '../components/LoadingStates';
+import { ErrorMessage, EmptyState } from '../components/LoadingStates';
 
 const RecipesPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -27,6 +27,9 @@ const RecipesPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [hasNextPage, setHasNextPage] = useState(false);
   const [hasPreviousPage, setHasPreviousPage] = useState(false);
+  const [searchSuggestions, setSearchSuggestions] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
 
   const navigate = useNavigate(); // Initialize useNavigate hook
   const location = useLocation(); // Initialize useLocation hook
@@ -75,6 +78,7 @@ const RecipesPage: React.FC = () => {
     const searchRecipesWithFilters = async () => {
       setError(null);
       setLoading(true);
+      setIsSearching(true);
 
       try {
         const searchParams: RecipeSearchParams = {
@@ -120,11 +124,13 @@ const RecipesPage: React.FC = () => {
 
         setHasNextPage(hasNext);
         setHasPreviousPage(hasPrev);
-      } catch (err) {
-        setError('Failed to load recipes. Please try again.');
+      } catch (err: any) {
+        const errorMessage = err?.message || 'Failed to load recipes. Please try again.';
+        setError(errorMessage);
         console.error('Error searching recipes:', err);
       } finally {
         setLoading(false);
+        setIsSearching(false);
       }
     };
 
@@ -175,13 +181,12 @@ const RecipesPage: React.FC = () => {
     navigate(`${location.pathname}?${urlParams.toString()}`);
   };
 
-  const toggleFavorite = (recipeId: number, isFavorite: boolean) => {
+  const toggleFavorite = (recipeId: number, isCurrentlyFavorite: boolean) => {
     setFavorites(prev => {
-      if (isFavorite) {
-        return prev.filter(id => id !== recipeId);
-      } else {
-        return [...prev, recipeId];
-      }
+      const newFavorites = isCurrentlyFavorite
+        ? prev.filter(id => id !== recipeId)
+        : [...prev, recipeId];
+      return newFavorites;
     });
   };
 
@@ -190,6 +195,45 @@ const RecipesPage: React.FC = () => {
     setCurrentPage(0); // Reset to first page when changing filters
   };
 
+  // Search suggestions
+  const popularSearches = [
+    'chicken', 'pasta', 'salad', 'soup', 'dessert', 'breakfast',
+    'vegetarian', 'quick', 'healthy', 'italian', 'mexican', 'asian'
+  ];
+
+  const getSearchSuggestions = (query: string) => {
+    if (!query.trim()) return [];
+
+    const suggestions = popularSearches.filter(search =>
+      search.toLowerCase().includes(query.toLowerCase())
+    );
+
+    return suggestions.slice(0, 5); // Limit to 5 suggestions
+  };
+
+  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+
+    if (value.trim()) {
+      const suggestions = getSearchSuggestions(value);
+      setSearchSuggestions(suggestions);
+      setShowSuggestions(suggestions.length > 0);
+    } else {
+      setShowSuggestions(false);
+      setSearchSuggestions([]);
+    }
+  };
+
+  const handleSuggestionClick = (suggestion: string) => {
+    setSearchQuery(suggestion);
+    setShowSuggestions(false);
+    setCurrentPage(0);
+    // Trigger search with the suggestion
+    const urlParams = new URLSearchParams(location.search);
+    urlParams.set('search', suggestion);
+    navigate(`${location.pathname}?${urlParams.toString()}`);
+  };
 
 
   return (
@@ -197,18 +241,38 @@ const RecipesPage: React.FC = () => {
       <div className={styles.contentWrapper}>
         {/* Search Bar */}
         <div className={styles.searchBar}>
-          <input
-            type="text"
-            placeholder="Search recipes..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyPress={(e) => {
-              if (e.key === 'Enter') {
-                handleSearch();
-              }
-            }}
-            className={styles.searchInput}
-          />
+          <div className={styles.searchInputContainer}>
+            <input
+              type="text"
+              placeholder="Search recipes..."
+              value={searchQuery}
+              onChange={handleSearchInputChange}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  handleSearch();
+                }
+              }}
+              className={styles.searchInput}
+            />
+            {isSearching && (
+              <div className={styles.searchLoading}>
+                <div className={styles.searchSpinner}></div>
+              </div>
+            )}
+            {showSuggestions && (
+              <div className={styles.searchSuggestions}>
+                {searchSuggestions.map((suggestion, index) => (
+                  <div
+                    key={index}
+                    className={styles.suggestionItem}
+                    onClick={() => handleSuggestionClick(suggestion)}
+                  >
+                    {suggestion}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Filter Dropdowns */}
@@ -260,16 +324,9 @@ const RecipesPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Enhanced Loading State */}
-        {loading && (
-          <div className={styles.loadingContainer}>
-            <SearchLoading query={searchQuery || 'recipes'} />
-          </div>
-        )}
-
         {/* Enhanced Error State */}
         {error && (
-          <ErrorMessage 
+          <ErrorMessage
             title="Failed to load recipes"
             message={error}
             onRetry={() => window.location.reload()}
@@ -295,7 +352,7 @@ const RecipesPage: React.FC = () => {
           <EmptyState
             icon="🍽️"
             title="No recipes found"
-            message={showFavoritesOnly 
+            message={showFavoritesOnly
               ? "You haven't added any favorites yet. Start exploring recipes to build your collection!"
               : "No recipes match your current search criteria. Try adjusting your filters or search terms."
             }

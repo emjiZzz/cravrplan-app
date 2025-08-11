@@ -1,0 +1,273 @@
+.modalBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(8px);
+  padding: 20px;
+}
+
+.modalContent {
+  background: linear-gradient(135deg, #F8F7E5 0%, #f5f5f0 50%, #F8F7E5 100%);
+  border-radius: 20px;
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.3),
+    0 8px 32px rgba(84, 106, 4, 0.1);
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  animation: modalSlideIn 0.3s ease-out;
+  border: 1px solid rgba(84, 106, 4, 0.2);
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modalHeader {
+  background: linear-gradient(135deg, #17371A 0%, #1a3f1e 100%);
+  padding: 20px 30px;
+  border-radius: 20px 20px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #F8F7E5;
+}
+
+.modalHeader h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.closeButton {
+  background: rgba(248, 247, 229, 0.1);
+  border: none;
+  color: #F8F7E5;
+  font-size: 1.5rem;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.closeButton:hover {
+  background: rgba(248, 247, 229, 0.2);
+  transform: scale(1.1);
+}
+
+.modalBody {
+  padding: 30px;
+}
+
+.dateSelector {
+  margin-bottom: 20px;
+}
+
+.dateSelector label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #17371A;
+}
+
+.dateSelector input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid rgba(84, 106, 4, 0.2);
+  border-radius: 8px;
+  font-size: 1rem;
+  background: white;
+  color: #17371A;
+  transition: all 0.2s ease;
+}
+
+.dateSelector input:focus {
+  outline: none;
+  border-color: #546A04;
+  box-shadow: 0 0 0 3px rgba(84, 106, 4, 0.1);
+}
+
+.tabButtons {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.tabButton {
+  flex: 1;
+  padding: 12px 16px;
+  border: 2px solid rgba(84, 106, 4, 0.2);
+  background: white;
+  color: #17371A;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.tabButton.active {
+  background: #546A04;
+  color: #F8F7E5;
+  border-color: #546A04;
+}
+
+.tabButton:hover:not(.active) {
+  border-color: #546A04;
+  background: rgba(84, 106, 4, 0.05);
+}
+
+.templatesList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.templateCard {
+  background: white;
+  border: 2px solid rgba(84, 106, 4, 0.1);
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.2s ease;
+}
+
+.templateCard:hover {
+  border-color: #546A04;
+  box-shadow: 0 4px 12px rgba(84, 106, 4, 0.1);
+}
+
+.templateHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.templateIcon {
+  font-size: 1.5rem;
+}
+
+.templateHeader h3 {
+  margin: 0;
+  color: #17371A;
+  font-size: 1.1rem;
+}
+
+.templateCard p {
+  margin: 0 0 16px 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.addTemplateButton {
+  background: #546A04;
+  color: #F8F7E5;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.addTemplateButton:hover {
+  background: #4a5d03;
+  transform: translateY(-1px);
+}
+
+.customForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.formGroup label {
+  font-weight: 600;
+  color: #17371A;
+}
+
+.formGroup input,
+.formGroup select {
+  padding: 12px;
+  border: 2px solid rgba(84, 106, 4, 0.2);
+  border-radius: 8px;
+  font-size: 1rem;
+  background: white;
+  color: #17371A;
+  transition: all 0.2s ease;
+}
+
+.formGroup input:focus,
+.formGroup select:focus {
+  outline: none;
+  border-color: #546A04;
+  box-shadow: 0 0 0 3px rgba(84, 106, 4, 0.1);
+}
+
+.addCustomButton {
+  background: #546A04;
+  color: #F8F7E5;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  margin-top: 8px;
+}
+
+.addCustomButton:hover:not(:disabled) {
+  background: #4a5d03;
+  transform: translateY(-1px);
+}
+
+.addCustomButton:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 768px) {
+  .modalContent {
+    margin: 20px;
+    max-height: calc(100vh - 40px);
+  }
+  
+  .modalHeader {
+    padding: 16px 20px;
+  }
+  
+  .modalBody {
+    padding: 20px;
+  }
+  
+  .tabButtons {
+    flex-direction: column;
+  }
+}

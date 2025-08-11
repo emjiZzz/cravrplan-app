@@ -147,9 +147,12 @@ const GridCalendar: React.FC<{
   onEventClick: (event: PlanEvent) => void;
   onImageClick: (event: PlanEvent) => void;
   onDayClick: (date: string) => void;
+  onEventDrop: (eventId: string, newDate: string) => void;
   view: 'month' | 'week';
-}> = ({ events, onEventClick, onImageClick, onDayClick, view }) => {
+}> = ({ events, onEventClick, onImageClick, onDayClick, onEventDrop, view }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [draggedEvent, setDraggedEvent] = useState<PlanEvent | null>(null);
+  const [dragOverDate, setDragOverDate] = useState<string | null>(null);
 
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();
@@ -206,6 +209,50 @@ const GridCalendar: React.FC<{
     onImageClick(event);
   };
 
+  const handleDragStart = (e: React.DragEvent, event: PlanEvent) => {
+    e.dataTransfer.setData('text/plain', event.id);
+    e.dataTransfer.effectAllowed = 'move';
+    setDraggedEvent(event);
+
+    // Add visual feedback
+    const target = e.target as HTMLElement;
+    target.style.opacity = '0.5';
+    target.style.transform = 'rotate(5deg)';
+
+    // Set drag image for better visual feedback
+    if (target) {
+      e.dataTransfer.setDragImage(target, target.offsetWidth / 2, target.offsetHeight / 2);
+    }
+  };
+
+  const handleDragEnd = (e: React.DragEvent) => {
+    const target = e.target as HTMLElement;
+    target.style.opacity = '1';
+    target.style.transform = 'rotate(0deg)';
+    setDraggedEvent(null);
+    setDragOverDate(null);
+  };
+
+  const handleDayDragOver = (e: React.DragEvent, dateString: string) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverDate(dateString);
+  };
+
+  const handleDayDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOverDate(null);
+  };
+
+  const handleDayDrop = (e: React.DragEvent, dateString: string) => {
+    e.preventDefault();
+    const eventId = e.dataTransfer.getData('text/plain');
+    if (eventId && draggedEvent) {
+      onEventDrop(eventId, dateString);
+    }
+    setDragOverDate(null);
+  };
+
   const { daysInMonth, firstDayOfWeek } = getDaysInMonth(currentDate);
   const monthName = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
@@ -230,12 +277,16 @@ const GridCalendar: React.FC<{
         // Use a more reliable date string generation to avoid timezone issues
         const dateString = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         const dayEvents = getEventsForDate(dateString);
+        const isDragOver = dragOverDate === dateString;
 
         days.push(
           <div
             key={day}
-            className={styles.calendarDay}
+            className={`${styles.calendarDay} ${isDragOver ? styles.dragOverDay : ''}`}
             onClick={() => onDayClick(dateString)}
+            onDragOver={(e) => handleDayDragOver(e, dateString)}
+            onDragLeave={handleDayDragLeave}
+            onDrop={(e) => handleDayDrop(e, dateString)}
           >
             <div className={styles.calendarDayNumber}>{day}</div>
             <div className={styles.calendarDayEvents}>
@@ -248,8 +299,16 @@ const GridCalendar: React.FC<{
                 return (
                   <div
                     key={event.id}
-                    className={styles.calendarEventCard}
-                    onClick={() => onEventClick(event)}
+                    className={`${styles.calendarEventCard} ${styles.draggableEvent}`}
+                    onClick={(e) => {
+                      // Prevent click when dragging
+                      if (!draggedEvent) {
+                        onEventClick(event);
+                      }
+                    }}
+                    draggable={true}
+                    onDragStart={(e) => handleDragStart(e, event)}
+                    onDragEnd={handleDragEnd}
                   >
                     {event.image && (
                       <div className={styles.calendarEventImageContainer}>
@@ -334,12 +393,16 @@ const GridCalendar: React.FC<{
         // Use a more reliable date string generation to avoid timezone issues
         const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
         const dayEvents = getEventsForDate(dateString);
+        const isDragOver = dragOverDate === dateString;
 
         days.push(
           <div
             key={i}
-            className={styles.calendarDay}
+            className={`${styles.calendarDay} ${isDragOver ? styles.dragOverDay : ''}`}
             onClick={() => onDayClick(dateString)}
+            onDragOver={(e) => handleDayDragOver(e, dateString)}
+            onDragLeave={handleDayDragLeave}
+            onDrop={(e) => handleDayDrop(e, dateString)}
           >
             <div className={styles.calendarDayNumber}>{date.getDate()}</div>
             <div className={styles.calendarDayEvents}>
@@ -352,8 +415,16 @@ const GridCalendar: React.FC<{
                 return (
                   <div
                     key={event.id}
-                    className={styles.calendarEventCard}
-                    onClick={() => onEventClick(event)}
+                    className={`${styles.calendarEventCard} ${styles.draggableEvent}`}
+                    onClick={(e) => {
+                      // Prevent click when dragging
+                      if (!draggedEvent) {
+                        onEventClick(event);
+                      }
+                    }}
+                    draggable={true}
+                    onDragStart={(e) => handleDragStart(e, event)}
+                    onDragEnd={handleDragEnd}
                   >
                     {event.image && (
                       <div className={styles.calendarEventImageContainer}>
@@ -490,6 +561,7 @@ const PlanPage: React.FC = () => {
     deleteFromTrash,
     clearTrash,
     addToPlan,
+    moveEvent,
     ensureNutritionData
   } = usePlan();
 
@@ -637,6 +709,17 @@ const PlanPage: React.FC = () => {
         console.log('Add Meal dialog opened for date:', date);
       } catch { }
     }, 0);
+  };
+
+  const handleEventDrop = (eventId: string, newDate: string) => {
+    // Use the new moveEvent method for better performance
+    moveEvent(eventId, newDate);
+
+    // Find the event for logging
+    const eventToMove = events.find(event => event.id === eventId);
+    if (eventToMove) {
+      console.log(`Event "${eventToMove.title}" moved from ${eventToMove.date} to ${newDate}`);
+    }
   };
 
   const handleAddCustomRecipe = (recipeData: { title: string; mealType: string; date: string }) => {
@@ -820,6 +903,7 @@ const PlanPage: React.FC = () => {
               <div className={styles.sectionTitleContainer}>
                 <h2 className={styles.sectionTitle}>
                   Smart Calendar
+                  <span className={styles.dragHint}>💡 Drag meals to reschedule</span>
                 </h2>
                 <div className={styles.calendarActions}>
                   <button
@@ -871,6 +955,7 @@ const PlanPage: React.FC = () => {
                     onEventClick={handleEventClick}
                     onImageClick={handleEventClick}
                     onDayClick={handleDayClick}
+                    onEventDrop={handleEventDrop}
                     view={calendarView}
                   />
                 )}

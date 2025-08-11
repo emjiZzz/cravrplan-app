@@ -109,12 +109,7 @@ interface SearchLoadingProps {
 export const SearchLoading: React.FC<SearchLoadingProps> = ({ query }) => {
   return (
     <div className={styles.searchLoadingContainer}>
-      <LoadingSpinner size="medium" message="Searching recipes..." />
-      {query && (
-        <p className={styles.searchQuery}>
-          Searching for "{query}"...
-        </p>
-      )}
+      <LoadingSpinner size="medium" message={query ? `Searching for "${query}"...` : "Searching recipes..."} />
     </div>
   );
 };

@@ -57,7 +57,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         email,
         fullName: email.split('@')[0] // Use email prefix as name for demo
       };
-      
+
       setUser(mockUser);
       localStorage.setItem('cravrplan_user', JSON.stringify(mockUser));
       return true;
@@ -79,7 +79,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         email,
         fullName
       };
-      
+
       setUser(mockUser);
       localStorage.setItem('cravrplan_user', JSON.stringify(mockUser));
       return true;
@@ -98,6 +98,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.removeItem('mealPlans');
     localStorage.removeItem('shoppingLists');
     localStorage.removeItem('activeShoppingListId');
+    localStorage.removeItem('recipeFavorites');
   };
 
   const value: AuthContextType = {

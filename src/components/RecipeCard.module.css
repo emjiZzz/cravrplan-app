@@ -58,7 +58,8 @@
 }
 
 .cuisineBadge,
-.dietBadge {
+.dietBadge,
+.mealTypeBadge {
   background: rgba(84, 106, 4, 0.9);
   color: white;
   padding: 4px 8px;
@@ -71,6 +72,13 @@
 
 .dietBadge {
   background: rgba(23, 55, 26, 0.9);
+}
+
+.mealTypeBadge {
+  background: rgba(255, 107, 107, 0.9);
+  display: flex;
+  align-items: center;
+  gap: 2px;
 }
 
 .indicators {
@@ -134,21 +142,6 @@
   transform: scale(1.2);
 }
 
-.loadingSpinner {
-  font-size: 14px;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 .content {
   padding: 16px;
 }
@@ -165,23 +158,29 @@
   overflow: hidden;
 }
 
-.recipeMeta {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+.recipeBadges {
+  display: flex;
   gap: 8px;
+  flex-wrap: wrap;
   margin-bottom: 16px;
 }
 
-.metaItem {
+.recipeBadge {
+  background: rgba(84, 106, 4, 0.1);
+  color: #546A04;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  border: 1px solid rgba(84, 106, 4, 0.2);
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: #666;
+  gap: 4px;
 }
 
-.metaIcon {
-  font-size: 14px;
+.recipeBadge:hover {
+  background: rgba(84, 106, 4, 0.15);
+  border-color: rgba(84, 106, 4, 0.3);
 }
 
 .viewRecipeButton {
@@ -206,6 +205,84 @@
   transform: translateY(0);
 }
 
+.nutritionSection {
+  margin: 12px 0;
+  padding: 12px;
+  background: rgba(84, 106, 4, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(84, 106, 4, 0.1);
+}
+
+.nutritionTitle {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #546A04;
+  margin: 0 0 8px 0;
+  text-align: center;
+}
+
+.nutritionGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.nutritionItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid rgba(84, 106, 4, 0.1);
+}
+
+.nutritionIndicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.nutritionLabel {
+  font-size: 0.75rem;
+  color: #546A04;
+  font-weight: 500;
+  flex: 1;
+}
+
+.nutritionValue {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #17371A;
+}
+
+.tagsSection {
+  margin: 8px 0;
+}
+
+.tagsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.recipeTag {
+  background: rgba(84, 106, 4, 0.1);
+  color: #546A04;
+  padding: 2px 6px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  border: 1px solid rgba(84, 106, 4, 0.2);
+  transition: all 0.2s ease;
+}
+
+.recipeTag:hover {
+  background: rgba(84, 106, 4, 0.2);
+  transform: translateY(-1px);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .imageContainer {
@@ -216,17 +293,13 @@
     font-size: 15px;
   }
 
-  .recipeMeta {
-    grid-template-columns: repeat(2, 1fr);
+  .recipeBadges {
     gap: 6px;
   }
 
-  .metaItem {
-    font-size: 11px;
-  }
-
-  .metaIcon {
-    font-size: 12px;
+  .recipeBadge {
+    font-size: 10px;
+    padding: 3px 6px;
   }
 
   .viewRecipeButton {
@@ -249,8 +322,14 @@
     margin-bottom: 10px;
   }
 
-  .recipeMeta {
+  .recipeBadges {
     margin-bottom: 12px;
+    gap: 4px;
+  }
+
+  .recipeBadge {
+    font-size: 9px;
+    padding: 2px 5px;
   }
 
   .badges {
@@ -258,7 +337,8 @@
   }
 
   .cuisineBadge,
-  .dietBadge {
+  .dietBadge,
+  .mealTypeBadge {
     font-size: 9px;
     padding: 3px 6px;
   }

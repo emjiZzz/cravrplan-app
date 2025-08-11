@@ -24,25 +24,93 @@
 }
 
 .searchInput {
-  width: 1000px;
-  max-width: 1000px;
-  padding: 15px 20px;
-  border: 2px solid rgba(84, 106, 4, 0.3);
-  border-radius: 50px;
+  flex: 1;
+  padding: 12px 16px;
+  border: 2px solid rgba(84, 106, 4, 0.2);
+  border-radius: 12px;
   font-size: 16px;
-  color: #17371A;
-  background-color: #F8F7E5;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  background: rgba(255, 255, 255, 0.95);
+  color: #2c3e2a;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.searchInputContainer {
+  position: relative;
+  flex: 1;
+}
+
+.searchLoading {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.searchSpinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(84, 106, 4, 0.2);
+  border-top: 2px solid #546A04;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .searchInput:focus {
   outline: none;
   border-color: #546A04;
   box-shadow: 0 0 0 3px rgba(84, 106, 4, 0.1);
+  background: white;
 }
 
 .searchInput::placeholder {
-  color: #666;
+  color: #546A04;
+  opacity: 0.7;
+}
+
+.searchSuggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 2px solid #546A04;
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 4px 12px rgba(84, 106, 4, 0.15);
+  z-index: 1000;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.suggestionItem {
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid rgba(84, 106, 4, 0.1);
+}
+
+.suggestionItem:last-child {
+  border-bottom: none;
+}
+
+.suggestionItem:hover {
+  background-color: rgba(84, 106, 4, 0.05);
+}
+
+.suggestionItem:active {
+  background-color: rgba(84, 106, 4, 0.1);
 }
 
 .searchButton {
@@ -634,110 +702,211 @@
 
 @media (max-width: 768px) {
   .recipesPageContainer {
-    padding: 15px;
+    padding: 16px;
   }
 
-  .contentWrapper {
-    padding: 0 10px;
+  .pageHeader {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+
+  .pageTitle {
+    font-size: 1.8rem;
+    text-align: center;
+  }
+
+  .pageSubtitle {
+    font-size: 1rem;
+    text-align: center;
   }
 
   .searchBar {
     flex-direction: column;
-    gap: 15px;
+    gap: 12px;
+  }
+
+  .searchInputContainer {
+    width: 100%;
   }
 
   .searchInput {
-    width: 100%;
-    max-width: none;
+    font-size: 16px;
+    /* Prevents zoom on iOS */
+    padding: 12px 16px;
+    min-height: 48px;
+    /* Touch-friendly height */
   }
 
-  .searchButton {
-    width: 100%;
-    max-width: 200px;
+  .searchSpinner {
+    width: 24px;
+    height: 24px;
   }
 
-  .basicFilters {
+  .searchSuggestions {
+    max-height: 150px;
+  }
+
+  .suggestionItem {
+    padding: 16px;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+  }
+
+  .filtersContainer {
     flex-direction: column;
-    align-items: stretch;
-    gap: 15px;
+    gap: 12px;
   }
 
-  .filterDropdown {
-    min-width: auto;
-    width: 100%;
+  .filterGroup {
+    flex-direction: column;
+    gap: 8px;
   }
 
-  .advancedFilters {
-    grid-template-columns: 1fr;
-    gap: 15px;
-    padding: 15px;
-  }
-
-  .advancedFilterToggle,
-  .clearFiltersButton {
-    min-width: auto;
-    width: 100%;
-  }
-
-  .intoleranceTags {
-    gap: 6px;
-  }
-
-  .intoleranceTag {
-    font-size: 11px;
-    padding: 5px 10px;
+  .filterSelect {
+    font-size: 16px;
+    padding: 12px;
+    min-height: 48px;
   }
 
   .recipesGrid {
     grid-template-columns: 1fr;
     gap: 16px;
+    padding: 0;
   }
 
-  .pagination {
-    gap: 15px;
+  .recipeCard {
+    margin: 0;
   }
 
-  .pageInfo {
-    font-size: 12px;
+  .emptyState {
+    padding: 32px 16px;
+  }
+
+  .emptyStateIcon {
+    font-size: 3rem;
+  }
+
+  .emptyState h3 {
+    font-size: 1.4rem;
+  }
+
+  .emptyState p {
+    font-size: 1rem;
   }
 }
 
 @media (max-width: 480px) {
-  .searchBar {
-    margin-top: 20px;
-    margin-bottom: 20px;
+  .recipesPageContainer {
+    padding: 12px;
+  }
+
+  .pageTitle {
+    font-size: 1.6rem;
+  }
+
+  .pageSubtitle {
+    font-size: 0.9rem;
   }
 
   .searchInput {
-    width: 100%;
-    padding: 12px 16px;
-    font-size: 14px;
-  }
-
-  .searchButton {
-    padding: 12px 20px;
-    font-size: 14px;
-  }
-
-  .filterDropdown {
-    padding: 10px 16px;
-    font-size: 13px;
-  }
-
-  .recipeCard {
-    margin: 0 5px;
-  }
-
-  .recipeContent {
-    padding: 15px;
-  }
-
-  .recipeTitle {
+    padding: 10px 14px;
     font-size: 16px;
   }
 
-  .recipeDescription {
-    font-size: 13px;
+  .filterSelect {
+    padding: 10px;
+    font-size: 16px;
+  }
+
+  .recipesGrid {
+    gap: 12px;
+  }
+
+  .emptyState {
+    padding: 24px 12px;
+  }
+
+  .emptyStateIcon {
+    font-size: 2.5rem;
+  }
+
+  .emptyState h3 {
+    font-size: 1.2rem;
+  }
+
+  .emptyState p {
+    font-size: 0.9rem;
+  }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+  .recipeCard {
+    transition: transform 0.1s ease;
+  }
+
+  .recipeCard:hover {
+    transform: none;
+  }
+
+  .recipeCard:active {
+    transform: scale(0.98);
+  }
+
+  .filterSelect:focus {
+    outline: 2px solid #546A04;
+    outline-offset: 2px;
+  }
+
+  .searchInput:focus {
+    outline: 2px solid #546A04;
+    outline-offset: 2px;
+  }
+}
+
+/* Tablet layout improvements */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .recipesGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .pageHeader {
+    gap: 20px;
+  }
+
+  .searchBar {
+    gap: 16px;
+  }
+
+  .filtersContainer {
+    gap: 16px;
+  }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2),
+(min-resolution: 192dpi) {
+  .recipeImage {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+
+  .recipeCard,
+  .searchInput,
+  .filterSelect,
+  .suggestionItem {
+    transition: none;
+  }
+
+  .searchSpinner {
+    animation: none;
   }
 }
 

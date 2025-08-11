@@ -50,6 +50,7 @@ export interface PlanContextType {
   deleteFromTrash: (id: string) => void;
   clearTrash: () => void;
   updateEvent: (id: string, updatedEvent: PlanEvent) => void;
+  moveEvent: (id: string, newDate: string) => void;
   clearAll: () => void;
   getEventsForDate: (date: string) => PlanEvent[];
   applyTemplate: (template: MealPlanTemplate, startDate: string) => void;

@@ -9,9 +9,9 @@ const generateNutritionData = (recipe: any, mealType: string) => {
   // Base nutrition values based on meal type
   const baseNutrition = {
     breakfast: { calories: 350, protein: 15, carbs: 45, fat: 12 },
-    lunch: { calories: 450, protein: 20, carbs: 55, fat: 18 },
-    dinner: { calories: 550, protein: 25, carbs: 60, fat: 22 },
     'main course': { calories: 500, protein: 22, carbs: 55, fat: 20 },
+    'side dish': { calories: 200, protein: 8, carbs: 25, fat: 8 },
+    dessert: { calories: 300, protein: 5, carbs: 45, fat: 12 },
     snack: { calories: 200, protein: 8, carbs: 25, fat: 8 }
   };
 
@@ -119,7 +119,7 @@ const defaultTemplates: MealPlanTemplate[] = [
       {
         title: 'Simple Lunch Wrap',
         recipeId: 2,
-        mealType: 'lunch',
+        mealType: 'main course',
         difficulty: 'easy',
         prepTime: 15,
         cookTime: 0,
@@ -129,7 +129,7 @@ const defaultTemplates: MealPlanTemplate[] = [
       {
         title: 'One-Pan Dinner',
         recipeId: 3,
-        mealType: 'dinner',
+        mealType: 'main course',
         difficulty: 'easy',
         prepTime: 15,
         cookTime: 25,
@@ -158,7 +158,7 @@ const defaultTemplates: MealPlanTemplate[] = [
       {
         title: 'Quinoa Salad Bowl',
         recipeId: 5,
-        mealType: 'lunch',
+        mealType: 'main course',
         difficulty: 'medium',
         prepTime: 20,
         cookTime: 15,
@@ -168,7 +168,7 @@ const defaultTemplates: MealPlanTemplate[] = [
       {
         title: 'Grilled Salmon with Vegetables',
         recipeId: 6,
-        mealType: 'dinner',
+        mealType: 'main course',
         difficulty: 'medium',
         prepTime: 20,
         cookTime: 20,
@@ -197,7 +197,7 @@ const defaultTemplates: MealPlanTemplate[] = [
       {
         title: 'Homemade Pizza',
         recipeId: 8,
-        mealType: 'dinner',
+        mealType: 'main course',
         difficulty: 'hard',
         prepTime: 30,
         cookTime: 20,
@@ -255,6 +255,12 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
 
   const updateEvent: PlanContextType['updateEvent'] = (id, updatedEvent) => {
     setEvents(prev => prev.map(event => event.id === id ? updatedEvent : event));
+  };
+
+  const moveEvent: PlanContextType['moveEvent'] = (id, newDate) => {
+    setEvents(prev => prev.map(event =>
+      event.id === id ? { ...event, date: newDate } : event
+    ));
   };
 
   const clearAll: PlanContextType['clearAll'] = () => {
@@ -356,6 +362,7 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
       deleteFromTrash,
       clearTrash,
       updateEvent,
+      moveEvent,
       clearAll,
       getEventsForDate,
       applyTemplate,

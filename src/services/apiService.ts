@@ -14,7 +14,32 @@ const API_KEY = import.meta.env.VITE_SPOONACULAR_API_KEY || 'your-api-key-here';
 const CONFIG = {
   LOG_API_ERRORS: import.meta.env.DEV, // Only log errors in development
   USE_MOCK_DATA_FALLBACK: true, // Always fallback to mock data on API errors
+  RATE_LIMIT_DELAY: 1000, // 1 second between requests
+  MAX_RETRIES: 3, // Maximum retry attempts for failed requests
+  REQUEST_TIMEOUT: 10000, // 10 seconds timeout
 };
+
+// Enhanced error types
+export interface ApiError {
+  code: string;
+  message: string;
+  details?: any;
+  retryable: boolean;
+}
+
+export class RecipeApiError extends Error {
+  public code: string;
+  public retryable: boolean;
+  public details?: any;
+
+  constructor(message: string, code: string, retryable: boolean = false, details?: any) {
+    super(message);
+    this.name = 'RecipeApiError';
+    this.code = code;
+    this.retryable = retryable;
+    this.details = details;
+  }
+}
 
 // Mock data for development when API key is not available
 const mockRecipes: Recipe[] = [
@@ -801,18 +826,111 @@ class RecipeApiService {
     this.lastRequestTime = now;
   }
 
-  // Enhanced error handling
-  private handleApiError(error: any, fallbackData: any): any {
+  // Enhanced error handling with retry logic
+  private async makeRequest<T>(url: string, options: RequestInit = {}, retryCount: number = 0): Promise<T> {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), CONFIG.REQUEST_TIMEOUT);
+
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal,
+        headers: {
+          'Content-Type': 'application/json',
+          ...options.headers,
+        },
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+
+        if (response.status === 401) {
+          throw new RecipeApiError(
+            'Invalid API key. Please check your configuration.',
+            'AUTH_ERROR',
+            false,
+            errorData
+          );
+        } else if (response.status === 429) {
+          throw new RecipeApiError(
+            'API rate limit exceeded. Please try again later.',
+            'RATE_LIMIT_ERROR',
+            true,
+            errorData
+          );
+        } else if (response.status >= 500) {
+          throw new RecipeApiError(
+            'Server error. Please try again later.',
+            'SERVER_ERROR',
+            true,
+            errorData
+          );
+        } else {
+          throw new RecipeApiError(
+            `API request failed: ${response.status} ${response.statusText}`,
+            'REQUEST_ERROR',
+            false,
+            errorData
+          );
+        }
+      }
+
+      return await response.json();
+    } catch (error) {
+      if (error instanceof RecipeApiError) {
+        throw error;
+      }
+
+      if (error.name === 'AbortError') {
+        throw new RecipeApiError(
+          'Request timeout. Please try again.',
+          'TIMEOUT_ERROR',
+          true
+        );
+      }
+
+      // Retry logic for retryable errors
+      if (retryCount < CONFIG.MAX_RETRIES && this.isRetryableError(error)) {
+        const delay = Math.pow(2, retryCount) * 1000; // Exponential backoff
+        await new Promise(resolve => setTimeout(resolve, delay));
+        return this.makeRequest<T>(url, options, retryCount + 1);
+      }
+
+      throw new RecipeApiError(
+        `Network error: ${error.message}`,
+        'NETWORK_ERROR',
+        false,
+        error
+      );
+    }
+  }
+
+  private isRetryableError(error: any): boolean {
+    return error.code === 'RATE_LIMIT_ERROR' ||
+      error.code === 'SERVER_ERROR' ||
+      error.code === 'TIMEOUT_ERROR' ||
+      error.name === 'AbortError';
+  }
+
+  // Enhanced error handling with fallback
+  private handleApiError(error: unknown, fallbackData: any): any {
     if (CONFIG.LOG_API_ERRORS) {
-      console.error('API Error:', error);
+      console.error('API Error:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        code: (error as any)?.code,
+        retryable: (error as any)?.retryable,
+        details: (error as any)?.details
+      });
     }
 
     if (CONFIG.USE_MOCK_DATA_FALLBACK) {
-      console.warn('Falling back to mock data due to API error');
+      console.warn('Falling back to mock data due to API error:', error instanceof Error ? error.message : 'Unknown error');
       return fallbackData;
     }
 
-    throw new Error(`API request failed: ${error.message}`);
+    throw error;
   }
 
   // Search recipes with various filters
@@ -832,29 +950,9 @@ class RecipeApiService {
         number: params.number || 20
       });
 
-      const response = await fetch(`${API_BASE_URL}/complexSearch?${queryParams}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        signal: AbortSignal.timeout(10000) // 10 second timeout
-      });
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error('Invalid API key. Please check your configuration.');
-        } else if (response.status === 429) {
-          throw new Error('API rate limit exceeded. Please try again later.');
-        } else if (response.status >= 500) {
-          throw new Error('Server error. Please try again later.');
-        } else {
-          throw new Error(`API request failed: ${response.status} ${response.statusText}`);
-        }
-      }
-
-      const data = await response.json();
-      return data;
-    } catch (error) {
+      const response = await this.makeRequest<RecipeSearchResponse>(`${API_BASE_URL}/complexSearch?${queryParams}`);
+      return response;
+    } catch (error: unknown) {
       return this.handleApiError(error, this.getMockSearchResults(params));
     }
   }
@@ -866,9 +964,10 @@ class RecipeApiService {
     }
 
     try {
-      const ingredientsString = ingredients.join(',');
+      await this.checkRateLimit();
+
       const queryParams = buildQueryParams({
-        ingredients: ingredientsString,
+        ingredients: ingredients.join(','),
         ranking: 2, // Maximize used ingredients
         ignorePantry: true,
         number: 20,
@@ -877,22 +976,14 @@ class RecipeApiService {
         fillIngredients: true
       });
 
-      const response = await fetch(`${API_BASE_URL}/findByIngredients?${queryParams}`);
-
-      if (!response.ok) {
-        throw new Error(`API request failed: ${response.status}`);
-      }
-
-      const data = await response.json();
+      const response = await this.makeRequest<{ results: any[] }>(`${API_BASE_URL}/findByIngredients?${queryParams}`);
 
       // Filter results based on maxMissingIngredients
-      return data.filter((recipe: { missedIngredientCount: number }) =>
+      return response.results.filter((recipe: any) =>
         recipe.missedIngredientCount <= maxMissingIngredients
       );
-    } catch (error) {
-      console.error('Error searching recipes by ingredients:', error);
-      // Fallback to mock data on error
-      return this.getMockRecipesByIngredients(ingredients, maxMissingIngredients);
+    } catch (error: unknown) {
+      return this.handleApiError(error, this.getMockRecipesByIngredients(ingredients, maxMissingIngredients));
     }
   }
 
@@ -903,27 +994,17 @@ class RecipeApiService {
     }
 
     try {
+      await this.checkRateLimit();
+
       const queryParams = buildQueryParams({
-        apiKey: API_KEY,
-        addRecipeInformation: true,
-        fillIngredients: true,
-        addWinePairing: true,
-        addTasteData: true,
-        addRecipeNutrition: true
+        apiKey: API_KEY
       });
 
-      const response = await fetch(`${API_BASE_URL}/${recipeId}/information?${queryParams}`);
-
-      if (!response.ok) {
-        throw new Error(`API request failed: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data;
-    } catch (error) {
+      const response = await this.makeRequest<RecipeDetailResponse>(`${API_BASE_URL}/${recipeId}/information?${queryParams}`);
+      return response;
+    } catch (error: unknown) {
       console.error('Error fetching recipe details:', error);
-      // Fallback to mock data on error
-      return this.getMockRecipeDetails(recipeId);
+      return this.handleApiError(error, this.getMockRecipeDetails(recipeId));
     }
   }
 

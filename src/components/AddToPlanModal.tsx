@@ -269,10 +269,7 @@ const AddToPlanModal: React.FC<AddToPlanModalProps> = ({ isOpen, onClose, recipe
                 disabled={isAdding || isAlreadyPlanned}
               >
                 {isAdding ? (
-                  <>
-                    <span className={styles.loadingSpinner}></span>
-                    {swapFor ? 'Swapping...' : 'Adding...'}
-                  </>
+                  <span className={styles.loadingSpinner}></span>
                 ) : (
                   (swapFor ? 'Swap Meal' : 'Add to Plan')
                 )}
