@@ -9,6 +9,7 @@ import RecipeDetailPage from './pages/RecipeDetailPage';
 import FridgePage from './pages/FridgePage';
 import { PlanProvider } from './context/PlanContext';
 import { ShoppingListProvider } from './context/ShoppingListContext';
+import { AuthProvider } from './context/AuthContext';
 
 import { Routes, Route, useLocation } from 'react-router-dom';
 

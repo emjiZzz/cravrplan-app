@@ -1026,9 +1026,10 @@ class RecipeApiService {
         { name: "Wheat", value: "Wheat" }
       ],
       mealTypes: [
+        { name: "Main Course", value: "main course" },
         { name: "Breakfast", value: "breakfast" },
-        { name: "Lunch", value: "lunch" },
-        { name: "Dinner", value: "dinner" },
+        { name: "Side Dish", value: "side dish" },
+        { name: "Dessert", value: "dessert" },
         { name: "Snack", value: "snack" }
       ]
     };

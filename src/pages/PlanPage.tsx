@@ -108,9 +108,12 @@ const AddMealModal: React.FC<AddMealModalProps> = ({ isOpen, onClose, onAddCusto
                   onChange={(e) => setMealType(e.target.value)}
                   className={styles.formSelect}
                 >
+                  <option value="main course">Main Course</option>
                   <option value="breakfast">Breakfast</option>
-                  <option value="lunch">Lunch</option>
-                  <option value="dinner">Dinner</option>
+                  <option value="side dish">Side Dish</option>
+                  <option value="dessert">Dessert</option>
+
+                  <option value="snack">Snack</option>
                 </select>
               </div>
 
@@ -507,6 +510,20 @@ const PlanPage: React.FC = () => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [confirmMessage, setConfirmMessage] = useState('');
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showNotesModal, setShowNotesModal] = useState(false);
+  const [editingRecipe, setEditingRecipe] = useState<PlanEvent | null>(null);
+  const [editFormData, setEditFormData] = useState({
+    title: '',
+    mealType: 'main course',
+    prepTime: 15,
+    cookTime: 30,
+    servings: 2,
+    notes: '',
+    image: undefined as string | undefined
+  });
+  const [dragOver, setDragOver] = useState(false);
+  const [customImage, setCustomImage] = useState<string | null>(null);
 
   const today = new Date();
   const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
@@ -515,12 +532,14 @@ const PlanPage: React.FC = () => {
   const generateNutritionData = (title: string, mealType: string) => {
     const baseNutrition = {
       breakfast: { calories: 350, protein: 15, carbs: 45, fat: 12 },
-      lunch: { calories: 450, protein: 20, carbs: 55, fat: 18 },
-      dinner: { calories: 550, protein: 25, carbs: 60, fat: 22 },
+      'main course': { calories: 550, protein: 25, carbs: 60, fat: 22 },
+      'side dish': { calories: 250, protein: 8, carbs: 35, fat: 10 },
+      dessert: { calories: 300, protein: 5, carbs: 50, fat: 12 },
+
       snack: { calories: 200, protein: 8, carbs: 25, fat: 8 }
     };
 
-    const base = baseNutrition[mealType as keyof typeof baseNutrition] || baseNutrition.lunch;
+    const base = baseNutrition[mealType as keyof typeof baseNutrition] || baseNutrition['main course'];
     const titleLower = title.toLowerCase();
 
     let calories = base.calories;
@@ -624,7 +643,7 @@ const PlanPage: React.FC = () => {
     const newEvent: Omit<PlanEvent, 'id'> = {
       title: recipeData.title,
       date: recipeData.date,
-      mealType: recipeData.mealType as 'breakfast' | 'lunch' | 'dinner' | 'snack',
+      mealType: recipeData.mealType as 'main course' | 'breakfast' | 'side dish' | 'dessert' | 'snack',
       difficulty: 'easy',
       prepTime: 15,
       cookTime: 30,
@@ -640,6 +659,149 @@ const PlanPage: React.FC = () => {
     // Pass the selected date to the recipes page so it can be used when adding meals
     console.log('Browse recipes clicked, selectedDate:', selectedDate);
     navigate(`/recipes?selectedDate=${selectedDate}`);
+  };
+
+  const handleEditCustomRecipe = (recipe: PlanEvent) => {
+    setEditingRecipe(recipe);
+    setEditFormData({
+      title: recipe.title,
+      mealType: recipe.mealType,
+      prepTime: recipe.prepTime || 15,
+      cookTime: recipe.cookTime || 30,
+      servings: recipe.servings || 2,
+      notes: recipe.notes || '',
+      image: recipe.image
+    });
+    setCustomImage(null); // Clear any previous custom image
+    setShowEditModal(true);
+    setShowRecipeModal(false);
+  };
+
+  const handleSaveEdit = () => {
+    if (editingRecipe && editFormData.title.trim()) {
+      // Update the recipe in the plan
+      const updatedRecipe: PlanEvent = {
+        ...editingRecipe,
+        title: editFormData.title.trim(),
+        mealType: editFormData.mealType as 'main course' | 'breakfast' | 'side dish' | 'dessert' | 'snack',
+        prepTime: editFormData.prepTime,
+        cookTime: editFormData.cookTime,
+        servings: editFormData.servings,
+        notes: editFormData.notes.trim(),
+        image: editFormData.image,
+        nutrition: generateNutritionData(editFormData.title, editFormData.mealType)
+      };
+
+      // Remove the old recipe and add the updated one
+      moveToTrash(editingRecipe.id);
+      addToPlan(updatedRecipe);
+
+      // Close edit modal and return to plan page
+      setShowEditModal(false);
+      setShowAddMealModal(false); // Ensure add meal modal is closed
+      setShowRecipeModal(false); // Ensure recipe modal is closed
+      setEditingRecipe(null);
+      setCustomImage(null); // Clear custom image
+      setEditFormData({
+        title: '',
+        mealType: 'lunch',
+        prepTime: 15,
+        cookTime: 30,
+        servings: 2,
+        notes: '',
+        image: undefined
+      });
+    }
+  };
+
+  const handleAddNotes = (recipe: PlanEvent) => {
+    setEditingRecipe(recipe);
+    setEditFormData({
+      title: recipe.title,
+      mealType: recipe.mealType,
+      prepTime: recipe.prepTime || 15,
+      cookTime: recipe.cookTime || 30,
+      servings: recipe.servings || 2,
+      notes: recipe.notes || '',
+      image: recipe.image
+    });
+    setCustomImage(null); // Clear any previous custom image
+    setShowNotesModal(true);
+    setShowRecipeModal(false);
+  };
+
+  const handleSaveNotes = () => {
+    if (editingRecipe) {
+      const updatedRecipe: PlanEvent = {
+        ...editingRecipe,
+        notes: editFormData.notes.trim()
+      };
+
+      // Remove the old recipe and add the updated one
+      moveToTrash(editingRecipe.id);
+      addToPlan(updatedRecipe);
+
+      setShowNotesModal(false);
+      setShowAddMealModal(false); // Ensure add meal modal is closed
+      setShowRecipeModal(false); // Ensure recipe modal is closed
+      setEditingRecipe(null);
+      setCustomImage(null); // Clear custom image
+      setEditFormData({
+        title: '',
+        mealType: 'lunch',
+        prepTime: 15,
+        cookTime: 30,
+        servings: 2,
+        notes: '',
+        image: undefined
+      });
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+
+    const files = Array.from(e.dataTransfer.files);
+    const imageFile = files.find(file => file.type.startsWith('image/'));
+
+    if (imageFile) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const result = event.target?.result as string;
+        setCustomImage(result);
+        setEditFormData({ ...editFormData, image: result });
+      };
+      reader.readAsDataURL(imageFile);
+    }
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const result = event.target?.result as string;
+        setCustomImage(result);
+        setEditFormData({ ...editFormData, image: result });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setCustomImage(null);
+    setEditFormData({ ...editFormData, image: undefined });
   };
 
   return (
@@ -918,11 +1080,19 @@ const PlanPage: React.FC = () => {
       )}
 
       {showRecipeModal && selectedRecipe && (
-        <div className={styles.recipeModalBackdrop} onClick={() => setShowRecipeModal(false)}>
+        <div className={styles.recipeModalBackdrop} onClick={() => {
+          setShowRecipeModal(false);
+          setShowAddMealModal(false);
+          setSelectedRecipe(null);
+        }}>
           <div className={styles.recipeModal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.recipeModalHeader}>
               <h3 style={{ textAlign: 'center', flex: 1 }}>{selectedRecipe.title}</h3>
-              <button className={styles.recipeModalClose} onClick={() => setShowRecipeModal(false)}>×</button>
+              <button className={styles.recipeModalClose} onClick={() => {
+                setShowRecipeModal(false);
+                setShowAddMealModal(false);
+                setSelectedRecipe(null);
+              }}>×</button>
             </div>
 
             <div className={styles.recipeModalContent}>
@@ -997,14 +1167,48 @@ const PlanPage: React.FC = () => {
                   </div>
                 )}
 
-                <div className={styles.recipeModalSection}>
-                  <button
-                    className={styles.recipeInstructionsButton}
-                    onClick={handleViewRecipeInstructions}
-                  >
-                    📖 See Recipe Instructions
-                  </button>
-                </div>
+                {selectedRecipe.notes && (
+                  <div className={styles.recipeModalSection}>
+                    <h4>📝 Notes</h4>
+                    <div className={styles.recipeModalNotes}>
+                      <p>{selectedRecipe.notes}</p>
+                    </div>
+                  </div>
+                )}
+
+                {selectedRecipe.recipeId && selectedRecipe.recipeId > 1000000 ? (
+                  // Custom recipe (recipeId is generated from Date.now())
+                  <div className={styles.recipeModalSection}>
+                    <h4>📝 Custom Recipe</h4>
+                    <div className={styles.recipeModalDetails}>
+                      <p>This is a custom recipe you added to your meal plan. You can edit the details or add notes about your recipe preparation.</p>
+                    </div>
+                    <div className={styles.customRecipeActions}>
+                      <button
+                        className={styles.editRecipeButton}
+                        onClick={() => handleEditCustomRecipe(selectedRecipe)}
+                      >
+                        ✏️ Edit Recipe
+                      </button>
+                      <button
+                        className={styles.addNotesButton}
+                        onClick={() => handleAddNotes(selectedRecipe)}
+                      >
+                        📝 Add Notes
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  // Regular recipe from API
+                  <div className={styles.recipeModalSection}>
+                    <button
+                      className={styles.recipeInstructionsButton}
+                      onClick={handleViewRecipeInstructions}
+                    >
+                      📖 See Recipe Instructions
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -1041,6 +1245,176 @@ const PlanPage: React.FC = () => {
       />
 
 
+
+      {/* Edit Custom Recipe Modal */}
+      {showEditModal && editingRecipe && (
+        <div className={styles.confirmModalBackdrop} onClick={() => setShowEditModal(false)}>
+          <div className={styles.confirmModal} onClick={(e) => e.stopPropagation()}>
+            <h3>✏️ Edit Custom Recipe</h3>
+            <div className={styles.editForm}>
+              {/* Image Upload Section */}
+              <div className={styles.formGroup}>
+                <label>Recipe Image</label>
+                <div
+                  className={`${styles.imageUploadArea} ${dragOver ? styles.dragOver : ''} ${customImage || editFormData.image ? styles.hasImage : ''}`}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                >
+                  {customImage || editFormData.image ? (
+                    <div className={styles.imagePreview}>
+                      <img
+                        src={customImage || editFormData.image}
+                        alt="Recipe preview"
+                        className={styles.previewImage}
+                      />
+                      <button
+                        type="button"
+                        onClick={removeImage}
+                        className={styles.removeImageButton}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ) : (
+                    <div className={styles.uploadPlaceholder}>
+                      <div className={styles.uploadIcon}>📷</div>
+                      <p>Drag & drop an image here or click to browse</p>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className={styles.fileInput}
+                        id="imageUpload"
+                      />
+                      <label htmlFor="imageUpload" className={styles.browseButton}>
+                        Browse Files
+                      </label>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label htmlFor="editTitle">Recipe Title</label>
+                <input
+                  id="editTitle"
+                  type="text"
+                  value={editFormData.title}
+                  onChange={(e) => setEditFormData({ ...editFormData, title: e.target.value })}
+                  className={styles.formInput}
+                  required
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label htmlFor="editMealType">Meal Type</label>
+                <select
+                  id="editMealType"
+                  value={editFormData.mealType}
+                  onChange={(e) => setEditFormData({ ...editFormData, mealType: e.target.value as any })}
+                  className={styles.formSelect}
+                >
+                  <option value="main course">Main Course</option>
+                  <option value="breakfast">Breakfast</option>
+                  <option value="side dish">Side Dish</option>
+                  <option value="dessert">Dessert</option>
+
+                  <option value="snack">Snack</option>
+                </select>
+              </div>
+
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label htmlFor="editPrepTime">Prep Time (min)</label>
+                  <input
+                    id="editPrepTime"
+                    type="number"
+                    value={editFormData.prepTime}
+                    onChange={(e) => setEditFormData({ ...editFormData, prepTime: parseInt(e.target.value) || 0 })}
+                    className={styles.formInput}
+                    min="0"
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="editCookTime">Cook Time (min)</label>
+                  <input
+                    id="editCookTime"
+                    type="number"
+                    value={editFormData.cookTime}
+                    onChange={(e) => setEditFormData({ ...editFormData, cookTime: parseInt(e.target.value) || 0 })}
+                    className={styles.formInput}
+                    min="0"
+                  />
+                </div>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label htmlFor="editServings">Servings</label>
+                <input
+                  id="editServings"
+                  type="number"
+                  value={editFormData.servings}
+                  onChange={(e) => setEditFormData({ ...editFormData, servings: parseInt(e.target.value) || 1 })}
+                  className={styles.formInput}
+                  min="1"
+                />
+              </div>
+
+
+            </div>
+
+            <div className={styles.confirmModalActions}>
+              <button onClick={() => {
+                setShowEditModal(false);
+                setShowAddMealModal(false);
+                setShowRecipeModal(false);
+                setEditingRecipe(null);
+                setCustomImage(null);
+              }}>Cancel</button>
+              <button className={styles.confirmButton} onClick={handleSaveEdit}>
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Notes Modal */}
+      {showNotesModal && editingRecipe && (
+        <div className={styles.confirmModalBackdrop} onClick={() => setShowNotesModal(false)}>
+          <div className={styles.confirmModal} onClick={(e) => e.stopPropagation()}>
+            <h3>📝 Add Notes</h3>
+            <p>Add notes for: <strong>{editingRecipe.title}</strong></p>
+
+            <div className={styles.formGroup}>
+              <label htmlFor="notesText">Notes</label>
+              <textarea
+                id="notesText"
+                value={editFormData.notes}
+                onChange={(e) => setEditFormData({ ...editFormData, notes: e.target.value })}
+                className={styles.formTextarea}
+                placeholder="Add preparation notes, cooking tips, or any other information..."
+                rows={5}
+              />
+            </div>
+
+            <div className={styles.confirmModalActions}>
+              <button onClick={() => {
+                setShowNotesModal(false);
+                setShowAddMealModal(false);
+                setShowRecipeModal(false);
+                setEditingRecipe(null);
+                setCustomImage(null);
+              }}>Cancel</button>
+              <button className={styles.confirmButton} onClick={handleSaveNotes}>
+                Save Notes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Error Confirmation Modal */}
       <ConfirmationModal

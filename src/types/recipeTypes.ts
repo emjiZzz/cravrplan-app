@@ -10,6 +10,7 @@ export interface RecipeSearchParams {
   maxCalories?: number;
   offset?: number;
   number?: number;
+  type?: string;
 }
 
 export interface Recipe {

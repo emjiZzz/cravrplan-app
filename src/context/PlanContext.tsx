@@ -11,11 +11,12 @@ const generateNutritionData = (recipe: any, mealType: string) => {
     breakfast: { calories: 350, protein: 15, carbs: 45, fat: 12 },
     lunch: { calories: 450, protein: 20, carbs: 55, fat: 18 },
     dinner: { calories: 550, protein: 25, carbs: 60, fat: 22 },
+    'main course': { calories: 500, protein: 22, carbs: 55, fat: 20 },
     snack: { calories: 200, protein: 8, carbs: 25, fat: 8 }
   };
 
   // Get base values for the meal type
-  const base = baseNutrition[mealType as keyof typeof baseNutrition] || baseNutrition.lunch;
+  const base = baseNutrition[mealType as keyof typeof baseNutrition] || baseNutrition['main course'];
 
   // Adjust based on recipe characteristics
   let calories = base.calories;

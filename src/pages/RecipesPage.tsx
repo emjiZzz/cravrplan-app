@@ -13,10 +13,11 @@ const RecipesPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMenu, setSelectedMenu] = useState('All Menus');
   const [selectedDiet, setSelectedDiet] = useState('No Diet Restrictions');
+  const [selectedMealType, setSelectedMealType] = useState('All Meal Types');
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [favorites, setFavorites] = useState<number[]>([]);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filterOptions, setFilterOptions] = useState<FilterOptionsResponse | null>(null);
   const [totalResults, setTotalResults] = useState(0);
@@ -69,8 +70,8 @@ const RecipesPage: React.FC = () => {
   // Search recipes when filters change or page changes
   useEffect(() => {
     const searchRecipesWithFilters = async () => {
-      setLoading(true);
       setError(null);
+      setLoading(true);
 
       try {
         const searchParams: RecipeSearchParams = {
@@ -91,6 +92,11 @@ const RecipesPage: React.FC = () => {
         // Add cuisine filter if selected (convert menu to cuisine)
         if (selectedMenu !== 'All Menus') {
           searchParams.cuisine = selectedMenu;
+        }
+
+        // Add meal type filter if selected
+        if (selectedMealType !== 'All Meal Types') {
+          searchParams.type = selectedMealType.toLowerCase();
         }
 
         const response = await searchRecipes(searchParams);
@@ -122,7 +128,7 @@ const RecipesPage: React.FC = () => {
     // Debounce search to avoid too many API calls
     const timeoutId = setTimeout(searchRecipesWithFilters, 300);
     return () => clearTimeout(timeoutId);
-  }, [selectedMenu, selectedDiet, currentPage, searchQuery, showFavoritesOnly]);
+  }, [selectedMenu, selectedDiet, selectedMealType, currentPage, searchQuery, showFavoritesOnly, favorites]);
 
   const handleRecipeClick = (recipeId: number) => {
     // Preserve swap state if present when moving into detail
@@ -152,18 +158,15 @@ const RecipesPage: React.FC = () => {
   const handleMenuChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedMenu(e.target.value);
     setCurrentPage(0); // Reset to first page when changing filters
-    setLoading(true); // Show loading immediately
   };
 
   const handleDietChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedDiet(e.target.value);
     setCurrentPage(0); // Reset to first page when changing filters
-    setLoading(true); // Show loading immediately
   };
 
   const handleSearch = () => {
     setCurrentPage(0); // Reset to first page when searching
-    setLoading(true); // Show loading immediately
     const urlParams = new URLSearchParams(location.search);
     urlParams.set('search', searchQuery);
     navigate(`${location.pathname}?${urlParams.toString()}`);
@@ -231,6 +234,18 @@ const RecipesPage: React.FC = () => {
                 </option>
               ))}
             </select>
+            <select
+              className={styles.filterDropdown}
+              value={selectedMealType}
+              onChange={(e) => setSelectedMealType(e.target.value)}
+            >
+              <option value="All Meal Types">All Meal Types</option>
+              {filterOptions?.mealTypes.map((mealType) => (
+                <option key={mealType.value} value={mealType.value}>
+                  {mealType.name}
+                </option>
+              ))}
+            </select>
 
             <button
               onClick={handleFavoritesToggle}
@@ -245,25 +260,7 @@ const RecipesPage: React.FC = () => {
         {loading && (
           <div className={styles.loadingContainer}>
             <div className={styles.loadingSpinner}></div>
-            <p>Searching recipes...</p>
-            {/* Skeleton loading for better UX */}
-            <div className={styles.recipesGrid}>
-              {Array.from({ length: 20 }).map((_, index) => (
-                <div key={index} className={`${styles.recipeCard} ${styles.skeleton}`}>
-                  <div className={styles.recipeImage}>
-                    <div className={styles.skeletonImage}></div>
-                  </div>
-                  <div className={styles.recipeContent}>
-                    <div className={styles.skeletonTitle}></div>
-                    <div className={styles.skeletonDescription}></div>
-                    <div className={styles.skeletonTags}>
-                      <div className={styles.skeletonTag}></div>
-                      <div className={styles.skeletonTag}></div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <p>🍳 Loading recipes...</p>
           </div>
         )}
 
@@ -326,7 +323,6 @@ const RecipesPage: React.FC = () => {
                     {recipe.veryHealthy && (
                       <span className={`${styles.recipeTag} ${styles.healthyTag}`}>
                         Healthy
-
                       </span>
                     )}
                   </div>
@@ -357,7 +353,7 @@ const RecipesPage: React.FC = () => {
             <div className={styles.pageInfo}>
               <span>Page {currentPage + 1}</span>
               <span className={styles.totalPages}>
-                {Math.ceil(totalResults / 12)} pages
+                {Math.ceil(totalResults / 20)} pages
               </span>
             </div>
 

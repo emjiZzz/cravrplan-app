@@ -5,7 +5,7 @@ export interface PlanEvent {
   title: string;
   date: string;
   recipeId: number;
-  mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack';
+  mealType: 'main course' | 'breakfast' | 'side dish' | 'dessert' | 'snack';
   image?: string;
   difficulty?: 'easy' | 'medium' | 'hard';
   prepTime?: number;
@@ -17,6 +17,7 @@ export interface PlanEvent {
     carbs: number;
     fat: number;
   };
+  notes?: string;
 }
 
 export interface MealPlanTemplate {

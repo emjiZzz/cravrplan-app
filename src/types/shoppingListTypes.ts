@@ -8,7 +8,7 @@ export interface ShoppingItem {
   notes?: string;
   estimatedPrice?: number;
   recipeId?: number; // If item comes from a specific recipe
-  mealType?: 'breakfast' | 'lunch' | 'dinner' | 'snack';
+  mealType?: 'main course' | 'breakfast' | 'side dish' | 'dessert' | 'snack';
 }
 
 export type ShoppingCategory =
