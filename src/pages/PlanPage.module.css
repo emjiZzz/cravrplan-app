@@ -180,10 +180,7 @@
   background: linear-gradient(90deg, #546A04 0%, #17371A 50%, #546A04 100%);
 }
 
-.sectionCard:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-}
+/* Removed hover effect since section cards are not clickable */
 
 .sectionTitleContainer {
   display: flex;
@@ -289,11 +286,7 @@
   transition: all 0.3s ease;
 }
 
-.eventItem:hover {
-  background: rgba(255, 255, 255, 1);
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
+/* Removed hover effect since event items are not clickable */
 
 .eventHeader {
   display: flex;
@@ -828,10 +821,7 @@
   transition: all 0.2s ease;
 }
 
-.calendarEventImage:hover {
-  transform: scale(1.05);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
+
 
 .calendarEventInfo {
   display: flex;

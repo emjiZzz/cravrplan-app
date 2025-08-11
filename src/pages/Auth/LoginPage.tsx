@@ -16,7 +16,7 @@ const LoginPage: React.FC = () => {
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
     setError('');
-    
+
     if (!email || !password) {
       setError('Please fill in all fields');
       return;
@@ -83,8 +83,8 @@ const LoginPage: React.FC = () => {
           </div>
 
           {/* Login Button */}
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className={styles.loginButton}
             disabled={isLoading}
           >

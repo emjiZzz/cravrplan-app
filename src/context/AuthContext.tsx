@@ -35,21 +35,35 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Check for existing session on app load
   useEffect(() => {
-    const savedUser = localStorage.getItem('cravrplan_user');
-    if (savedUser) {
+    const initializeAuth = async () => {
       try {
-        setUser(JSON.parse(savedUser));
+        const savedUser = localStorage.getItem('cravrplan_user');
+        if (savedUser) {
+          try {
+            setUser(JSON.parse(savedUser));
+          } catch (error) {
+            console.error('Error parsing saved user:', error);
+            localStorage.removeItem('cravrplan_user');
+          }
+        }
       } catch (error) {
-        console.error('Error parsing saved user:', error);
-        localStorage.removeItem('cravrplan_user');
+        console.error('Error initializing auth:', error);
+      } finally {
+        setIsLoading(false);
       }
-    }
-    setIsLoading(false);
+    };
+
+    // Add a small delay to show loading state for better UX
+    const timer = setTimeout(initializeAuth, 500);
+    return () => clearTimeout(timer);
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     try {
+      // Simulate API call with realistic delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
       // TODO: Replace with actual API call
       // For now, simulate successful login
       const mockUser: User = {
@@ -72,6 +86,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const signup = async (fullName: string, email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     try {
+      // Simulate API call with realistic delay
+      await new Promise(resolve => setTimeout(resolve, 1200));
+
       // TODO: Replace with actual API call
       // For now, simulate successful signup
       const mockUser: User = {

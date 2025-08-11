@@ -1,16 +1,23 @@
 
 // src/pages/RecipesPage.tsx
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import type { Recipe, RecipeSearchParams, FilterOptionsResponse } from '../types/recipeTypes';
-import { searchRecipes, getFilterOptions } from '../services/apiService';
+import { searchRecipes, getFilterOptions, getRecipeDetails } from '../services/apiService';
 import styles from './RecipesPage.module.css';
 
 import { useNavigate, useLocation } from 'react-router-dom'; // Import useNavigate and useLocation
 
-// Import new components
+// Import enhanced loading components
 import RecipeCard from '../components/RecipeCard';
-import { ErrorMessage, EmptyState } from '../components/LoadingStates';
+import {
+  ErrorMessage,
+  EmptyState,
+  SkeletonCard,
+  SearchLoading,
+  ProgressiveLoading,
+  Toast
+} from '../components/LoadingStates';
 
 const RecipesPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -30,9 +37,27 @@ const RecipesPage: React.FC = () => {
   const [searchSuggestions, setSearchSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState<'success' | 'error' | 'warning' | 'info'>('info');
 
   const navigate = useNavigate(); // Initialize useNavigate hook
   const location = useLocation(); // Initialize useLocation hook
+
+  // Enhanced search suggestions with more comprehensive data
+  const popularSearches = [
+    'chicken', 'pasta', 'salad', 'soup', 'dessert', 'breakfast', 'lunch', 'dinner',
+    'vegetarian', 'vegan', 'quick', 'healthy', 'italian', 'mexican', 'asian', 'indian',
+    'mediterranean', 'greek', 'french', 'japanese', 'chinese', 'thai', 'korean',
+    'pizza', 'burger', 'sushi', 'curry', 'stir fry', 'grilled', 'baked', 'fried',
+    'smoothie', 'juice', 'coffee', 'tea', 'bread', 'cake', 'cookie', 'ice cream',
+    'low carb', 'keto', 'paleo', 'gluten free', 'dairy free', 'nut free', 'seafood',
+    'beef', 'pork', 'lamb', 'fish', 'shrimp', 'salmon', 'tuna', 'tofu', 'quinoa',
+    'rice', 'noodles', 'potato', 'sweet potato', 'avocado', 'tomato', 'spinach',
+    'kale', 'broccoli', 'cauliflower', 'carrot', 'onion', 'garlic', 'ginger',
+    'lemon', 'lime', 'orange', 'apple', 'banana', 'berry', 'strawberry', 'blueberry'
+  ];
 
   // Load favorites from localStorage on component mount
   useEffect(() => {
@@ -57,6 +82,7 @@ const RecipesPage: React.FC = () => {
   useEffect(() => {
     const urlSearchQuery = getSearchQueryFromURL();
     setSearchQuery(urlSearchQuery);
+    setDebouncedSearchQuery(urlSearchQuery);
   }, [location.search]);
 
   // Load filter options on component mount
@@ -67,11 +93,40 @@ const RecipesPage: React.FC = () => {
         setFilterOptions(options);
       } catch (err) {
         console.error('Error loading filter options:', err);
+        setToastMessage('Failed to load filter options');
+        setToastType('warning');
+        setShowToast(true);
       }
     };
 
     loadFilterOptions();
   }, []);
+
+  // Debounce search query to avoid too many API calls
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 300); // 300ms delay
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Function to load favorite recipes
+  const loadFavoriteRecipes = async (favoriteIds: number[]): Promise<Recipe[]> => {
+    const favoriteRecipes: Recipe[] = [];
+
+    for (const favoriteId of favoriteIds) {
+      try {
+        const recipeDetail = await getRecipeDetails(favoriteId);
+        favoriteRecipes.push(recipeDetail);
+      } catch (err) {
+        console.error(`Error loading favorite recipe ${favoriteId}:`, err);
+        // Continue loading other recipes even if one fails
+      }
+    }
+
+    return favoriteRecipes;
+  };
 
   // Search recipes when filters change or page changes
   useEffect(() => {
@@ -81,79 +136,84 @@ const RecipesPage: React.FC = () => {
       setIsSearching(true);
 
       try {
-        const searchParams: RecipeSearchParams = {
-          number: 20, // 20 recipes per page
-          offset: currentPage * 20
-        };
-
-        // Add search query if provided
-        if (searchQuery.trim()) {
-          searchParams.query = searchQuery.trim();
-        }
-
-        // Add diet filter if selected
-        if (selectedDiet !== 'No Diet Restrictions') {
-          searchParams.diet = selectedDiet;
-        }
-
-        // Add cuisine filter if selected (convert menu to cuisine)
-        if (selectedMenu !== 'All Menus') {
-          searchParams.cuisine = selectedMenu;
-        }
-
-        // Add meal type filter if selected
-        if (selectedMealType !== 'All Meal Types') {
-          searchParams.type = selectedMealType.toLowerCase();
-        }
-
-        const response = await searchRecipes(searchParams);
-
-        let filteredRecipes = response.results;
-
-        // Filter by favorites if showFavoritesOnly is true
+        // Filter favorites if showFavoritesOnly is true
         if (showFavoritesOnly) {
-          filteredRecipes = response.results.filter(recipe => favorites.includes(recipe.id));
+          if (favorites.length === 0) {
+            setRecipes([]);
+            setTotalResults(0);
+            setHasNextPage(false);
+            setHasPreviousPage(false);
+          } else {
+            const favoriteRecipes = await loadFavoriteRecipes(favorites);
+            setRecipes(favoriteRecipes);
+            setTotalResults(favoriteRecipes.length);
+            setHasNextPage(false);
+            setHasPreviousPage(false);
+          }
+        } else {
+          const searchParams: RecipeSearchParams = {
+            number: 20, // 20 recipes per page
+            offset: currentPage * 20
+          };
+
+          // Add search query if provided
+          if (debouncedSearchQuery.trim()) {
+            searchParams.query = debouncedSearchQuery.trim();
+          }
+
+          // Add diet filter if selected
+          if (selectedDiet !== 'No Diet Restrictions') {
+            searchParams.diet = selectedDiet;
+          }
+
+          // Add cuisine filter if selected (convert menu to cuisine)
+          if (selectedMenu !== 'All Menus') {
+            searchParams.cuisine = selectedMenu;
+          }
+
+          // Add meal type filter if selected
+          if (selectedMealType !== 'All Meal Types') {
+            searchParams.type = selectedMealType;
+          }
+
+          const response = await searchRecipes(searchParams);
+          setRecipes(response.results);
+          setTotalResults(response.totalResults);
+          setHasNextPage(response.offset + response.number < response.totalResults);
+          setHasPreviousPage(response.offset > 0);
         }
-
-        setRecipes(filteredRecipes);
-        setTotalResults(showFavoritesOnly ? filteredRecipes.length : response.totalResults);
-
-        // Update pagination state
-        const hasNext = response.offset + response.number < response.totalResults;
-        const hasPrev = currentPage > 0;
-
-        setHasNextPage(hasNext);
-        setHasPreviousPage(hasPrev);
-      } catch (err: any) {
-        const errorMessage = err?.message || 'Failed to load recipes. Please try again.';
-        setError(errorMessage);
+      } catch (err) {
         console.error('Error searching recipes:', err);
+        setError('Failed to load recipes. Please try again.');
+        setRecipes([]);
+        setTotalResults(0);
+        setHasNextPage(false);
+        setHasPreviousPage(false);
+
+        setToastMessage('Failed to load recipes. Please try again.');
+        setToastType('error');
+        setShowToast(true);
       } finally {
         setLoading(false);
         setIsSearching(false);
       }
     };
 
-    // Debounce search to avoid too many API calls
-    const timeoutId = setTimeout(searchRecipesWithFilters, 300);
-    return () => clearTimeout(timeoutId);
-  }, [selectedMenu, selectedDiet, selectedMealType, currentPage, searchQuery, showFavoritesOnly, favorites]);
+    searchRecipesWithFilters();
+  }, [debouncedSearchQuery, selectedMenu, selectedDiet, selectedMealType, showFavoritesOnly, currentPage, favorites]);
 
   const handleRecipeClick = (recipeId: number) => {
-    // Preserve swap state if present when moving into detail
-    const state = (location.state as any) || undefined;
-
-    // Preserve selectedDate from URL if present
+    // Check if there's a swap request from the plan page
     const urlParams = new URLSearchParams(location.search);
-    const selectedDate = urlParams.get('selectedDate');
+    const swapFor = urlParams.get('swapFor');
 
-    // Build the navigation URL with selectedDate if it exists
-    let navigateUrl = `/recipes/${recipeId}`;
-    if (selectedDate) {
-      navigateUrl += `?selectedDate=${selectedDate}`;
+    if (swapFor) {
+      // Navigate back to plan page with the selected recipe for swapping
+      navigate(`/plan?swapRecipe=${recipeId}&${swapFor}`);
+    } else {
+      // Navigate to recipe detail page
+      navigate(`/recipe/${recipeId}`);
     }
-
-    navigate(navigateUrl, { state });
   };
 
   const handleNextPage = () => {
@@ -166,50 +226,71 @@ const RecipesPage: React.FC = () => {
 
   const handleMenuChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedMenu(e.target.value);
-    setCurrentPage(0); // Reset to first page when changing filters
+    setCurrentPage(0);
   };
 
   const handleDietChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedDiet(e.target.value);
-    setCurrentPage(0); // Reset to first page when changing filters
+    setCurrentPage(0);
   };
 
-  const handleSearch = () => {
-    setCurrentPage(0); // Reset to first page when searching
+  const handleSearch = useCallback(() => {
+    setCurrentPage(0);
+    // Update URL with search query
     const urlParams = new URLSearchParams(location.search);
-    urlParams.set('search', searchQuery);
+    if (searchQuery.trim()) {
+      urlParams.set('search', searchQuery.trim());
+    } else {
+      urlParams.delete('search');
+    }
     navigate(`${location.pathname}?${urlParams.toString()}`);
-  };
+  }, [searchQuery, location.search, location.pathname, navigate]);
 
   const toggleFavorite = (recipeId: number, isCurrentlyFavorite: boolean) => {
-    setFavorites(prev => {
-      const newFavorites = isCurrentlyFavorite
-        ? prev.filter(id => id !== recipeId)
-        : [...prev, recipeId];
-      return newFavorites;
-    });
+    if (isCurrentlyFavorite) {
+      setFavorites(prev => prev.filter(id => id !== recipeId));
+      setToastMessage('Removed from favorites');
+      setToastType('info');
+    } else {
+      setFavorites(prev => [...prev, recipeId]);
+      setToastMessage('Added to favorites');
+      setToastType('success');
+    }
+    setShowToast(true);
   };
 
   const handleFavoritesToggle = () => {
     setShowFavoritesOnly(!showFavoritesOnly);
-    setCurrentPage(0); // Reset to first page when changing filters
+    setCurrentPage(0);
   };
 
-  // Search suggestions
-  const popularSearches = [
-    'chicken', 'pasta', 'salad', 'soup', 'dessert', 'breakfast',
-    'vegetarian', 'quick', 'healthy', 'italian', 'mexican', 'asian'
-  ];
-
-  const getSearchSuggestions = (query: string) => {
+  // Enhanced search suggestions with better matching
+  const getSearchSuggestions = useCallback((query: string) => {
     if (!query.trim()) return [];
 
-    const suggestions = popularSearches.filter(search =>
-      search.toLowerCase().includes(query.toLowerCase())
+    const queryLower = query.toLowerCase();
+
+    // First, find exact matches
+    const exactMatches = popularSearches.filter(search =>
+      search.toLowerCase() === queryLower
     );
 
-    return suggestions.slice(0, 5); // Limit to 5 suggestions
-  };
+    // Then, find starts with matches
+    const startsWithMatches = popularSearches.filter(search =>
+      search.toLowerCase().startsWith(queryLower) && search.toLowerCase() !== queryLower
+    );
+
+    // Finally, find contains matches
+    const containsMatches = popularSearches.filter(search =>
+      search.toLowerCase().includes(queryLower) &&
+      !search.toLowerCase().startsWith(queryLower) &&
+      search.toLowerCase() !== queryLower
+    );
+
+    // Combine and limit results
+    const suggestions = [...exactMatches, ...startsWithMatches, ...containsMatches];
+    return suggestions.slice(0, 8); // Show up to 8 suggestions
+  }, []);
 
   const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -235,167 +316,228 @@ const RecipesPage: React.FC = () => {
     navigate(`${location.pathname}?${urlParams.toString()}`);
   };
 
+  const handleSearchInputFocus = () => {
+    if (searchQuery.trim()) {
+      const suggestions = getSearchSuggestions(searchQuery);
+      setSearchSuggestions(suggestions);
+      setShowSuggestions(suggestions.length > 0);
+    }
+  };
+
+  const handleSearchInputBlur = () => {
+    // Delay hiding suggestions to allow for clicks
+    setTimeout(() => {
+      setShowSuggestions(false);
+    }, 200);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+      setShowSuggestions(false);
+    } else if (e.key === 'Escape') {
+      setShowSuggestions(false);
+    }
+  };
+
+  const handleRetry = () => {
+    setError(null);
+    setCurrentPage(0);
+    // This will trigger the useEffect to retry the search
+  };
+
+  const handleClearFilters = () => {
+    setSearchQuery('');
+    setSelectedMenu('All Menus');
+    setSelectedDiet('No Diet Restrictions');
+    setSelectedMealType('All Meal Types');
+    setShowFavoritesOnly(false);
+    setCurrentPage(0);
+  };
+
+  const renderRecipeCard = (recipe: Recipe, index: number) => (
+    <RecipeCard
+      key={recipe.id}
+      recipe={recipe}
+      onFavoriteToggle={toggleFavorite}
+      isFavorite={favorites.includes(recipe.id)}
+    />
+  );
 
   return (
-    <div className={styles.recipesPageContainer}>
-      <div className={styles.contentWrapper}>
-        {/* Search Bar */}
-        <div className={styles.searchBar}>
-          <div className={styles.searchInputContainer}>
-            <input
-              type="text"
-              placeholder="Search recipes..."
-              value={searchQuery}
-              onChange={handleSearchInputChange}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter') {
-                  handleSearch();
-                }
-              }}
-              className={styles.searchInput}
-            />
-            {isSearching && (
-              <div className={styles.searchLoading}>
-                <div className={styles.searchSpinner}></div>
-              </div>
-            )}
-            {showSuggestions && (
-              <div className={styles.searchSuggestions}>
-                {searchSuggestions.map((suggestion, index) => (
-                  <div
-                    key={index}
-                    className={styles.suggestionItem}
-                    onClick={() => handleSuggestionClick(suggestion)}
-                  >
-                    {suggestion}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
+    <>
+      {/* Toast Notification */}
+      {showToast && (
+        <Toast
+          message={toastMessage}
+          type={toastType}
+          onClose={() => setShowToast(false)}
+          duration={4000}
+        />
+      )}
 
-        {/* Filter Dropdowns */}
-        <div className={styles.filters}>
-          <div className={styles.basicFilters}>
-            <select
-              className={styles.filterDropdown}
-              value={selectedMenu}
-              onChange={handleMenuChange}
-            >
-              <option value="All Menus">All Cuisines</option>
-              {filterOptions?.cuisines.map((cuisine) => (
-                <option key={cuisine.value} value={cuisine.value}>
-                  {cuisine.name}
-                </option>
-              ))}
-            </select>
-            <select
-              className={styles.filterDropdown}
-              value={selectedDiet}
-              onChange={handleDietChange}
-            >
-              <option value="No Diet Restrictions">All Diets</option>
-              {filterOptions?.diets.map((diet) => (
-                <option key={diet.value} value={diet.value}>
-                  {diet.name}
-                </option>
-              ))}
-            </select>
-            <select
-              className={styles.filterDropdown}
-              value={selectedMealType}
-              onChange={(e) => setSelectedMealType(e.target.value)}
-            >
-              <option value="All Meal Types">All Meal Types</option>
-              {filterOptions?.mealTypes.map((mealType) => (
-                <option key={mealType.value} value={mealType.value}>
-                  {mealType.name}
-                </option>
-              ))}
-            </select>
-
-            <button
-              onClick={handleFavoritesToggle}
-              className={`${styles.favoritesButton} ${showFavoritesOnly ? styles.active : ''}`}
-            >
-              ❤️ My Favorites ({favorites.length})
-            </button>
-          </div>
-        </div>
-
-        {/* Enhanced Error State */}
-        {error && (
-          <ErrorMessage
-            title="Failed to load recipes"
-            message={error}
-            onRetry={() => window.location.reload()}
-          />
-        )}
-
-        {/* Enhanced Recipes Grid */}
-        {!loading && !error && recipes.length > 0 && (
-          <div className={styles.recipesGrid}>
-            {recipes.map((recipe) => (
-              <RecipeCard
-                key={recipe.id}
-                recipe={recipe}
-                onFavoriteToggle={toggleFavorite}
-                isFavorite={favorites.includes(recipe.id)}
+      <div className={styles.recipesPageContainer}>
+        <div className={styles.contentWrapper}>
+          {/* Enhanced Search Bar */}
+          <div className={styles.searchBar}>
+            <div className={styles.searchInputContainer}>
+              <input
+                type="text"
+                placeholder="Search for recipes, ingredients, cuisines..."
+                value={searchQuery}
+                onChange={handleSearchInputChange}
+                onFocus={handleSearchInputFocus}
+                onBlur={handleSearchInputBlur}
+                onKeyDown={handleKeyDown}
+                className={styles.searchInput}
               />
-            ))}
-          </div>
-        )}
-
-        {/* Enhanced Empty State */}
-        {!loading && !error && recipes.length === 0 && (
-          <EmptyState
-            icon="🍽️"
-            title="No recipes found"
-            message={showFavoritesOnly
-              ? "You haven't added any favorites yet. Start exploring recipes to build your collection!"
-              : "No recipes match your current search criteria. Try adjusting your filters or search terms."
-            }
-            actionText="Explore Recipes"
-            onAction={() => {
-              setSearchQuery('');
-              setSelectedMenu('All Menus');
-              setSelectedDiet('No Diet Restrictions');
-              setSelectedMealType('All Meal Types');
-              setShowFavoritesOnly(false);
-            }}
-          />
-        )}
-
-        {/* Pagination */}
-        {!loading && !error && recipes.length > 0 && (
-          <div className={styles.pagination}>
-            <button
-              onClick={handlePreviousPage}
-              disabled={!hasPreviousPage}
-              className={`${styles.paginationButton} ${!hasPreviousPage ? styles.disabled : ''}`}
-            >
-              ← Prev
-            </button>
-
-            <div className={styles.pageInfo}>
-              <span>Page {currentPage + 1}</span>
-              <span className={styles.totalPages}>
-                {Math.ceil(totalResults / 20)} pages
-              </span>
+              {isSearching && (
+                <div className={styles.searchLoading}>
+                  <div className={styles.searchSpinner}></div>
+                </div>
+              )}
+              {!isSearching && (
+                <button
+                  className={styles.searchIconButton}
+                  onClick={searchQuery ? () => {
+                    setSearchQuery('');
+                    setShowSuggestions(false);
+                    setSearchSuggestions([]);
+                  } : undefined}
+                  type="button"
+                >
+                  {searchQuery ? '✕' : '🔍'}
+                </button>
+              )}
+              {showSuggestions && (
+                <div className={styles.searchSuggestions}>
+                  <div className={styles.suggestionsHeader}>
+                    <span>Popular searches</span>
+                  </div>
+                  {searchSuggestions.map((suggestion, index) => (
+                    <div
+                      key={index}
+                      className={styles.suggestionItem}
+                      onClick={() => handleSuggestionClick(suggestion)}
+                    >
+                      <span className={styles.suggestionIcon}>🔍</span>
+                      <span className={styles.suggestionText}>{suggestion}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-
-            <button
-              onClick={handleNextPage}
-              disabled={!hasNextPage}
-              className={`${styles.paginationButton} ${!hasNextPage ? styles.disabled : ''}`}
-            >
-              Next →
-            </button>
           </div>
-        )}
+
+          {/* Filter Dropdowns */}
+          <div className={styles.filters}>
+            <div className={styles.basicFilters}>
+              <select
+                className={styles.filterDropdown}
+                value={selectedMenu}
+                onChange={handleMenuChange}
+              >
+                <option value="All Menus">All Cuisines</option>
+                {filterOptions?.cuisines.map((cuisine) => (
+                  <option key={cuisine.value} value={cuisine.value}>
+                    {cuisine.name}
+                  </option>
+                ))}
+              </select>
+              <select
+                className={styles.filterDropdown}
+                value={selectedDiet}
+                onChange={handleDietChange}
+              >
+                <option value="No Diet Restrictions">All Diets</option>
+                {filterOptions?.diets.map((diet) => (
+                  <option key={diet.value} value={diet.value}>
+                    {diet.name}
+                  </option>
+                ))}
+              </select>
+              <select
+                className={styles.filterDropdown}
+                value={selectedMealType}
+                onChange={(e) => setSelectedMealType(e.target.value)}
+              >
+                <option value="All Meal Types">All Meal Types</option>
+                {filterOptions?.mealTypes.map((mealType) => (
+                  <option key={mealType.value} value={mealType.value}>
+                    {mealType.name}
+                  </option>
+                ))}
+              </select>
+
+              <button
+                onClick={handleFavoritesToggle}
+                className={`${styles.favoritesButton} ${showFavoritesOnly ? styles.active : ''}`}
+              >
+                My Favorites ({favorites.length})
+              </button>
+            </div>
+          </div>
+
+          {/* Enhanced Progressive Loading */}
+          {!loading && !error && showFavoritesOnly && recipes.length === 0 ? (
+            // Custom empty state for favorites
+            <div className={styles.favoritesEmptyState}>
+              <div className={styles.favoritesEmptyIcon}>❤️</div>
+              <h3 className={styles.favoritesEmptyTitle}>No Favorite Recipes Yet</h3>
+              <p className={styles.favoritesEmptyMessage}>
+                Start exploring recipes and add them to your favorites to see them here!
+              </p>
+              <div className={styles.favoritesEmptyActions}>
+                <button
+                  onClick={() => setShowFavoritesOnly(false)}
+                  className={styles.exploreRecipesButton}
+                >
+                  🍽️ Explore Recipes
+                </button>
+              </div>
+            </div>
+          ) : (
+            <ProgressiveLoading
+              items={recipes}
+              renderItem={renderRecipeCard}
+              loading={loading}
+              error={error}
+              onRetry={handleRetry}
+              skeletonCount={6}
+              skeletonVariant="recipe"
+            />
+          )}
+
+          {/* Pagination */}
+          {!loading && !error && recipes.length > 0 && (
+            <div className={styles.pagination}>
+              <button
+                onClick={handlePreviousPage}
+                disabled={!hasPreviousPage}
+                className={`${styles.paginationButton} ${!hasPreviousPage ? styles.disabled : ''}`}
+              >
+                ← Prev
+              </button>
+
+              <div className={styles.pageInfo}>
+                <span>Page {currentPage + 1}</span>
+                <span className={styles.totalPages}>
+                  {Math.ceil(totalResults / 20)} pages
+                </span>
+              </div>
+
+              <button
+                onClick={handleNextPage}
+                disabled={!hasNextPage}
+                className={`${styles.paginationButton} ${!hasNextPage ? styles.disabled : ''}`}
+              >
+                Next →
+              </button>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

@@ -142,25 +142,28 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
   const getNutritionColor = (nutrition: any, type: 'calories' | 'protein' | 'carbs' | 'fat') => {
     if (!nutrition) return { backgroundColor: '#ccc', opacity: 0.5, percentage: 0 };
 
+    // Match the color scheme from PlanPage
+    const colors = {
+      calories: '#9C27B0', // Purple
+      protein: '#4CAF50',  // Green
+      carbs: '#FFC107',    // Yellow
+      fat: '#FF5722'       // Orange/Red
+    };
+
     const maxValues = {
-      calories: 800,
-      protein: 50,
-      carbs: 100,
-      fat: 40
+      calories: 2000, // Daily recommended calories
+      protein: 50,    // Daily recommended protein (g)
+      carbs: 300,     // Daily recommended carbs (g)
+      fat: 65         // Daily recommended fat (g)
     };
 
     const value = nutrition[type];
     const maxValue = maxValues[type];
     const percentage = Math.min((value / maxValue) * 100, 100);
 
-    let backgroundColor = '#4CAF50';
-    if (percentage > 80) backgroundColor = '#F44336';
-    else if (percentage > 60) backgroundColor = '#FF9800';
-    else if (percentage > 40) backgroundColor = '#FFC107';
-
     return {
-      backgroundColor,
-      opacity: 0.7 + (percentage / 100) * 0.3,
+      backgroundColor: colors[type],
+      opacity: 0.6 + (percentage / 100) * 0.4, // Opacity between 0.6 and 1.0
       percentage: Math.round(percentage)
     };
   };
@@ -181,49 +184,8 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
           loading="lazy"
         />
 
-        {/* Overlay with badges */}
+        {/* Overlay with special indicators only */}
         <div className={styles.imageOverlay}>
-          <div className={styles.badges}>
-            {getCuisineBadge() && (
-              <span className={styles.cuisineBadge}>
-                {getCuisineBadge()}
-              </span>
-            )}
-            {getDietBadge() && (
-              <span className={styles.dietBadge}>
-                {getDietBadge()}
-              </span>
-            )}
-            {getMealTypeBadge() && (
-              <span className={styles.mealTypeBadge}>
-                {getMealTypeIcon(getMealTypeBadge() || '')} {getMealTypeBadge()}
-              </span>
-            )}
-          </div>
-
-          {/* Special indicators */}
-          <div className={styles.indicators}>
-            {recipe.veryHealthy && (
-              <span className={styles.healthyIndicator} title="Very Healthy">
-                🌿
-              </span>
-            )}
-            {recipe.veryPopular && (
-              <span className={styles.popularIndicator} title="Very Popular">
-                ⭐
-              </span>
-            )}
-            {recipe.cheap && (
-              <span className={styles.cheapIndicator} title="Budget Friendly">
-                💰
-              </span>
-            )}
-            {recipe.sustainable && (
-              <span className={styles.sustainableIndicator} title="Sustainable">
-                🌱
-              </span>
-            )}
-          </div>
         </div>
 
         {/* Favorite Button */}
@@ -240,46 +202,35 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
 
       {/* Content */}
       <div className={styles.content}>
-        <h3 className={styles.recipeTitle}>{recipe.title}</h3>
+        <h2 className={styles.recipeTitle}>{recipe.title}</h2>
 
+        {/* Recipe Description */}
+        {recipe.summary && (
+          <div className={styles.recipeDescription}>
+            <p className={styles.descriptionText}>
+              {recipe.summary.replace(/<[^>]*>/g, '').substring(0, 150)}
+              {recipe.summary.length > 150 ? '...' : ''}
+            </p>
+          </div>
+        )}
+
+        {/* Recipe Badges */}
         <div className={styles.recipeBadges}>
-          <span className={styles.recipeBadge}>
-            ⏱️ {recipe.readyInMinutes} min
-          </span>
-          <span className={styles.recipeBadge}>
-            👥 {recipe.servings} servings
-          </span>
-          {recipe.difficulty && (
-            <span
-              className={styles.recipeBadge}
-              style={{
-                backgroundColor: getDifficultyColor(recipe.difficulty),
-                color: 'white'
-              }}
-            >
-              {getDifficultyIcon(recipe.difficulty)} {recipe.difficulty}
+          {getCuisineBadge() && (
+            <span className={styles.cuisineBadge}>
+              {getCuisineBadge()}
             </span>
           )}
-          {(() => {
-            const timeBadge = getCookingTimeBadge();
-            return (
-              <span
-                className={styles.recipeBadge}
-                style={{
-                  backgroundColor: timeBadge.color,
-                  color: 'white'
-                }}
-              >
-                {timeBadge.icon} {timeBadge.text}
-              </span>
-            );
-          })()}
-          <span className={styles.recipeBadge}>
-            ❤️ {recipe.aggregateLikes}
-          </span>
-          <span className={styles.recipeBadge}>
-            🏥 {recipe.healthScore}
-          </span>
+          {getDietBadge() && (
+            <span className={styles.dietBadge}>
+              {getDietBadge()}
+            </span>
+          )}
+          {getMealTypeBadge() && (
+            <span className={styles.mealTypeBadge}>
+              {getMealTypeIcon(getMealTypeBadge() || '')} {getMealTypeBadge()}
+            </span>
+          )}
         </div>
 
         {/* Nutritional Information */}
@@ -294,9 +245,10 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
                     backgroundColor: getNutritionColor(recipe.nutrition, 'calories').backgroundColor,
                     opacity: getNutritionColor(recipe.nutrition, 'calories').opacity
                   }}
+                  data-percentage={`${getNutritionColor(recipe.nutrition, 'calories').percentage}%`}
                 />
                 <span className={styles.nutritionLabel}>Calories</span>
-                <span className={styles.nutritionValue}>{Math.round(recipe.nutrition.calories)}</span>
+                <span className={styles.nutritionValue}>{Math.round(recipe.nutrition.calories)} kcal</span>
               </div>
               <div className={styles.nutritionItem}>
                 <div
@@ -305,6 +257,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
                     backgroundColor: getNutritionColor(recipe.nutrition, 'protein').backgroundColor,
                     opacity: getNutritionColor(recipe.nutrition, 'protein').opacity
                   }}
+                  data-percentage={`${getNutritionColor(recipe.nutrition, 'protein').percentage}%`}
                 />
                 <span className={styles.nutritionLabel}>Protein</span>
                 <span className={styles.nutritionValue}>{Math.round(recipe.nutrition.protein)}g</span>
@@ -316,6 +269,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
                     backgroundColor: getNutritionColor(recipe.nutrition, 'carbs').backgroundColor,
                     opacity: getNutritionColor(recipe.nutrition, 'carbs').opacity
                   }}
+                  data-percentage={`${getNutritionColor(recipe.nutrition, 'carbs').percentage}%`}
                 />
                 <span className={styles.nutritionLabel}>Carbs</span>
                 <span className={styles.nutritionValue}>{Math.round(recipe.nutrition.carbs)}g</span>
@@ -327,6 +281,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
                     backgroundColor: getNutritionColor(recipe.nutrition, 'fat').backgroundColor,
                     opacity: getNutritionColor(recipe.nutrition, 'fat').opacity
                   }}
+                  data-percentage={`${getNutritionColor(recipe.nutrition, 'fat').percentage}%`}
                 />
                 <span className={styles.nutritionLabel}>Fat</span>
                 <span className={styles.nutritionValue}>{Math.round(recipe.nutrition.fat)}g</span>
@@ -352,14 +307,6 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
             </div>
           </div>
         )}
-
-        {/* Action Button */}
-        <button
-          className={styles.viewRecipeButton}
-          onClick={handleCardClick}
-        >
-          View Recipe
-        </button>
       </div>
     </div>
   );

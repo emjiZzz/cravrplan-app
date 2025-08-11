@@ -197,8 +197,9 @@ const GridCalendar: React.FC<{
   const getMealTypeIcon = (mealType: string) => {
     switch (mealType) {
       case 'breakfast': return '🌅';
-      case 'lunch': return '☀️';
-      case 'dinner': return '🌙';
+      case 'main course': return '🍽️';
+      case 'side dish': return '🥗';
+      case 'dessert': return '🍰';
       case 'snack': return '🍎';
       default: return '🍽️';
     }
@@ -665,8 +666,9 @@ const PlanPage: React.FC = () => {
   const getMealTypeIcon = (mealType: string) => {
     switch (mealType) {
       case 'breakfast': return '🌅';
-      case 'lunch': return '☀️';
-      case 'dinner': return '🌙';
+      case 'main course': return '🍽️';
+      case 'side dish': return '🥗';
+      case 'dessert': return '🍰';
       case 'snack': return '🍎';
       default: return '🍽️';
     }
@@ -787,7 +789,7 @@ const PlanPage: React.FC = () => {
       setCustomImage(null); // Clear custom image
       setEditFormData({
         title: '',
-        mealType: 'lunch',
+        mealType: 'main course',
         prepTime: 15,
         cookTime: 30,
         servings: 2,
@@ -831,7 +833,7 @@ const PlanPage: React.FC = () => {
       setCustomImage(null); // Clear custom image
       setEditFormData({
         title: '',
-        mealType: 'lunch',
+        mealType: 'main course',
         prepTime: 15,
         cookTime: 30,
         servings: 2,
