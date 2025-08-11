@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import styles from './LandingPage.module.css';
 import CravrPlanLogo from '../assets/logo.png';
 import bgImage from '../assets/bg-image.jpg';
+import { useAuth } from '../context/AuthContext';
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -122,10 +124,10 @@ const LandingPage: React.FC = () => {
               Explore Recipes
             </button>
             <button
-              onClick={() => navigate('/plan')}
+              onClick={() => navigate(isAuthenticated ? '/plan' : '/signup')}
               className={styles.secondaryButton}
             >
-              Start Planning
+              {isAuthenticated ? 'Start Planning' : 'Get Started Free'}
             </button>
           </div>
 
@@ -236,18 +238,29 @@ const LandingPage: React.FC = () => {
               Join thousands of users who have simplified their cooking routine and discovered the joy of organized meal planning
             </p>
             <div className={styles.ctaActions}>
-              <button
-                onClick={() => navigate('/signup')}
-                className={styles.ctaPrimaryButton}
-              >
-                Get Started Free
-              </button>
-              <button
-                onClick={() => navigate('/login')}
-                className={styles.ctaSecondaryButton}
-              >
-                Sign In
-              </button>
+              {isAuthenticated ? (
+                <button
+                  onClick={() => navigate('/plan')}
+                  className={styles.ctaPrimaryButton}
+                >
+                  Start Planning
+                </button>
+              ) : (
+                <>
+                  <button
+                    onClick={() => navigate('/signup')}
+                    className={styles.ctaPrimaryButton}
+                  >
+                    Get Started Free
+                  </button>
+                  <button
+                    onClick={() => navigate('/login')}
+                    className={styles.ctaSecondaryButton}
+                  >
+                    Sign In
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>

@@ -1,0 +1,620 @@
+/* QuickSuggestionsModal.module.css */
+
+.modalBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+}
+
+.modalContent {
+  background: linear-gradient(135deg, #F8F7E5 0%, #f5f5f0 50%, #F8F7E5 100%);
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  padding: 32px;
+  max-width: 900px;
+  width: 90%;
+  max-height: 85vh;
+  overflow-y: auto;
+  position: relative;
+  border: 1px solid rgba(84, 106, 4, 0.15);
+  backdrop-filter: blur(10px);
+}
+
+.modalContent::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #546A04, #17371A, #546A04);
+  border-radius: 20px 20px 0 0;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 24px;
+  position: relative;
+  z-index: 2;
+}
+
+.headerContent {
+  flex: 1;
+  text-align: center;
+}
+
+.mealTypeHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.mealTypeIcon {
+  font-size: 28px;
+}
+
+.modalTitle {
+  font-size: 24px;
+  font-weight: 800;
+  color: #17371A;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.modalSubtitle {
+  font-size: 14px;
+  color: #546A04;
+  margin: 0;
+  opacity: 0.9;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: #546A04;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.closeButton:hover {
+  background: rgba(84, 106, 4, 0.1);
+  transform: scale(1.1);
+}
+
+/* Meal Type Selector */
+.mealTypeSelector {
+  margin-bottom: 24px;
+}
+
+.mealTypeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.mealTypeCard {
+  background: linear-gradient(135deg, #fff, #f8f8f8);
+  border: 2px solid rgba(84, 106, 4, 0.1);
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.mealTypeCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, var(--meal-color, #546A04), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.mealTypeCard:hover {
+  border-color: var(--meal-color, #546A04);
+  box-shadow: 0 8px 25px rgba(84, 106, 4, 0.15);
+  transform: translateY(-3px);
+}
+
+.mealTypeCard:hover::before {
+  opacity: 0.1;
+}
+
+.mealTypeIconLarge {
+  font-size: 48px;
+  margin-bottom: 8px;
+  position: relative;
+  z-index: 1;
+}
+
+.mealTypeLabel {
+  font-size: 18px;
+  font-weight: 700;
+  color: #17371A;
+  margin: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.mealTypeDescription {
+  font-size: 12px;
+  color: #546A04;
+  margin: 0;
+  opacity: 0.8;
+  line-height: 1.4;
+  position: relative;
+  z-index: 1;
+}
+
+.timeFilter {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 12px;
+  border: 1px solid rgba(84, 106, 4, 0.1);
+}
+
+.timeLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: #17371A;
+  white-space: nowrap;
+}
+
+.timeButtons {
+  display: flex;
+  gap: 8px;
+}
+
+.timeButton {
+  padding: 8px 16px;
+  border: 2px solid rgba(84, 106, 4, 0.2);
+  border-radius: 20px;
+  background: white;
+  color: #546A04;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.timeButton:hover {
+  border-color: #546A04;
+  background: rgba(84, 106, 4, 0.05);
+}
+
+.timeButton.active {
+  background: #546A04;
+  color: #F8F7E5;
+  border-color: #546A04;
+}
+
+.suggestionsContainer {
+  min-height: 300px;
+}
+
+.loadingState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.loadingSpinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(84, 106, 4, 0.1);
+  border-top: 3px solid #546A04;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loadingState p {
+  color: #546A04;
+  font-size: 14px;
+  margin: 0;
+}
+
+.suggestionsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.suggestionCard {
+  background: linear-gradient(135deg, #fff, #f8f8f8);
+  border-radius: 16px;
+  padding: 20px;
+  border: 2px solid rgba(84, 106, 4, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.suggestionCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(84, 106, 4, 0.05), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.suggestionCard:hover {
+  border-color: #546A04;
+  box-shadow: 0 8px 25px rgba(84, 106, 4, 0.15);
+  transform: translateY(-2px);
+}
+
+.suggestionCard:hover::before {
+  opacity: 1;
+}
+
+.recipeImage {
+  width: 100%;
+  height: 120px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.recipeImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.suggestionCard:hover .recipeImage img {
+  transform: scale(1.05);
+}
+
+.recipeInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.recipeTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: #17371A;
+  margin: 0;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.recipeMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.timeInfo {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.timeIcon {
+  font-size: 14px;
+}
+
+.timeText {
+  font-size: 12px;
+  font-weight: 600;
+  color: #546A04;
+}
+
+.difficultyBadge {
+  font-size: 10px;
+  font-weight: 600;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.nutritionInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 12px;
+  background: rgba(84, 106, 4, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(84, 106, 4, 0.1);
+}
+
+.calories {
+  font-size: 12px;
+  font-weight: 700;
+  color: #17371A;
+}
+
+.macros {
+  font-size: 10px;
+  color: #546A04;
+  opacity: 0.8;
+}
+
+.addButton {
+  margin-top: 16px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #546A04, #17371A);
+  color: #F8F7E5;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.addButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.addButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(84, 106, 4, 0.25);
+}
+
+.addButton:hover::before {
+  left: 100%;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.emptyIcon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.emptyState h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #17371A;
+  margin: 0 0 8px 0;
+}
+
+.emptyState p {
+  font-size: 14px;
+  color: #546A04;
+  margin: 0;
+  opacity: 0.8;
+}
+
+.modalFooter {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(84, 106, 4, 0.1);
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.backButton {
+  padding: 10px 20px;
+  background: rgba(84, 106, 4, 0.1);
+  color: #546A04;
+  border: 2px solid rgba(84, 106, 4, 0.2);
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.backButton:hover {
+  background: rgba(84, 106, 4, 0.2);
+  border-color: #546A04;
+  transform: translateY(-1px);
+}
+
+.refreshButton {
+  padding: 10px 20px;
+  background: rgba(84, 106, 4, 0.1);
+  color: #546A04;
+  border: 2px solid rgba(84, 106, 4, 0.2);
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.refreshButton:hover {
+  background: rgba(84, 106, 4, 0.2);
+  border-color: #546A04;
+  transform: translateY(-1px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .modalContent {
+    padding: 24px;
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  .modalTitle {
+    font-size: 20px;
+  }
+
+  .mealTypeGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .mealTypeCard {
+    padding: 20px;
+  }
+
+  .mealTypeIconLarge {
+    font-size: 36px;
+  }
+
+  .mealTypeLabel {
+    font-size: 16px;
+  }
+
+  .timeFilter {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .timeButtons {
+    justify-content: center;
+  }
+
+  .suggestionsGrid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .suggestionCard {
+    padding: 16px;
+  }
+
+  .modalFooter {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .modalContent {
+    padding: 20px;
+  }
+
+  .mealTypeHeader {
+    gap: 8px;
+  }
+
+  .mealTypeIcon {
+    font-size: 24px;
+  }
+
+  .modalTitle {
+    font-size: 18px;
+  }
+
+  .mealTypeGrid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .mealTypeCard {
+    padding: 16px;
+  }
+
+  .mealTypeIconLarge {
+    font-size: 32px;
+  }
+
+  .mealTypeLabel {
+    font-size: 14px;
+  }
+
+  .mealTypeDescription {
+    font-size: 11px;
+  }
+
+  .timeButtons {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .timeButton {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .suggestionCard {
+    padding: 14px;
+  }
+
+  .recipeImage {
+    height: 100px;
+  }
+
+  .recipeTitle {
+    font-size: 14px;
+  }
+}

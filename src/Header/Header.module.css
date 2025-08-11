@@ -164,3 +164,50 @@
   box-shadow: none;
   background-color: transparent;
 }
+
+.userSection {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.userName {
+  font-size: 14px;
+  color: #546A04;
+  font-weight: 500;
+}
+
+.logoutButton {
+  font-size: 14px;
+  color: #17371A;
+  background: none;
+  border: none;
+  outline: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.2s ease-in-out;
+  padding: 8px 12px;
+  border-radius: 0px;
+  box-shadow: none;
+}
+
+.logoutButton:hover {
+  color: #546A04;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+
+.logoutButton:focus {
+  outline: none;
+  border: none;
+  box-shadow: none;
+}
+
+.logoutButton:active {
+  outline: none;
+  border: none;
+  box-shadow: none;
+  background-color: transparent;
+}

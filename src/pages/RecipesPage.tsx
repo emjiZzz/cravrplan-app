@@ -8,6 +8,9 @@ import styles from './RecipesPage.module.css';
 
 import { useNavigate, useLocation } from 'react-router-dom'; // Import useNavigate and useLocation
 
+// Import new components
+import RecipeCard from '../components/RecipeCard';
+import { ErrorMessage, EmptyState, SearchLoading } from '../components/LoadingStates';
 
 const RecipesPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -172,10 +175,9 @@ const RecipesPage: React.FC = () => {
     navigate(`${location.pathname}?${urlParams.toString()}`);
   };
 
-  const toggleFavorite = (recipeId: number, event: React.MouseEvent) => {
-    event.stopPropagation(); // Prevent recipe card click
+  const toggleFavorite = (recipeId: number, isFavorite: boolean) => {
     setFavorites(prev => {
-      if (prev.includes(recipeId)) {
+      if (isFavorite) {
         return prev.filter(id => id !== recipeId);
       } else {
         return [...prev, recipeId];
@@ -187,6 +189,8 @@ const RecipesPage: React.FC = () => {
     setShowFavoritesOnly(!showFavoritesOnly);
     setCurrentPage(0); // Reset to first page when changing filters
   };
+
+
 
   return (
     <div className={styles.recipesPageContainer}>
@@ -256,87 +260,54 @@ const RecipesPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Loading State */}
+        {/* Enhanced Loading State */}
         {loading && (
           <div className={styles.loadingContainer}>
-            <div className={styles.loadingSpinner}></div>
-            <p>🍳 Loading recipes...</p>
+            <SearchLoading query={searchQuery || 'recipes'} />
           </div>
         )}
 
-        {/* Error State */}
+        {/* Enhanced Error State */}
         {error && (
-          <div className={styles.errorContainer}>
-            <p className={styles.errorMessage}>{error}</p>
-            <button
-              onClick={() => window.location.reload()}
-              className={styles.retryButton}
-            >
-              Try Again
-            </button>
-          </div>
+          <ErrorMessage 
+            title="Failed to load recipes"
+            message={error}
+            onRetry={() => window.location.reload()}
+          />
         )}
 
-        {/* Recipes Grid */}
-        {!loading && !error && (
+        {/* Enhanced Recipes Grid */}
+        {!loading && !error && recipes.length > 0 && (
           <div className={styles.recipesGrid}>
             {recipes.map((recipe) => (
-              <div
+              <RecipeCard
                 key={recipe.id}
-                className={styles.recipeCard}
-                onClick={() => handleRecipeClick(recipe.id)}
-              >
-                <div className={styles.recipeImage}>
-                  <img
-                    src={recipe.image || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik0xMDAgMTUwTDIwMCAxMDBMMzAwIDE1MEwyMDAgMjAwTDEwMCAxNTBaIiBmaWxsPSIjRENEQ0RDIi8+Cjx0ZXh0IHg9IjIwMCIgeT0iMjUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiPkltYWdlPC90ZXh0Pgo8L3N2Zz4K'}
-                    alt={recipe.title}
-                    onError={e => { e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik0xMDAgMTUwTDIwMCAxMDBMMzAwIDE1MEwyMDAgMjAwTDEwMCAxNTBaIiBmaWxsPSIjRENEQ0RDIi8+Cjx0ZXh0IHg9IjIwMCIgeT0iMjUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiPkltYWdlPC90ZXh0Pgo8L3N2Zz4K'; }}
-                  />
-                  <div className={styles.recipeOverlay}>
-                    <div className={styles.recipeStats}>
-                      <span className={styles.readyTime}>{recipe.readyInMinutes} min</span>
-                      <span className={styles.servings}>{recipe.servings} servings</span>
-                    </div>
-                  </div>
-                  <button
-                    onClick={(e) => toggleFavorite(recipe.id, e)}
-                    className={`${styles.favoriteButton} ${favorites.includes(recipe.id) ? styles.favorited : ''}`}
-                    aria-label={favorites.includes(recipe.id) ? 'Remove from favorites' : 'Add to favorites'}
-                  >
-                    {favorites.includes(recipe.id) ? '❤️' : '🤍'}
-                  </button>
-                </div>
-                <div className={styles.recipeContent}>
-                  <h3 className={styles.recipeTitle}>{recipe.title}</h3>
-                  <p className={styles.recipeDescription}>
-                    {recipe.summary ?
-                      recipe.summary.replace(/<[^>]*>/g, '').substring(0, 120) + '...' :
-                      'A delicious recipe to try!'
-                    }
-                  </p>
-                  <div className={styles.recipeTags}>
-                    {recipe.diets.slice(0, 2).map((diet) => (
-                      <span key={diet} className={styles.recipeTag}>
-                        {diet}
-                      </span>
-                    ))}
-                    {recipe.veryHealthy && (
-                      <span className={`${styles.recipeTag} ${styles.healthyTag}`}>
-                        Healthy
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
+                recipe={recipe}
+                onFavoriteToggle={toggleFavorite}
+                isFavorite={favorites.includes(recipe.id)}
+              />
             ))}
           </div>
         )}
 
-        {/* No Results */}
+        {/* Enhanced Empty State */}
         {!loading && !error && recipes.length === 0 && (
-          <div className={styles.noResults}>
-            <p>No recipes to display. You haven't added any favorites or your search returned no results.</p>
-          </div>
+          <EmptyState
+            icon="🍽️"
+            title="No recipes found"
+            message={showFavoritesOnly 
+              ? "You haven't added any favorites yet. Start exploring recipes to build your collection!"
+              : "No recipes match your current search criteria. Try adjusting your filters or search terms."
+            }
+            actionText="Explore Recipes"
+            onAction={() => {
+              setSearchQuery('');
+              setSelectedMenu('All Menus');
+              setSelectedDiet('No Diet Restrictions');
+              setSelectedMealType('All Meal Types');
+              setShowFavoritesOnly(false);
+            }}
+          />
         )}
 
         {/* Pagination */}

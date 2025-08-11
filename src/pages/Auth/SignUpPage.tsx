@@ -1,13 +1,44 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './SignUpPage.module.css';
 import CravrPlanLogo from '../../assets/logo.png';
+import { useAuth } from '../../context/AuthContext';
 
 // This is our SignUpPage component, responsible for the user registration interface.
 const SignUpPage: React.FC = () => {
+  const navigate = useNavigate();
+  const { signup, isLoading } = useAuth();
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
 
-  const handleSignUp = (event: React.FormEvent) => {
+  const handleSignUp = async (event: React.FormEvent) => {
     event.preventDefault();
-    console.log('Sign up button clicked!');
+    setError('');
+    
+    if (!fullName || !email || !password || !confirmPassword) {
+      setError('Please fill in all fields');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      return;
+    }
+
+    const success = await signup(fullName, email, password);
+    if (success) {
+      navigate('/recipes');
+    } else {
+      setError('Failed to create account. Please try again.');
+    }
   };
 
   return (
@@ -22,6 +53,13 @@ const SignUpPage: React.FC = () => {
         <h2 className={styles.title}> Sign up </h2>
         <p className={styles.subtitle}> </p>
 
+        {/* Error message */}
+        {error && (
+          <div className={styles.errorMessage}>
+            {error}
+          </div>
+        )}
+
         {/* The sign up form itself */}
         <form className={styles.signUpForm} onSubmit={handleSignUp}>
           {/* Full Name Input Field */}
@@ -33,6 +71,8 @@ const SignUpPage: React.FC = () => {
               name="fullName"
               placeholder=" "
               className={styles.inputField}
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
               required // Makes this field mandatory
             />
           </div>
@@ -46,6 +86,8 @@ const SignUpPage: React.FC = () => {
               name="email"
               placeholder=" "
               className={styles.inputField}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required // Makes this field mandatory
             />
           </div>
@@ -59,6 +101,8 @@ const SignUpPage: React.FC = () => {
               name="password"
               placeholder=" "
               className={styles.inputField}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required // Makes this field mandatory
             />
           </div>
@@ -72,12 +116,20 @@ const SignUpPage: React.FC = () => {
               name="confirmPassword"
               placeholder=" "
               className={styles.inputField}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               required // Makes this field mandatory
             />
           </div>
 
           {/* Sign Up Button */}
-          <button type="submit" className={styles.signUpButton}>SIGN UP</button>
+          <button 
+            type="submit" 
+            className={styles.signUpButton}
+            disabled={isLoading}
+          >
+            {isLoading ? 'CREATING ACCOUNT...' : 'SIGN UP'}
+          </button>
         </form>
 
         {/* Section for "Already have an account?" */}

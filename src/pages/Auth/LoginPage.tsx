@@ -1,15 +1,33 @@
 
-import React from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './LoginPage.module.css';
 import CravrPlanLogo from '../../assets/logo.png';
+import { useAuth } from '../../context/AuthContext';
 
 // This is our LoginPage component, responsible for the user login interface.
 const LoginPage: React.FC = () => {
+  const navigate = useNavigate();
+  const { login, isLoading } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
-
-  const handleLogin = (event: React.FormEvent) => {
+  const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
-    console.log('Login button clicked!');
+    setError('');
+    
+    if (!email || !password) {
+      setError('Please fill in all fields');
+      return;
+    }
+
+    const success = await login(email, password);
+    if (success) {
+      navigate('/recipes');
+    } else {
+      setError('Invalid email or password');
+    }
   };
 
   return (
@@ -24,6 +42,13 @@ const LoginPage: React.FC = () => {
         <h2 className={styles.title}> Log in </h2>
         <p className={styles.subtitle}> </p>
 
+        {/* Error message */}
+        {error && (
+          <div className={styles.errorMessage}>
+            {error}
+          </div>
+        )}
+
         {/* The login form itself */}
         <form className={styles.loginForm} onSubmit={handleLogin}>
           {/* Email Input Field */}
@@ -35,6 +60,8 @@ const LoginPage: React.FC = () => {
               name="email"
               placeholder=" "
               className={styles.inputField}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required // Makes this field mandatory
             />
           </div>
@@ -48,13 +75,21 @@ const LoginPage: React.FC = () => {
               name="password"
               placeholder=" "
               className={styles.inputField}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required // Makes this field mandatory
             />
 
           </div>
 
           {/* Login Button */}
-          <button type="submit" className={styles.loginButton}>LOG IN</button>
+          <button 
+            type="submit" 
+            className={styles.loginButton}
+            disabled={isLoading}
+          >
+            {isLoading ? 'LOGGING IN...' : 'LOG IN'}
+          </button>
         </form>
 
         {/* Section for "Don't have an account?" */}

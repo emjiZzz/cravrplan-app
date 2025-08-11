@@ -775,9 +775,44 @@ const buildQueryParams = (params: Record<string, string | number | boolean | str
 // API Service Class
 class RecipeApiService {
   private useMockData: boolean;
+  private requestCount: number = 0;
+  private lastRequestTime: number = 0;
 
   constructor() {
     this.useMockData = !API_KEY || API_KEY === 'your-api-key-here';
+  }
+
+  // Rate limiting helper
+  private async checkRateLimit(): Promise<void> {
+    const now = Date.now();
+    const timeSinceLastRequest = now - this.lastRequestTime;
+
+    // Basic rate limiting: max 10 requests per minute
+    if (this.requestCount >= 10 && timeSinceLastRequest < 60000) {
+      const waitTime = 60000 - timeSinceLastRequest;
+      throw new Error(`Rate limit exceeded. Please wait ${Math.ceil(waitTime / 1000)} seconds.`);
+    }
+
+    if (timeSinceLastRequest > 60000) {
+      this.requestCount = 0;
+    }
+
+    this.requestCount++;
+    this.lastRequestTime = now;
+  }
+
+  // Enhanced error handling
+  private handleApiError(error: any, fallbackData: any): any {
+    if (CONFIG.LOG_API_ERRORS) {
+      console.error('API Error:', error);
+    }
+
+    if (CONFIG.USE_MOCK_DATA_FALLBACK) {
+      console.warn('Falling back to mock data due to API error');
+      return fallbackData;
+    }
+
+    throw new Error(`API request failed: ${error.message}`);
   }
 
   // Search recipes with various filters
@@ -787,6 +822,8 @@ class RecipeApiService {
     }
 
     try {
+      await this.checkRateLimit();
+
       const queryParams = buildQueryParams({
         ...params,
         apiKey: API_KEY,
@@ -795,18 +832,30 @@ class RecipeApiService {
         number: params.number || 20
       });
 
-      const response = await fetch(`${API_BASE_URL}/complexSearch?${queryParams}`);
+      const response = await fetch(`${API_BASE_URL}/complexSearch?${queryParams}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        signal: AbortSignal.timeout(10000) // 10 second timeout
+      });
 
       if (!response.ok) {
-        throw new Error(`API request failed: ${response.status}`);
+        if (response.status === 401) {
+          throw new Error('Invalid API key. Please check your configuration.');
+        } else if (response.status === 429) {
+          throw new Error('API rate limit exceeded. Please try again later.');
+        } else if (response.status >= 500) {
+          throw new Error('Server error. Please try again later.');
+        } else {
+          throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+        }
       }
 
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error('Error searching recipes:', error);
-      // Fallback to mock data on error
-      return this.getMockSearchResults(params);
+      return this.handleApiError(error, this.getMockSearchResults(params));
     }
   }
 

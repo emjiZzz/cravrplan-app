@@ -10,6 +10,7 @@ import FridgePage from './pages/FridgePage';
 import { PlanProvider } from './context/PlanContext';
 import { ShoppingListProvider } from './context/ShoppingListContext';
 import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 
 import { Routes, Route, useLocation } from 'react-router-dom';
 
@@ -20,26 +21,40 @@ function App() {
   const isLandingPage = location.pathname === '/';
 
   return (
-    <PlanProvider>
-      <ShoppingListProvider>
-        <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-          {!isLoginPage && !isSignUpPage && !isLandingPage && <Header />}
+    <AuthProvider>
+      <PlanProvider>
+        <ShoppingListProvider>
+          <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            {!isLoginPage && !isSignUpPage && !isLandingPage && <Header />}
 
-          <main style={{ flex: 1, overflow: 'auto' }}>
-            <Routes>
+            <main style={{ flex: 1, overflow: 'auto' }}>
+                          <Routes>
               <Route path="/" element={<LandingPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/signup" element={<SignUpPage />} />
+              <Route path="/login" element={
+                <ProtectedRoute requireAuth={false}>
+                  <LoginPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/signup" element={
+                <ProtectedRoute requireAuth={false}>
+                  <SignUpPage />
+                </ProtectedRoute>
+              } />
               <Route path="/recipes" element={<RecipesPage />} />
               <Route path="/recipes/:id" element={<RecipeDetailPage />} />
-              <Route path="/plan" element={<PlanPage />} />
+              <Route path="/plan" element={
+                <ProtectedRoute>
+                  <PlanPage />
+                </ProtectedRoute>
+              } />
               {/* Shop page removed */}
               <Route path="/fridge" element={<FridgePage />} />
             </Routes>
-          </main>
-        </div>
-      </ShoppingListProvider>
-    </PlanProvider>
+            </main>
+          </div>
+        </ShoppingListProvider>
+      </PlanProvider>
+    </AuthProvider>
   );
 }
 

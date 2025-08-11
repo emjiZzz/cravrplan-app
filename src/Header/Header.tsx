@@ -2,10 +2,12 @@ import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styles from './Header.module.css';
 import CravrPlanBowlLogo from '../assets/salad.png';
+import { useAuth } from '../context/AuthContext';
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, isAuthenticated, logout } = useAuth();
 
   const handleLogoClick = () => {
     navigate('/');
@@ -13,6 +15,11 @@ const Header: React.FC = () => {
 
   const handleNavClick = (path: string) => {
     navigate(path);
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
   };
 
   // Check if we're on the Plan page
@@ -57,7 +64,16 @@ const Header: React.FC = () => {
         </nav>
 
         <div className={styles.authLinks}>
-          <button onClick={() => handleNavClick('/login')}>LOG IN</button>
+          {isAuthenticated ? (
+            <div className={styles.userSection}>
+              <span className={styles.userName}>Welcome, {user?.fullName}</span>
+              <button onClick={handleLogout} className={styles.logoutButton}>
+                LOG OUT
+              </button>
+            </div>
+          ) : (
+            <button onClick={() => handleNavClick('/login')}>LOG IN</button>
+          )}
         </div>
       </header>
     </div>
