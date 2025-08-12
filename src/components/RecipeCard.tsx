@@ -3,6 +3,21 @@ import { useNavigate, useLocation } from 'react-router-dom';
 
 import styles from './RecipeCard.module.css';
 
+interface NutritionNutrient {
+  name: string;
+  amount: number;
+  unit: string;
+}
+
+interface NutritionData {
+  nutrients: NutritionNutrient[];
+}
+
+interface LocationState {
+  swapFor?: string;
+  [key: string]: unknown;
+}
+
 interface RecipeCardProps {
   recipe: {
     id: number;
@@ -21,12 +36,7 @@ interface RecipeCardProps {
     sustainable: boolean;
     summary?: string;
     difficulty?: 'easy' | 'medium' | 'hard';
-    nutrition?: {
-      calories: number;
-      protein: number;
-      carbs: number;
-      fat: number;
-    };
+    nutrition?: NutritionData;
     tags?: string[];
   };
   onFavoriteToggle?: (recipeId: number, isFavorite: boolean) => void;
@@ -45,7 +55,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
 
   const handleCardClick = () => {
     // Preserve swap state if present when moving into detail
-    const state = (location.state as any) || undefined;
+    const state = (location.state as LocationState) || undefined;
 
     // Preserve selectedDate from URL if present
     const urlParams = new URLSearchParams(location.search);
@@ -111,15 +121,15 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
 
 
 
-  const getNutritionValue = (nutrition: any, nutrientName: string): number => {
+  const getNutritionValue = (nutrition: NutritionData | undefined, nutrientName: string): number => {
     if (!nutrition || !nutrition.nutrients) return 0;
-    const nutrient = nutrition.nutrients.find((n: any) =>
+    const nutrient = nutrition.nutrients.find((n: NutritionNutrient) =>
       n.name.toLowerCase().includes(nutrientName.toLowerCase())
     );
     return nutrient ? nutrient.amount : 0;
   };
 
-  const getNutritionColor = (nutrition: any, type: 'calories' | 'protein' | 'carbs' | 'fat') => {
+  const getNutritionColor = (nutrition: NutritionData | undefined, type: 'calories' | 'protein' | 'carbs' | 'fat') => {
     if (!nutrition) return { backgroundColor: '#ccc', opacity: 0.5, percentage: 0 };
 
     // Match the color scheme from PlanPage

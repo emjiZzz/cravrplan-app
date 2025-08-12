@@ -57,6 +57,7 @@ export interface PlanContextType {
   getNutritionalStats: (date: string) => NutritionalStats;
   getQuickSuggestions: (mealType: PlanEvent['mealType'], maxTime?: number) => Promise<PlanEvent[]>;
   ensureNutritionData: () => void;
+  isFeatureRestricted: (feature: 'customRecipe' | 'dragAndDrop' | 'advancedPlanning') => boolean;
 }
 
 export const PlanContext = createContext<PlanContextType | undefined>(undefined); 

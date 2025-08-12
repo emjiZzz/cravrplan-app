@@ -3,11 +3,13 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import styles from './Header.module.css';
 import CravrPlanBowlLogo from '../assets/salad.png';
 import { useAuth } from '../context/AuthContext';
+import { useGuest } from '../context/GuestContext';
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAuthenticated, logout } = useAuth();
+  const { isGuestMode, clearGuestData } = useGuest();
 
   const handleLogoClick = () => {
     navigate('/');
@@ -18,11 +20,19 @@ const Header: React.FC = () => {
   };
 
   const handleLogout = () => {
-    logout();
-    navigate('/');
+    if (isGuestMode) {
+      clearGuestData();
+      navigate('/');
+    } else {
+      logout();
+      navigate('/');
+    }
   };
 
-  // Check if we're on the Plan page
+  const handleLogin = () => {
+    navigate('/login');
+  };
+
   const isPlanPage = location.pathname === '/plan';
 
   return (
@@ -60,19 +70,27 @@ const Header: React.FC = () => {
           >
             MEAL PLAN
           </button>
-          {null}
         </nav>
+
+        <div className={styles.userSection}>
+          <div className={styles.userProfile}>
+            {isAuthenticated && user ? (
+              <span className={styles.userGreeting}>HI {user.fullName?.toUpperCase() || 'USER'}</span>
+            ) : (
+              <span className={styles.guestMode}>IN GUEST MODE</span>
+            )}
+          </div>
+        </div>
 
         <div className={styles.authLinks}>
           {isAuthenticated ? (
-            <div className={styles.userSection}>
-              <span className={styles.userName}>Welcome, {user?.fullName}</span>
-              <button onClick={handleLogout} className={styles.logoutButton}>
-                LOG OUT
-              </button>
-            </div>
+            <button onClick={handleLogout} className={styles.logoutButton}>
+              LOG OUT
+            </button>
           ) : (
-            <button onClick={() => handleNavClick('/login')}>LOG IN</button>
+            <button onClick={handleLogin} className={styles.loginButton}>
+              LOG IN
+            </button>
           )}
         </div>
       </header>

@@ -1,4 +1,14 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged
+} from 'firebase/auth';
+import type { User as FirebaseUser } from 'firebase/auth';
+import { auth } from '../services/firebase';
+import { firestoreService } from '../services/firestoreService';
 
 interface User {
   id: string;
@@ -10,9 +20,10 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
-  signup: (fullName: string, email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  signup: (fullName: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
+  continueAsGuest: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -33,89 +44,166 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Check for existing session on app load
+  // Listen for Firebase auth state changes
   useEffect(() => {
-    const initializeAuth = async () => {
-      try {
-        const savedUser = localStorage.getItem('cravrplan_user');
-        if (savedUser) {
-          try {
-            setUser(JSON.parse(savedUser));
-          } catch (error) {
-            console.error('Error parsing saved user:', error);
-            localStorage.removeItem('cravrplan_user');
-          }
-        }
-      } catch (error) {
-        console.error('Error initializing auth:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: any) => {
+      if (firebaseUser) {
+        // User is signed in
+        try {
+          // Get user data from Firestore
+          const userData = await firestoreService.getUser(firebaseUser.uid);
 
-    // Add a small delay to show loading state for better UX
-    const timer = setTimeout(initializeAuth, 500);
-    return () => clearTimeout(timer);
+          if (userData) {
+            const user: User = {
+              id: userData.id,
+              email: userData.email,
+              fullName: userData.fullName
+            };
+
+            setUser(user);
+            localStorage.setItem('cravrplan_user', JSON.stringify(user));
+
+            // Update last login
+            await firestoreService.updateUserLastLogin(firebaseUser.uid);
+
+            // Check for pending preferences and save them
+            const pendingPreferences = localStorage.getItem('pending_preferences');
+            if (pendingPreferences) {
+              try {
+                const preferences = JSON.parse(pendingPreferences);
+                await firestoreService.saveUserPreferences(firebaseUser.uid, preferences);
+                localStorage.removeItem('pending_preferences');
+                console.log('Pending preferences saved successfully');
+              } catch (error) {
+                console.error('Error saving pending preferences:', error);
+              }
+            }
+          } else {
+            // User exists in Firebase Auth but not in Firestore
+            console.error('User data not found in Firestore');
+            await signOut(auth);
+          }
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+          await signOut(auth);
+        }
+      } else {
+        // User is signed out
+        setUser(null);
+        localStorage.removeItem('cravrplan_user');
+      }
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     setIsLoading(true);
     try {
-      // Simulate API call with realistic delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Check if this is the demo account
+      if (email === 'demo@cravrplan.com' && password === 'demo123') {
+        // Handle demo account login
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const firebaseUser = userCredential.user;
 
-      // TODO: Replace with actual API call
-      // For now, simulate successful login
-      const mockUser: User = {
-        id: '1',
-        email,
-        fullName: email.split('@')[0] // Use email prefix as name for demo
-      };
+        // Check if demo account exists in Firestore, if not create it
+        let userData = await firestoreService.getUser(firebaseUser.uid);
+        if (!userData) {
+          await firestoreService.createUser({
+            id: firebaseUser.uid,
+            email: firebaseUser.email!,
+            fullName: 'Demo User'
+          });
 
-      setUser(mockUser);
-      localStorage.setItem('cravrplan_user', JSON.stringify(mockUser));
-      return true;
-    } catch (error) {
+          // Setup demo data
+          await firestoreService.setupDemoAccount(firebaseUser.uid);
+        }
+
+        return { success: true };
+      } else {
+        // Regular login
+        await signInWithEmailAndPassword(auth, email, password);
+        return { success: true };
+      }
+    } catch (error: any) {
       console.error('Login error:', error);
-      return false;
+      let errorMessage = 'Login failed. Please try again.';
+
+      if (error.code === 'auth/user-not-found') {
+        errorMessage = 'No account found with this email address.';
+      } else if (error.code === 'auth/wrong-password') {
+        errorMessage = 'Incorrect password. Please try again.';
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = 'Please enter a valid email address.';
+      } else if (error.code === 'auth/too-many-requests') {
+        errorMessage = 'Too many failed attempts. Please try again later.';
+      }
+
+      return { success: false, error: errorMessage };
     } finally {
       setIsLoading(false);
     }
   };
 
-  const signup = async (fullName: string, email: string, password: string): Promise<boolean> => {
+  const signup = async (fullName: string, email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     setIsLoading(true);
+    console.log('AuthContext: Starting signup process...');
     try {
-      // Simulate API call with realistic delay
-      await new Promise(resolve => setTimeout(resolve, 1200));
+      console.log('AuthContext: Creating user in Firebase Auth...');
+      // Create user in Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const firebaseUser = userCredential.user;
+      console.log('AuthContext: Firebase user created:', firebaseUser.uid);
 
-      // TODO: Replace with actual API call
-      // For now, simulate successful signup
-      const mockUser: User = {
-        id: Date.now().toString(),
-        email,
-        fullName
-      };
+      console.log('AuthContext: Creating user in Firestore...');
+      // Create user in Firestore
+      await firestoreService.createUser({
+        id: firebaseUser.uid,
+        email: firebaseUser.email!,
+        fullName: fullName
+      });
+      console.log('AuthContext: User created in Firestore');
 
-      setUser(mockUser);
-      localStorage.setItem('cravrplan_user', JSON.stringify(mockUser));
-      return true;
-    } catch (error) {
-      console.error('Signup error:', error);
-      return false;
+      // Sign out the user immediately after creating account
+      // This prevents automatic login after signup
+      await signOut(auth);
+      console.log('AuthContext: User signed out after account creation');
+
+      console.log('AuthContext: Signup successful');
+      return { success: true };
+    } catch (error: any) {
+      console.error('AuthContext: Signup error:', error);
+      let errorMessage = 'Signup failed. Please try again.';
+
+      if (error.code === 'auth/email-already-in-use') {
+        errorMessage = 'An account with this email already exists.';
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = 'Please enter a valid email address.';
+      } else if (error.code === 'auth/weak-password') {
+        errorMessage = 'Password should be at least 6 characters long.';
+      }
+
+      return { success: false, error: errorMessage };
     } finally {
       setIsLoading(false);
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await signOut(auth);
+      // User state will be cleared by the auth state listener
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
+  const continueAsGuest = () => {
+    // Clear any existing user data
     setUser(null);
     localStorage.removeItem('cravrplan_user');
-    // Clear all local data when user logs out
-    localStorage.removeItem('mealPlans');
-    localStorage.removeItem('shoppingLists');
-    localStorage.removeItem('activeShoppingListId');
-    localStorage.removeItem('recipeFavorites');
+    setIsLoading(false);
   };
 
   const value: AuthContextType = {
@@ -124,7 +212,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isLoading,
     login,
     signup,
-    logout
+    logout,
+    continueAsGuest
   };
 
   return (

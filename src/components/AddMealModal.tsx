@@ -35,7 +35,7 @@ const AddMealModal: React.FC<AddMealModalProps> = ({
 
   const handleAddCustom = () => {
     if (!customTitle.trim()) return;
-    
+
     const newEvent: Omit<PlanEvent, 'id'> = {
       title: customTitle,
       date: selectedDate,
@@ -52,16 +52,7 @@ const AddMealModal: React.FC<AddMealModalProps> = ({
     }
   };
 
-  const getMealTypeIcon = (mealType: string) => {
-    switch (mealType) {
-      case 'breakfast': return '🌅';
-      case 'main course': return '🍽️';
-      case 'side dish': return '🥗';
-      case 'dessert': return '🍰';
-      case 'snack': return '🍎';
-      default: return '🍽️';
-    }
-  };
+
 
   return (
     <div className={styles.modalBackdrop} onClick={handleBackdropClick}>
@@ -125,7 +116,7 @@ const AddMealModal: React.FC<AddMealModalProps> = ({
                   placeholder="Enter meal title"
                 />
               </div>
-              
+
               <div className={styles.formGroup}>
                 <label>Meal Type:</label>
                 <select

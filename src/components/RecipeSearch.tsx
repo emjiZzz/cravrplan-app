@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { searchRecipes } from '../services/apiService';
 import styles from './RecipeSearch.module.css';
 
+import type { Recipe } from '../types/recipeTypes';
+
 interface RecipeSearchProps {
-  onSearchResults: (recipes: any[]) => void;
+  onSearchResults: (recipes: Recipe[]) => void;
   onLoadingChange: (loading: boolean) => void;
 }
 
@@ -46,7 +48,7 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ onSearchResults, onLoadingC
     if (debouncedSearchTerm || cuisine || diet || maxReadyTime) {
       performSearch();
     }
-  }, [debouncedSearchTerm, cuisine, diet, maxReadyTime]);
+  }, [debouncedSearchTerm, cuisine, diet, maxReadyTime, onLoadingChange, onSearchResults]);
 
   const performSearch = async () => {
     onLoadingChange(true);

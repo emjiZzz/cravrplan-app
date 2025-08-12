@@ -5,10 +5,9 @@ import styles from './LoginPage.module.css';
 import CravrPlanLogo from '../../assets/logo.png';
 import { useAuth } from '../../context/AuthContext';
 
-// This is our LoginPage component, responsible for the user login interface.
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const { login, isLoading } = useAuth();
+  const { login, continueAsGuest, isLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -17,21 +16,38 @@ const LoginPage: React.FC = () => {
     event.preventDefault();
     setError('');
 
-    if (!email || !password) {
-      setError('Please fill in all fields');
+    // Enhanced validation
+    if (!email.trim()) {
+      setError('Please enter your email address');
       return;
     }
 
-    const success = await login(email, password);
-    if (success) {
+    if (!password.trim()) {
+      setError('Please enter your password');
+      return;
+    }
+
+    // Basic email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      setError('Please enter a valid email address');
+      return;
+    }
+
+    const result = await login(email.trim(), password);
+    if (result.success) {
       navigate('/recipes');
     } else {
-      setError('Invalid email or password');
+      setError(result.error || 'Login failed. Please try again.');
     }
   };
 
+  const handleGuestMode = () => {
+    continueAsGuest();
+    navigate('/recipes');
+  };
+
   return (
-    // The main container for our login page, centered on the screen.
     <div className={styles.loginPageContainer}>
       {/* Logo section */}
       <div className={styles.logoSection}>
@@ -39,8 +55,8 @@ const LoginPage: React.FC = () => {
       </div>
 
       <div className={styles.loginBox}>
-        <h2 className={styles.title}> Log in </h2>
-        <p className={styles.subtitle}> </p>
+        <h2 className={styles.title}>Log in</h2>
+        <p className={styles.subtitle}>Welcome back to CravrPlan</p>
 
         {/* Error message */}
         {error && (
@@ -62,7 +78,7 @@ const LoginPage: React.FC = () => {
               className={styles.inputField}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required // Makes this field mandatory
+              required
             />
           </div>
 
@@ -77,9 +93,8 @@ const LoginPage: React.FC = () => {
               className={styles.inputField}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required // Makes this field mandatory
+              required
             />
-
           </div>
 
           {/* Login Button */}
@@ -94,7 +109,7 @@ const LoginPage: React.FC = () => {
 
         {/* Section for "Don't have an account?" */}
         <p className={styles.signupText}>
-          Don't have an account? <a href="/signup" className={styles.signupLink}>SIGN UP</a>
+          Don't have an account? <button onClick={() => navigate('/onboarding')} className={styles.signupLink}>SIGN UP</button>
         </p>
       </div>
     </div>

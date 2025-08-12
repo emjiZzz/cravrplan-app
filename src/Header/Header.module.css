@@ -98,19 +98,17 @@
 
 .active:focus {
   outline: none;
-  border: 2px solid #546A04;
-  box-shadow: 0 0 0 3px rgba(84, 106, 4, 0.2);
+  border: none;
+  box-shadow: none;
 }
 
 .active:active {
   outline: none;
-  border: 2px solid #546A04;
+  border: none;
   box-shadow: none;
   background-color: #546A04;
-  transform: translateY(0);
 }
 
-/* Add a subtle indicator line under active button */
 .active::after {
   content: '';
   position: absolute;
@@ -127,6 +125,37 @@
 .authLinks {
   display: flex;
   align-items: center;
+}
+
+/* User Profile Section */
+.userSection {
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+}
+
+.userProfile {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  background: rgba(84, 106, 4, 0.1);
+  border-radius: 20px;
+  border: 1px solid rgba(84, 106, 4, 0.2);
+}
+
+.userGreeting {
+  font-size: 14px;
+  color: #17371A;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.guestMode {
+  font-size: 14px;
+  color: #6c757d;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 .authLinks button {
@@ -165,49 +194,51 @@
   background-color: transparent;
 }
 
-.userSection {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .headerContainer {
+    padding: 10px 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
 
-.userName {
-  font-size: 14px;
-  color: #546A04;
-  font-weight: 500;
-}
+  .logo h1 {
+    font-size: 24px;
+  }
 
-.logoutButton {
-  font-size: 14px;
-  color: #17371A;
-  background: none;
-  border: none;
-  outline: none;
-  font-weight: 600;
-  cursor: pointer;
-  transition: color 0.2s ease-in-out;
-  padding: 8px 12px;
-  border-radius: 0px;
-  box-shadow: none;
-}
+  .logoImage {
+    height: 30px;
+  }
 
-.logoutButton:hover {
-  color: #546A04;
-  background-color: transparent;
-  border: none;
-  outline: none;
-  box-shadow: none;
-}
+  .navigation {
+    gap: 15px;
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    margin-top: 10px;
+  }
 
-.logoutButton:focus {
-  outline: none;
-  border: none;
-  box-shadow: none;
-}
+  .navigation button {
+    font-size: 14px;
+    padding: 6px 12px;
+  }
 
-.logoutButton:active {
-  outline: none;
-  border: none;
-  box-shadow: none;
-  background-color: transparent;
+  .userSection {
+    margin-right: 10px;
+  }
+
+  .userProfile {
+    padding: 6px 12px;
+  }
+
+  .userGreeting,
+  .guestMode {
+    font-size: 12px;
+  }
+
+  .authLinks button {
+    font-size: 12px;
+    padding: 6px 8px;
+    margin-left: 15px;
+  }
 }

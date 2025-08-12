@@ -36,23 +36,19 @@ const AddToPlanModal: React.FC<AddToPlanModalProps> = ({ isOpen, onClose, recipe
 
   // Set default date to today if not selected
   useEffect(() => {
-    console.log('AddToPlanModal useEffect triggered - isOpen:', isOpen, 'propSelectedDate:', propSelectedDate);
     if (!isOpen) return;
 
     if (swapFor) {
       // Prefill once when opening in swap mode
-      console.log('Setting date from swapFor:', swapFor.date);
       setSelectedDate(swapFor.date);
       setSelectedMealType(swapFor.mealType);
     } else if (propSelectedDate && propSelectedDate.trim() !== '') {
       // Use the selected date from URL parameters
-      console.log('Setting date from propSelectedDate:', propSelectedDate);
       setSelectedDate(propSelectedDate);
       setSelectedMealType('main course');
     } else {
       // Prefill defaults once when opening normally
       const today = new Date().toISOString().split('T')[0];
-      console.log('Setting date to today:', today);
       setSelectedDate(today);
       setSelectedMealType('main course');
     }
@@ -109,7 +105,7 @@ const AddToPlanModal: React.FC<AddToPlanModalProps> = ({ isOpen, onClose, recipe
         setIsAdding(false);
         onClose();
       }
-    } catch (e) {
+    } catch {
       setIsAdding(false);
       setErrorMessage('An error occurred while adding the recipe to your plan.');
       setShowErrorModal(true);
@@ -131,7 +127,6 @@ const AddToPlanModal: React.FC<AddToPlanModalProps> = ({ isOpen, onClose, recipe
   const formatDate = (dateString: string) => {
     // Parse the date string more reliably to avoid timezone issues
     const [year, month, day] = dateString.split('-').map(Number);
-    console.log('formatDate - input:', dateString, 'parsed:', { year, month, day });
     const date = new Date(year, month - 1, day); // month is 0-indexed
     const formatted = date.toLocaleDateString('en-US', {
       weekday: 'long',
@@ -139,7 +134,6 @@ const AddToPlanModal: React.FC<AddToPlanModalProps> = ({ isOpen, onClose, recipe
       month: 'long',
       day: 'numeric'
     });
-    console.log('formatDate - output:', formatted);
     return formatted;
   };
 

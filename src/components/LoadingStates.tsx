@@ -187,9 +187,9 @@ export const SearchLoading: React.FC<SearchLoadingProps> = ({ query }) => {
 };
 
 // New: Progressive loading component
-interface ProgressiveLoadingProps {
-  items: any[];
-  renderItem: (item: any, index: number) => React.ReactNode;
+interface ProgressiveLoadingProps<T = unknown> {
+  items: T[];
+  renderItem: (item: T, index: number) => React.ReactNode;
   loading: boolean;
   error: string | null;
   onRetry?: () => void;
@@ -198,7 +198,7 @@ interface ProgressiveLoadingProps {
   onClearFilters?: () => void;
 }
 
-export const ProgressiveLoading: React.FC<ProgressiveLoadingProps> = ({
+export const ProgressiveLoading = <T,>({
   items,
   renderItem,
   loading,
@@ -207,7 +207,7 @@ export const ProgressiveLoading: React.FC<ProgressiveLoadingProps> = ({
   skeletonCount = 6,
   skeletonVariant = 'recipe',
   onClearFilters
-}) => {
+}: ProgressiveLoadingProps<T>) => {
   if (loading) {
     return <SkeletonCard count={skeletonCount} variant={skeletonVariant} />;
   }

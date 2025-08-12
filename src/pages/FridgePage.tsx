@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './FridgePage.module.css';
 import { searchRecipesByIngredients } from '../services/apiService';
 import type { Recipe } from '../types/recipeTypes';
+import { useAuth } from '../context/AuthContext';
+import { useGuest } from '../context/GuestContext';
 
 interface FridgeRecipe extends Recipe {
   missedIngredientCount: number;
@@ -17,12 +19,98 @@ interface Ingredient {
 
 const FridgePage: React.FC = () => {
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
+  const { isGuestMode, guestData, addGuestFridgeIngredient, removeGuestFridgeIngredient } = useGuest();
   const [customIngredient, setCustomIngredient] = useState('');
-  const [selectedIngredients, setSelectedIngredients] = useState<Ingredient[]>([]);
+
+  // Generate user-specific localStorage key
+  const getStorageKey = React.useCallback((key: string) => {
+    return user ? `fridgeIngredients_${user.id}_${key}` : `fridgeIngredients_guest_${key}`;
+  }, [user]);
+
+  // Initialize selectedIngredients based on user mode
+  const getInitialIngredients = (): Ingredient[] => {
+    if (isGuestMode) {
+      // Use guest context data for guest mode
+      return guestData.fridgeIngredients.map(ing => ({ name: ing.name }));
+    } else {
+      // Use localStorage for authenticated users
+      try {
+        const savedIngredients = localStorage.getItem(getStorageKey('ingredients'));
+        console.log('Loading ingredients from localStorage:', savedIngredients);
+        if (savedIngredients) {
+          const parsed = JSON.parse(savedIngredients);
+          console.log('Parsed ingredients:', parsed);
+          return parsed;
+        }
+      } catch (error) {
+        console.error('Error parsing saved ingredients:', error);
+        localStorage.removeItem(getStorageKey('ingredients'));
+      }
+      return [];
+    }
+  };
+
+  const [selectedIngredients, setSelectedIngredients] = useState<Ingredient[]>(getInitialIngredients);
   const [recipes, setRecipes] = useState<FridgeRecipe[]>([]);
   const [loading, setLoading] = useState(false);
   const [maxMissing, setMaxMissing] = useState(3);
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Load ingredients when user changes or guest mode changes
+  useEffect(() => {
+    if (isGuestMode) {
+      // Use guest context data for guest mode
+      setSelectedIngredients(guestData.fridgeIngredients.map(ing => ({ name: ing.name })));
+    } else {
+      // Use localStorage for authenticated users
+      try {
+        const savedIngredients = localStorage.getItem(getStorageKey('ingredients'));
+        if (savedIngredients) {
+          const parsed = JSON.parse(savedIngredients);
+          if (Array.isArray(parsed)) {
+            setSelectedIngredients(parsed);
+          }
+        } else {
+          setSelectedIngredients([]);
+        }
+
+        // Migration: If no user-specific data exists but legacy data does, migrate it
+        if (!savedIngredients && user) {
+          const legacyIngredients = localStorage.getItem('fridgeIngredients');
+          if (legacyIngredients) {
+            try {
+              const parsedLegacyIngredients = JSON.parse(legacyIngredients);
+              if (Array.isArray(parsedLegacyIngredients)) {
+                setSelectedIngredients(parsedLegacyIngredients);
+                // Save to user-specific storage
+                localStorage.setItem(getStorageKey('ingredients'), legacyIngredients);
+                // Clear legacy data
+                localStorage.removeItem('fridgeIngredients');
+              }
+            } catch (error) {
+              console.error('Error migrating legacy fridge ingredients:', error);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error loading ingredients from localStorage:', error);
+        localStorage.removeItem(getStorageKey('ingredients'));
+      }
+    }
+  }, [user, getStorageKey, isGuestMode, guestData.fridgeIngredients]);
+
+  // Save ingredients based on user mode
+  useEffect(() => {
+    if (isGuestMode) {
+      // Guest mode data is managed by guest context, no need to save here
+      return;
+    } else {
+      // Save to localStorage for authenticated users
+      console.log('Saving ingredients to localStorage:', selectedIngredients);
+      localStorage.setItem(getStorageKey('ingredients'), JSON.stringify(selectedIngredients));
+    }
+  }, [selectedIngredients, getStorageKey, isGuestMode]);
 
   const ingredientCategories = {
     'Vegetables': ['tomato', 'onion', 'garlic', 'bell pepper', 'carrot', 'potato', 'spinach', 'lettuce', 'cucumber', 'mushroom'],
@@ -35,7 +123,18 @@ const FridgePage: React.FC = () => {
 
   const addCustomIngredient = () => {
     if (customIngredient.trim() && !selectedIngredients.find(ing => ing.name.toLowerCase() === customIngredient.toLowerCase())) {
-      setSelectedIngredients([...selectedIngredients, { name: customIngredient.trim() }]);
+      const newIngredient = { name: customIngredient.trim() };
+      setSelectedIngredients([...selectedIngredients, newIngredient]);
+
+      if (isGuestMode) {
+        addGuestFridgeIngredient({
+          id: `guest-ingredient-${Date.now()}`,
+          name: newIngredient.name,
+          quantity: 1,
+          unit: 'piece'
+        });
+      }
+
       setCustomIngredient('');
     }
   };
@@ -50,15 +149,52 @@ const FridgePage: React.FC = () => {
     const isSelected = selectedIngredients.find(ing => ing.name.toLowerCase() === ingredientName.toLowerCase());
     if (isSelected) {
       setSelectedIngredients(selectedIngredients.filter(ing => ing.name.toLowerCase() !== ingredientName.toLowerCase()));
+
+      if (isGuestMode) {
+        const ingredientToRemove = guestData.fridgeIngredients.find(ing => ing.name.toLowerCase() === ingredientName.toLowerCase());
+        if (ingredientToRemove) {
+          removeGuestFridgeIngredient(ingredientToRemove.id);
+        }
+      }
     } else {
-      setSelectedIngredients([...selectedIngredients, { name: ingredientName }]);
+      const newIngredient = { name: ingredientName };
+      setSelectedIngredients([...selectedIngredients, newIngredient]);
+
+      if (isGuestMode) {
+        addGuestFridgeIngredient({
+          id: `guest-ingredient-${Date.now()}`,
+          name: newIngredient.name,
+          quantity: 1,
+          unit: 'piece'
+        });
+      }
     }
   };
 
   const removeIngredient = (ingredientName: string) => {
     setSelectedIngredients(selectedIngredients.filter(ing => ing.name !== ingredientName));
+
+    if (isGuestMode) {
+      const ingredientToRemove = guestData.fridgeIngredients.find(ing => ing.name === ingredientName);
+      if (ingredientToRemove) {
+        removeGuestFridgeIngredient(ingredientToRemove.id);
+      }
+    }
   };
 
+  const clearAllIngredients = () => {
+    console.log('Clearing all ingredients');
+    setSelectedIngredients([]);
+
+    if (isGuestMode) {
+      // Clear all guest ingredients
+      guestData.fridgeIngredients.forEach(ingredient => {
+        removeGuestFridgeIngredient(ingredient.id);
+      });
+    } else {
+      localStorage.removeItem(getStorageKey('ingredients'));
+    }
+  };
 
 
   const searchRecipes = async () => {
@@ -159,10 +295,19 @@ const FridgePage: React.FC = () => {
 
         <div className={styles.resultsSection}>
           <div className={styles.sectionCard}>
-            <h2 className={styles.sectionTitle}>
-              <span className={styles.titleIcon}>📋</span>
-              Selected Ingredients ({selectedIngredients.length})
-            </h2>
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitle}>
+                <span className={styles.titleIcon}>📋</span>
+                Selected Ingredients ({selectedIngredients.length})
+              </h2>
+              <button
+                onClick={clearAllIngredients}
+                className={styles.clearAllButton}
+                title="Clear all ingredients"
+              >
+                Clear All
+              </button>
+            </div>
 
             {selectedIngredients.length > 0 ? (
               <>

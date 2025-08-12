@@ -1,11 +1,14 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { PlanContext, type PlanContextType, type MealPlanTemplate, type PlanEvent } from './PlanContextTypes';
 import { searchRecipes } from '../services/apiService';
+import { useAuth } from './AuthContext';
+import { useGuest } from './GuestContext';
+import { firestoreService } from '../services/firestoreService';
 
 // Function to automatically generate nutrition data based on recipe characteristics
-const generateNutritionData = (recipe: any, mealType: string) => {
+const generateNutritionData = (recipe: { title?: string; vegetarian?: boolean; readyInMinutes?: number; servings?: number }, mealType: string) => {
   // Base nutrition values based on meal type
   const baseNutrition = {
     breakfast: { calories: 350, protein: 15, carbs: 45, fat: 12 },
@@ -212,8 +215,38 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
   const [events, setEvents] = useState<PlanContextType['events']>([]);
   const [trashedEvents, setTrashedEvents] = useState<PlanEvent[]>([]);
   const [templates] = useState<MealPlanTemplate[]>(defaultTemplates);
+  const { user, isAuthenticated } = useAuth();
+  const { isGuestMode, saveGuestMealPlan, deleteGuestMealPlan, guestData } = useGuest();
 
-  const addToPlan: PlanContextType['addToPlan'] = (event) => {
+  // Load meal plans based on user mode
+  useEffect(() => {
+    const loadMealPlans = async () => {
+      if (isAuthenticated && user) {
+        // Load from Firestore for authenticated users
+        try {
+          const firestoreMealPlans = await firestoreService.getMealPlans(user.id);
+          if (firestoreMealPlans.length > 0) {
+            // Convert Firestore data to events format
+            const eventsData = firestoreMealPlans.flatMap(plan => plan.events || []);
+            setEvents(eventsData);
+          }
+        } catch (error) {
+          console.error('Error loading meal plans from Firestore:', error);
+        }
+      } else if (isGuestMode) {
+        // Load from guest context for guest users
+        setEvents(guestData.mealPlans || []);
+      } else {
+        // Clear events when not authenticated and not in guest mode
+        setEvents([]);
+        setTrashedEvents([]);
+      }
+    };
+
+    loadMealPlans();
+  }, [user, isAuthenticated, isGuestMode, guestData.mealPlans]);
+
+  const addToPlan: PlanContextType['addToPlan'] = async (event) => {
     // Automatically add nutrition data if missing
     const nutrition = event.nutrition || generateNutritionData(event, event.mealType);
 
@@ -222,11 +255,50 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
       id: Date.now().toString(),
       nutrition
     };
-    setEvents(prev => [...prev, newEvent]);
+
+    if (isAuthenticated && user) {
+      // Save to Firestore for authenticated users
+      try {
+        const mealPlan = {
+          id: `plan-${Date.now()}`,
+          userId: user.id,
+          title: 'My Meal Plan',
+          events: [...events, newEvent]
+        };
+        await firestoreService.saveMealPlan(mealPlan);
+        setEvents(prev => [...prev, newEvent]);
+      } catch (error) {
+        console.error('Error saving meal plan to Firestore:', error);
+      }
+    } else if (isGuestMode) {
+      // Save to guest context for guest users
+      saveGuestMealPlan(newEvent);
+      setEvents(prev => [...prev, newEvent]);
+    }
   };
 
-  const removeFromPlan: PlanContextType['removeFromPlan'] = (id) => {
-    setEvents(prev => prev.filter(event => event.id !== id));
+  const removeFromPlan: PlanContextType['removeFromPlan'] = async (id) => {
+    if (isAuthenticated && user) {
+      // Remove from Firestore for authenticated users
+      try {
+        // Note: This is a simplified approach. In a real app, you'd update the specific plan
+        const updatedEvents = events.filter(event => event.id !== id);
+        const mealPlan = {
+          id: `plan-${Date.now()}`,
+          userId: user.id,
+          title: 'My Meal Plan',
+          events: updatedEvents
+        };
+        await firestoreService.saveMealPlan(mealPlan);
+        setEvents(updatedEvents);
+      } catch (error) {
+        console.error('Error removing meal from Firestore:', error);
+      }
+    } else if (isGuestMode) {
+      // Remove from guest context for guest users
+      deleteGuestMealPlan(id);
+      setEvents(prev => prev.filter(event => event.id !== id));
+    }
   };
 
   const moveToTrash: PlanContextType['moveToTrash'] = (id) => {
@@ -350,6 +422,12 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
     }
   };
 
+  // Check if a feature is restricted for guest users
+  const isFeatureRestricted: PlanContextType['isFeatureRestricted'] = (feature) => {
+    // All features are now enabled for both guest and member modes
+    return false;
+  };
+
   return (
     <PlanContext.Provider value={{
       events,
@@ -369,6 +447,7 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
       getNutritionalStats,
       getQuickSuggestions,
       ensureNutritionData,
+      isFeatureRestricted,
     }}>
       {children}
     </PlanContext.Provider>

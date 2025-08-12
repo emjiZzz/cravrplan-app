@@ -13,18 +13,42 @@ const SignUpPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   const handleSignUp = async (event: React.FormEvent) => {
     event.preventDefault();
     setError('');
-    
-    if (!fullName || !email || !password || !confirmPassword) {
-      setError('Please fill in all fields');
+
+    // Enhanced validation with specific messages
+    if (!fullName.trim()) {
+      setError('Please enter your full name');
+      return;
+    }
+
+    if (!email.trim()) {
+      setError('Please enter your email address');
+      return;
+    }
+
+    if (!password.trim()) {
+      setError('Please enter a password');
+      return;
+    }
+
+    if (!confirmPassword.trim()) {
+      setError('Please confirm your password');
+      return;
+    }
+
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      setError('Please enter a valid email address');
       return;
     }
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError('Passwords do not match. Please try again.');
       return;
     }
 
@@ -33,11 +57,29 @@ const SignUpPage: React.FC = () => {
       return;
     }
 
-    const success = await signup(fullName, email, password);
-    if (success) {
-      navigate('/recipes');
+    const result = await signup(fullName.trim(), email.trim(), password);
+    if (result.success) {
+      // Show success message and redirect to home page since user is now logged in
+      setError(''); // Clear any existing errors
+      setSuccessMessage('Account created successfully! Redirecting to home page...');
+
+      // Redirect to home page after a short delay since user is automatically logged in
+      setTimeout(() => {
+        navigate('/');
+      }, 2000);
     } else {
-      setError('Failed to create account. Please try again.');
+      // Show specific error messages
+      if (result.error?.includes('User with this email already exists')) {
+        setError('An account with this email address already exists. Please use a different email or try logging in.');
+      } else if (result.error?.includes('All fields are required')) {
+        setError('Please fill in all required fields');
+      } else if (result.error?.includes('valid email address')) {
+        setError('Please enter a valid email address');
+      } else if (result.error?.includes('at least 6 characters')) {
+        setError('Password must be at least 6 characters long');
+      } else {
+        setError(result.error || 'Failed to create account. Please try again.');
+      }
     }
   };
 
@@ -57,6 +99,13 @@ const SignUpPage: React.FC = () => {
         {error && (
           <div className={styles.errorMessage}>
             {error}
+          </div>
+        )}
+
+        {/* Success message */}
+        {successMessage && (
+          <div className={styles.successMessage}>
+            {successMessage}
           </div>
         )}
 
@@ -123,8 +172,8 @@ const SignUpPage: React.FC = () => {
           </div>
 
           {/* Sign Up Button */}
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className={styles.signUpButton}
             disabled={isLoading}
           >

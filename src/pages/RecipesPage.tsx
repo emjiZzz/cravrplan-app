@@ -22,7 +22,7 @@ interface FavoriteRecipe {
   imageType: string;
   readyInMinutes: number;
   servings: number;
-  nutrition?: any;
+  nutrition?: import('../types/recipeTypes').Nutrition;
   cuisines: string[];
   dishTypes: string[];
   diets: string[];
@@ -43,7 +43,7 @@ interface FavoriteRecipe {
   whole30: boolean;
   weightWatcherSmartPoints: number;
   occasions: string[];
-  extendedIngredients: any[];
+  extendedIngredients: import('../types/recipeTypes').ExtendedIngredient[];
   summary?: string;
   // Store timestamp for potential cleanup
   addedAt: number;
@@ -168,14 +168,12 @@ const RecipesPage: React.FC = () => {
             gaps: ''
           };
           loadedRecipes.push(recipe);
-          console.log(`✅ Loaded favorite recipe ${favoriteId} from stored data`);
           continue;
         }
 
         // If not in stored data, try to fetch from API
         const recipeDetail = await getRecipeDetails(favoriteId);
         loadedRecipes.push(recipeDetail);
-        console.log(`✅ Loaded favorite recipe ${favoriteId} from API`);
       } catch (err) {
         console.error(`❌ Error loading favorite recipe ${favoriteId}:`, err);
         // Continue loading other recipes even if one fails
@@ -428,23 +426,6 @@ const RecipesPage: React.FC = () => {
     // This will trigger the useEffect to retry the search
   };
 
-  // Debug function - you can call this in the browser console
-  const debugFavorites = () => {
-    console.log('=== DEBUG FAVORITES ===');
-    console.log('Current favorites state:', favorites);
-    console.log('localStorage raw:', localStorage.getItem('recipeFavorites'));
-    console.log('localStorage parsed:', JSON.parse(localStorage.getItem('recipeFavorites') || 'null'));
-    console.log('Component mounted at:', new Date().toISOString());
-  };
-
-  // Expose debug function to window for console access
-  React.useEffect(() => {
-    (window as any).debugFavorites = debugFavorites;
-    return () => {
-      delete (window as any).debugFavorites;
-    };
-  }, [favorites]);
-
   const renderRecipeCard = (recipe: Recipe) => (
     <RecipeCard
       key={recipe.id}
@@ -452,10 +433,10 @@ const RecipesPage: React.FC = () => {
         ...recipe,
         nutrition: recipe.nutrition
           ? {
-            calories: (recipe.nutrition as any).calories ?? 0,
-            protein: (recipe.nutrition as any).protein ?? 0,
-            carbs: (recipe.nutrition as any).carbs ?? 0,
-            fat: (recipe.nutrition as any).fat ?? 0,
+            calories: (recipe.nutrition as { calories?: number }).calories ?? 0,
+            protein: (recipe.nutrition as { protein?: number }).protein ?? 0,
+            carbs: (recipe.nutrition as { carbs?: number }).carbs ?? 0,
+            fat: (recipe.nutrition as { fat?: number }).fat ?? 0,
           }
           : undefined,
       }}

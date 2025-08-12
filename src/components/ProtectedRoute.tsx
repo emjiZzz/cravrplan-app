@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 interface ProtectedRouteProps {
@@ -8,12 +8,13 @@ interface ProtectedRouteProps {
   redirectTo?: string;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
-  children, 
-  requireAuth = true, 
-  redirectTo = '/login' 
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  children,
+  requireAuth = true,
+  redirectTo = '/login'
 }) => {
   const { isAuthenticated, isLoading } = useAuth();
+  const location = useLocation();
 
   // Show loading spinner while checking authentication
   if (isLoading) {
@@ -29,6 +30,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         Loading...
       </div>
     );
+  }
+
+  // Special case: Always allow access to onboarding page, regardless of auth state
+  if (location.pathname === '/onboarding') {
+    return <>{children}</>;
   }
 
   // If authentication is required and user is not authenticated, redirect

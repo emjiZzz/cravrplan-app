@@ -22,7 +22,6 @@ const RecipeDetailPage: React.FC = () => {
   const getSelectedDateFromURL = () => {
     const urlParams = new URLSearchParams(location.search);
     const selectedDate = urlParams.get('selectedDate') || '';
-    console.log('RecipeDetailPage - selectedDate from URL:', selectedDate);
     return selectedDate;
   };
 
@@ -231,10 +230,10 @@ const RecipeDetailPage: React.FC = () => {
           <div
             className={styles.addToPlanOverlay}
             onClick={() => setIsModalOpen(true)}
-            title={location.state && (location.state as any).swapFor ? 'Swap this meal' : 'Add to Meal Plan'}
+            title={location.state && (location.state as { swapFor?: string }).swapFor ? 'Swap this meal' : 'Add to Meal Plan'}
           >
             <div className={styles.addToPlanText}>
-              {(location.state && (location.state as any).swapFor) ? 'SWAP THIS MEAL?' : 'ADD THIS TO MEAL PLAN?'}
+              {(location.state && (location.state as { swapFor?: string }).swapFor) ? 'SWAP THIS MEAL?' : 'ADD THIS TO MEAL PLAN?'}
             </div>
           </div>
         </div>
@@ -431,7 +430,7 @@ const RecipeDetailPage: React.FC = () => {
             title: recipe.title,
             image: recipe.image,
           }}
-          swapFor={(location.state && (location.state as any).swapFor) || undefined}
+          swapFor={(location.state && (location.state as { swapFor?: string }).swapFor) || undefined}
           selectedDate={getSelectedDateFromURL()}
         />
       )}

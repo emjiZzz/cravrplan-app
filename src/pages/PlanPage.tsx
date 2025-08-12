@@ -7,6 +7,8 @@ import styles from './PlanPage.module.css';
 import { usePlan } from '../context/PlanContext';
 import type { PlanEvent } from '../context/PlanContextTypes';
 import ConfirmationModal from '../components/ConfirmationModal';
+import GuestModeBanner from '../components/GuestModeBanner';
+import { useGuest } from '../context/GuestContext';
 
 interface AddMealModalProps {
   isOpen: boolean;
@@ -14,9 +16,10 @@ interface AddMealModalProps {
   onAddCustomRecipe: (recipeData: { title: string; mealType: string; date: string }) => void;
   onBrowseRecipes: () => void;
   selectedDate: string;
+  isGuestMode?: boolean;
 }
 
-const AddMealModal: React.FC<AddMealModalProps> = ({ isOpen, onClose, onAddCustomRecipe, onBrowseRecipes, selectedDate }) => {
+const AddMealModal: React.FC<AddMealModalProps> = ({ isOpen, onClose, onAddCustomRecipe, onBrowseRecipes, selectedDate, isGuestMode = false }) => {
   const [recipeTitle, setRecipeTitle] = useState('');
   const [mealType, setMealType] = useState('breakfast');
   const [isCustomRecipe, setIsCustomRecipe] = useState(false);
@@ -39,6 +42,10 @@ const AddMealModal: React.FC<AddMealModalProps> = ({ isOpen, onClose, onAddCusto
   const handleBrowseRecipes = () => {
     onBrowseRecipes();
     onClose();
+  };
+
+  const handleCustomRecipeClick = () => {
+    setIsCustomRecipe(true);
   };
 
   if (!isOpen) return null;
@@ -75,7 +82,7 @@ const AddMealModal: React.FC<AddMealModalProps> = ({ isOpen, onClose, onAddCusto
 
             <button
               className={`${styles.addMealOption} ${isCustomRecipe ? styles.active : ''}`}
-              onClick={() => setIsCustomRecipe(true)}
+              onClick={handleCustomRecipeClick}
             >
               <div className={styles.addMealOptionIcon}>✏️</div>
               <div className={styles.addMealOptionContent}>
@@ -149,7 +156,8 @@ const GridCalendar: React.FC<{
   onDayClick: (date: string) => void;
   onEventDrop: (eventId: string, newDate: string) => void;
   view: 'month' | 'week';
-}> = ({ events, onEventClick, onImageClick, onDayClick, onEventDrop, view }) => {
+  isGuestMode?: boolean;
+}> = ({ events, onEventClick, onImageClick, onDayClick, onEventDrop, view, isGuestMode = false }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [draggedEvent, setDraggedEvent] = useState<PlanEvent | null>(null);
   const [dragOverDate, setDragOverDate] = useState<string | null>(null);
@@ -169,7 +177,7 @@ const GridCalendar: React.FC<{
     return events.filter(event => event.date === date);
   };
 
-  const getNutritionColor = (nutrition: any, type: 'calories' | 'protein' | 'carbs' | 'fat') => {
+  const getNutritionColor = (nutrition: { calories?: number; protein?: number; carbs?: number; fat?: number } | undefined, type: 'calories' | 'protein' | 'carbs' | 'fat') => {
     const colors = {
       calories: '#9C27B0',
       protein: '#4CAF50',
@@ -303,13 +311,18 @@ const GridCalendar: React.FC<{
                     className={`${styles.calendarEventCard} ${styles.draggableEvent}`}
                     onClick={() => {
                       // Prevent click when dragging
-                      if (!draggedEvent) {
-                        onEventClick(event);
-                      }
+                      if (draggedEvent) return;
+                      onEventClick(event);
+                    }}
+                    onDoubleClick={() => {
+                      // Prevent double click when dragging
+                      if (draggedEvent) return;
+                      onImageClick(event);
                     }}
                     draggable={true}
                     onDragStart={(e) => handleDragStart(e, event)}
                     onDragEnd={handleDragEnd}
+                    title="Drag to reschedule"
                   >
                     {event.image && (
                       <div className={styles.calendarEventImageContainer}>
@@ -419,13 +432,18 @@ const GridCalendar: React.FC<{
                     className={`${styles.calendarEventCard} ${styles.draggableEvent}`}
                     onClick={() => {
                       // Prevent click when dragging
-                      if (!draggedEvent) {
-                        onEventClick(event);
-                      }
+                      if (draggedEvent) return;
+                      onEventClick(event);
+                    }}
+                    onDoubleClick={() => {
+                      // Prevent double click when dragging
+                      if (draggedEvent) return;
+                      onImageClick(event);
                     }}
                     draggable={true}
                     onDragStart={(e) => handleDragStart(e, event)}
                     onDragEnd={handleDragEnd}
+                    title="Drag to reschedule"
                   >
                     {event.image && (
                       <div className={styles.calendarEventImageContainer}>
@@ -563,8 +581,10 @@ const PlanPage: React.FC = () => {
     clearTrash,
     addToPlan,
     moveEvent,
-    ensureNutritionData
+    ensureNutritionData,
+    isFeatureRestricted
   } = usePlan();
+  const { isGuestMode } = useGuest();
 
   React.useEffect(() => {
     ensureNutritionData();
@@ -698,28 +718,13 @@ const PlanPage: React.FC = () => {
   };
 
   const handleDayClick = (date: string) => {
-    console.log('Calendar day clicked, date:', date);
     setSelectedDate(date);
     setShowAddMealModal(true);
-    // Feedback for opening add meal flow
-    setTimeout(() => {
-      try {
-        // Non-blocking toast alternative using alert for now
-        // alert can be noisy; keep minimal
-        console.log('Add Meal dialog opened for date:', date);
-      } catch { }
-    }, 0);
   };
 
   const handleEventDrop = (eventId: string, newDate: string) => {
     // Use the new moveEvent method for better performance
     moveEvent(eventId, newDate);
-
-    // Find the event for logging
-    const eventToMove = events.find(event => event.id === eventId);
-    if (eventToMove) {
-      console.log(`Event "${eventToMove.title}" moved from ${eventToMove.date} to ${newDate}`);
-    }
   };
 
   const handleAddCustomRecipe = (recipeData: { title: string; mealType: string; date: string }) => {
@@ -740,7 +745,6 @@ const PlanPage: React.FC = () => {
 
   const handleBrowseRecipes = () => {
     // Pass the selected date to the recipes page so it can be used when adding meals
-    console.log('Browse recipes clicked, selectedDate:', selectedDate);
     navigate(`/recipes?selectedDate=${selectedDate}`);
   };
 
@@ -957,6 +961,7 @@ const PlanPage: React.FC = () => {
                     onDayClick={handleDayClick}
                     onEventDrop={handleEventDrop}
                     view={calendarView}
+                    isGuestMode={isGuestMode}
                   />
                 )}
               </div>
@@ -1082,6 +1087,7 @@ const PlanPage: React.FC = () => {
         onAddCustomRecipe={handleAddCustomRecipe}
         onBrowseRecipes={handleBrowseRecipes}
         selectedDate={selectedDate}
+        isGuestMode={isGuestMode}
       />
 
       {showClearConfirm && (
@@ -1397,7 +1403,7 @@ const PlanPage: React.FC = () => {
                 <select
                   id="editMealType"
                   value={editFormData.mealType}
-                  onChange={(e) => setEditFormData({ ...editFormData, mealType: e.target.value as any })}
+                  onChange={(e) => setEditFormData({ ...editFormData, mealType: e.target.value as 'main course' | 'breakfast' | 'side dish' | 'dessert' | 'snack' })}
                   className={styles.formSelect}
                 >
                   <option value="main course">Main Course</option>
