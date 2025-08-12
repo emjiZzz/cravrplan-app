@@ -4,28 +4,58 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import type { Recipe, RecipeSearchParams, FilterOptionsResponse } from '../types/recipeTypes';
 import { searchRecipes, getFilterOptions, getRecipeDetails } from '../services/apiService';
+import { useFavorites } from '../context/FavoritesContext';
 import styles from './RecipesPage.module.css';
-
-import { useNavigate, useLocation } from 'react-router-dom'; // Import useNavigate and useLocation
 
 // Import enhanced loading components
 import RecipeCard from '../components/RecipeCard';
 import {
-  ErrorMessage,
-  EmptyState,
-  SkeletonCard,
-  SearchLoading,
   ProgressiveLoading,
   Toast
 } from '../components/LoadingStates';
 
+// Enhanced favorites storage interface
+interface FavoriteRecipe {
+  id: number;
+  title: string;
+  image: string;
+  imageType: string;
+  readyInMinutes: number;
+  servings: number;
+  nutrition?: any;
+  cuisines: string[];
+  dishTypes: string[];
+  diets: string[];
+  aggregateLikes: number;
+  healthScore: number;
+  spoonacularScore: number;
+  pricePerServing: number;
+  cheap: boolean;
+  dairyFree: boolean;
+  glutenFree: boolean;
+  ketogenic: boolean;
+  lowFodmap: boolean;
+  sustainable: boolean;
+  vegan: boolean;
+  vegetarian: boolean;
+  veryHealthy: boolean;
+  veryPopular: boolean;
+  whole30: boolean;
+  weightWatcherSmartPoints: number;
+  occasions: string[];
+  extendedIngredients: any[];
+  summary?: string;
+  // Store timestamp for potential cleanup
+  addedAt: number;
+}
+
 const RecipesPage: React.FC = () => {
+  const { favorites, favoriteRecipes, toggleFavorite, isFavorite } = useFavorites();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMenu, setSelectedMenu] = useState('All Menus');
   const [selectedDiet, setSelectedDiet] = useState('No Diet Restrictions');
   const [selectedMealType, setSelectedMealType] = useState('All Meal Types');
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
-  const [favorites, setFavorites] = useState<number[]>([]);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -42,8 +72,7 @@ const RecipesPage: React.FC = () => {
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState<'success' | 'error' | 'warning' | 'info'>('info');
 
-  const navigate = useNavigate(); // Initialize useNavigate hook
-  const location = useLocation(); // Initialize useLocation hook
+
 
   // Enhanced search suggestions with more comprehensive data
   const popularSearches = [
@@ -59,31 +88,9 @@ const RecipesPage: React.FC = () => {
     'lemon', 'lime', 'orange', 'apple', 'banana', 'berry', 'strawberry', 'blueberry'
   ];
 
-  // Load favorites from localStorage on component mount
-  useEffect(() => {
-    const savedFavorites = localStorage.getItem('recipeFavorites');
-    if (savedFavorites) {
-      setFavorites(JSON.parse(savedFavorites));
-    }
-  }, []);
 
-  // Save favorites to localStorage whenever favorites change
-  useEffect(() => {
-    localStorage.setItem('recipeFavorites', JSON.stringify(favorites));
-  }, [favorites]);
 
-  // Get search query from URL
-  const getSearchQueryFromURL = () => {
-    const urlParams = new URLSearchParams(location.search);
-    return urlParams.get('search') || '';
-  };
 
-  // Initialize search query from URL on component mount
-  useEffect(() => {
-    const urlSearchQuery = getSearchQueryFromURL();
-    setSearchQuery(urlSearchQuery);
-    setDebouncedSearchQuery(urlSearchQuery);
-  }, [location.search]);
 
   // Load filter options on component mount
   useEffect(() => {
@@ -111,21 +118,71 @@ const RecipesPage: React.FC = () => {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Function to load favorite recipes
+  // Function to load favorite recipes with fallback to stored data
   const loadFavoriteRecipes = async (favoriteIds: number[]): Promise<Recipe[]> => {
-    const favoriteRecipes: Recipe[] = [];
+    const loadedRecipes: Recipe[] = [];
 
     for (const favoriteId of favoriteIds) {
       try {
+        // First try to get from stored favorite recipes
+        const storedRecipe = favoriteRecipes.find(recipe => recipe.id === favoriteId);
+        if (storedRecipe) {
+          // Convert FavoriteRecipe to Recipe format
+          const recipe: Recipe = {
+            id: storedRecipe.id,
+            title: storedRecipe.title,
+            image: storedRecipe.image,
+            imageType: storedRecipe.imageType,
+            readyInMinutes: storedRecipe.readyInMinutes,
+            servings: storedRecipe.servings,
+            nutrition: storedRecipe.nutrition,
+            cuisines: storedRecipe.cuisines,
+            dishTypes: storedRecipe.dishTypes,
+            diets: storedRecipe.diets,
+            aggregateLikes: storedRecipe.aggregateLikes,
+            healthScore: storedRecipe.healthScore,
+            spoonacularScore: storedRecipe.spoonacularScore,
+            pricePerServing: storedRecipe.pricePerServing,
+            cheap: storedRecipe.cheap,
+            dairyFree: storedRecipe.dairyFree,
+            glutenFree: storedRecipe.glutenFree,
+            ketogenic: storedRecipe.ketogenic,
+            lowFodmap: storedRecipe.lowFodmap,
+            sustainable: storedRecipe.sustainable,
+            vegan: storedRecipe.vegan,
+            vegetarian: storedRecipe.vegetarian,
+            veryHealthy: storedRecipe.veryHealthy,
+            veryPopular: storedRecipe.veryPopular,
+            whole30: storedRecipe.whole30,
+            weightWatcherSmartPoints: storedRecipe.weightWatcherSmartPoints,
+            occasions: storedRecipe.occasions,
+            extendedIngredients: storedRecipe.extendedIngredients,
+            // Add other required fields with defaults
+            analyzedInstructions: [],
+            instructions: '',
+            summary: storedRecipe.summary || '',
+            sourceUrl: '',
+            sourceName: '',
+            creditsText: '',
+            license: '',
+            gaps: ''
+          };
+          loadedRecipes.push(recipe);
+          console.log(`✅ Loaded favorite recipe ${favoriteId} from stored data`);
+          continue;
+        }
+
+        // If not in stored data, try to fetch from API
         const recipeDetail = await getRecipeDetails(favoriteId);
-        favoriteRecipes.push(recipeDetail);
+        loadedRecipes.push(recipeDetail);
+        console.log(`✅ Loaded favorite recipe ${favoriteId} from API`);
       } catch (err) {
-        console.error(`Error loading favorite recipe ${favoriteId}:`, err);
+        console.error(`❌ Error loading favorite recipe ${favoriteId}:`, err);
         // Continue loading other recipes even if one fails
       }
     }
 
-    return favoriteRecipes;
+    return loadedRecipes;
   };
 
   // Search recipes when filters change or page changes
@@ -202,19 +259,7 @@ const RecipesPage: React.FC = () => {
     searchRecipesWithFilters();
   }, [debouncedSearchQuery, selectedMenu, selectedDiet, selectedMealType, showFavoritesOnly, currentPage, favorites]);
 
-  const handleRecipeClick = (recipeId: number) => {
-    // Check if there's a swap request from the plan page
-    const urlParams = new URLSearchParams(location.search);
-    const swapFor = urlParams.get('swapFor');
 
-    if (swapFor) {
-      // Navigate back to plan page with the selected recipe for swapping
-      navigate(`/plan?swapRecipe=${recipeId}&${swapFor}`);
-    } else {
-      // Navigate to recipe detail page
-      navigate(`/recipe/${recipeId}`);
-    }
-  };
 
   const handleNextPage = () => {
     setCurrentPage(prev => prev + 1);
@@ -234,25 +279,72 @@ const RecipesPage: React.FC = () => {
     setCurrentPage(0);
   };
 
-  const handleSearch = useCallback(() => {
+  const handleMealTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedMealType(e.target.value);
     setCurrentPage(0);
-    // Update URL with search query
-    const urlParams = new URLSearchParams(location.search);
-    if (searchQuery.trim()) {
-      urlParams.set('search', searchQuery.trim());
-    } else {
-      urlParams.delete('search');
-    }
-    navigate(`${location.pathname}?${urlParams.toString()}`);
-  }, [searchQuery, location.search, location.pathname, navigate]);
+  };
 
-  const toggleFavorite = (recipeId: number, isCurrentlyFavorite: boolean) => {
+
+
+  const handleSuggestionClick = (suggestion: string) => {
+    setSearchQuery(suggestion);
+    setShowSuggestions(false);
+    setCurrentPage(0);
+  };
+
+  const handleClearFilters = () => {
+    setSearchQuery('');
+    setSelectedMenu('All Menus');
+    setSelectedDiet('No Diet Restrictions');
+    setSelectedMealType('All Meal Types');
+    setCurrentPage(0);
+  };
+
+  const handleToggleFavorite = (recipeId: number, isCurrentlyFavorite: boolean) => {
     if (isCurrentlyFavorite) {
-      setFavorites(prev => prev.filter(id => id !== recipeId));
+      toggleFavorite(recipeId);
       setToastMessage('Removed from favorites');
       setToastType('info');
     } else {
-      setFavorites(prev => [...prev, recipeId]);
+      // Find the recipe in current recipes and add to favorites
+      const recipeToAdd = recipes.find(recipe => recipe.id === recipeId);
+      if (recipeToAdd) {
+        const favoriteRecipe: FavoriteRecipe = {
+          id: recipeToAdd.id,
+          title: recipeToAdd.title,
+          image: recipeToAdd.image,
+          imageType: recipeToAdd.imageType,
+          readyInMinutes: recipeToAdd.readyInMinutes,
+          servings: recipeToAdd.servings,
+          nutrition: recipeToAdd.nutrition,
+          cuisines: recipeToAdd.cuisines,
+          dishTypes: recipeToAdd.dishTypes,
+          diets: recipeToAdd.diets,
+          aggregateLikes: recipeToAdd.aggregateLikes,
+          healthScore: recipeToAdd.healthScore,
+          spoonacularScore: recipeToAdd.spoonacularScore,
+          pricePerServing: recipeToAdd.pricePerServing,
+          cheap: recipeToAdd.cheap,
+          dairyFree: recipeToAdd.dairyFree,
+          glutenFree: recipeToAdd.glutenFree,
+          ketogenic: recipeToAdd.ketogenic,
+          lowFodmap: recipeToAdd.lowFodmap,
+          sustainable: recipeToAdd.sustainable,
+          vegan: recipeToAdd.vegan,
+          vegetarian: recipeToAdd.vegetarian,
+          veryHealthy: recipeToAdd.veryHealthy,
+          veryPopular: recipeToAdd.veryPopular,
+          whole30: recipeToAdd.whole30,
+          weightWatcherSmartPoints: recipeToAdd.weightWatcherSmartPoints,
+          occasions: recipeToAdd.occasions,
+          extendedIngredients: recipeToAdd.extendedIngredients,
+          summary: recipeToAdd.summary,
+          addedAt: Date.now()
+        };
+        toggleFavorite(recipeId, favoriteRecipe);
+      } else {
+        toggleFavorite(recipeId);
+      }
       setToastMessage('Added to favorites');
       setToastType('success');
     }
@@ -306,16 +398,6 @@ const RecipesPage: React.FC = () => {
     }
   };
 
-  const handleSuggestionClick = (suggestion: string) => {
-    setSearchQuery(suggestion);
-    setShowSuggestions(false);
-    setCurrentPage(0);
-    // Trigger search with the suggestion
-    const urlParams = new URLSearchParams(location.search);
-    urlParams.set('search', suggestion);
-    navigate(`${location.pathname}?${urlParams.toString()}`);
-  };
-
   const handleSearchInputFocus = () => {
     if (searchQuery.trim()) {
       const suggestions = getSearchSuggestions(searchQuery);
@@ -333,8 +415,8 @@ const RecipesPage: React.FC = () => {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      handleSearch();
       setShowSuggestions(false);
+      // The search will be triggered by the debounced search query
     } else if (e.key === 'Escape') {
       setShowSuggestions(false);
     }
@@ -346,21 +428,39 @@ const RecipesPage: React.FC = () => {
     // This will trigger the useEffect to retry the search
   };
 
-  const handleClearFilters = () => {
-    setSearchQuery('');
-    setSelectedMenu('All Menus');
-    setSelectedDiet('No Diet Restrictions');
-    setSelectedMealType('All Meal Types');
-    setShowFavoritesOnly(false);
-    setCurrentPage(0);
+  // Debug function - you can call this in the browser console
+  const debugFavorites = () => {
+    console.log('=== DEBUG FAVORITES ===');
+    console.log('Current favorites state:', favorites);
+    console.log('localStorage raw:', localStorage.getItem('recipeFavorites'));
+    console.log('localStorage parsed:', JSON.parse(localStorage.getItem('recipeFavorites') || 'null'));
+    console.log('Component mounted at:', new Date().toISOString());
   };
 
-  const renderRecipeCard = (recipe: Recipe, index: number) => (
+  // Expose debug function to window for console access
+  React.useEffect(() => {
+    (window as any).debugFavorites = debugFavorites;
+    return () => {
+      delete (window as any).debugFavorites;
+    };
+  }, [favorites]);
+
+  const renderRecipeCard = (recipe: Recipe) => (
     <RecipeCard
       key={recipe.id}
-      recipe={recipe}
-      onFavoriteToggle={toggleFavorite}
-      isFavorite={favorites.includes(recipe.id)}
+      recipe={{
+        ...recipe,
+        nutrition: recipe.nutrition
+          ? {
+            calories: (recipe.nutrition as any).calories ?? 0,
+            protein: (recipe.nutrition as any).protein ?? 0,
+            carbs: (recipe.nutrition as any).carbs ?? 0,
+            fat: (recipe.nutrition as any).fat ?? 0,
+          }
+          : undefined,
+      }}
+      onFavoriteToggle={handleToggleFavorite}
+      isFavorite={isFavorite(recipe.id)}
     />
   );
 
@@ -459,7 +559,7 @@ const RecipesPage: React.FC = () => {
               <select
                 className={styles.filterDropdown}
                 value={selectedMealType}
-                onChange={(e) => setSelectedMealType(e.target.value)}
+                onChange={handleMealTypeChange}
               >
                 <option value="All Meal Types">All Meal Types</option>
                 {filterOptions?.mealTypes.map((mealType) => (
@@ -494,6 +594,12 @@ const RecipesPage: React.FC = () => {
                 >
                   🍽️ Explore Recipes
                 </button>
+                <button
+                  onClick={handleClearFilters}
+                  className={styles.exploreRecipesButton}
+                >
+                  🧹 Clear Filters
+                </button>
               </div>
             </div>
           ) : (
@@ -505,6 +611,7 @@ const RecipesPage: React.FC = () => {
               onRetry={handleRetry}
               skeletonCount={6}
               skeletonVariant="recipe"
+              onClearFilters={handleClearFilters}
             />
           )}
 

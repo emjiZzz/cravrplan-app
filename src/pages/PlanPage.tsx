@@ -301,7 +301,7 @@ const GridCalendar: React.FC<{
                   <div
                     key={event.id}
                     className={`${styles.calendarEventCard} ${styles.draggableEvent}`}
-                    onClick={(e) => {
+                    onClick={() => {
                       // Prevent click when dragging
                       if (!draggedEvent) {
                         onEventClick(event);
@@ -417,7 +417,7 @@ const GridCalendar: React.FC<{
                   <div
                     key={event.id}
                     className={`${styles.calendarEventCard} ${styles.draggableEvent}`}
-                    onClick={(e) => {
+                    onClick={() => {
                       // Prevent click when dragging
                       if (!draggedEvent) {
                         onEventClick(event);
@@ -579,9 +579,9 @@ const PlanPage: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState('');
   const [calendarView, setCalendarView] = useState<'month' | 'week'>('month');
   const [showAllMeals, setShowAllMeals] = useState(false);
-  const [showErrorModal, setShowErrorModal] = useState(false);
+
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+
   const [confirmMessage, setConfirmMessage] = useState('');
   const [showEditModal, setShowEditModal] = useState(false);
   const [showNotesModal, setShowNotesModal] = useState(false);
@@ -686,9 +686,7 @@ const PlanPage: React.FC = () => {
     setShowClearConfirm(false);
   };
 
-  const handleConfirmClearAll = () => {
-    handleClearAll();
-  };
+
 
   // no-op; swap flow handled via navigation to Recipes/RecipeDetail
 
@@ -1503,17 +1501,7 @@ const PlanPage: React.FC = () => {
         </div>
       )}
 
-      {/* Error Confirmation Modal */}
-      <ConfirmationModal
-        isOpen={showErrorModal}
-        onClose={() => setShowErrorModal(false)}
-        onConfirm={() => setShowErrorModal(false)}
-        title="Error"
-        message={errorMessage}
-        confirmText="OK"
-        cancelText="Cancel"
-        type="error"
-      />
+
     </div>
   );
 };

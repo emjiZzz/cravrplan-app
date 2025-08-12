@@ -195,6 +195,7 @@ interface ProgressiveLoadingProps {
   onRetry?: () => void;
   skeletonCount?: number;
   skeletonVariant?: 'recipe' | 'plan' | 'list';
+  onClearFilters?: () => void;
 }
 
 export const ProgressiveLoading: React.FC<ProgressiveLoadingProps> = ({
@@ -204,7 +205,8 @@ export const ProgressiveLoading: React.FC<ProgressiveLoadingProps> = ({
   error,
   onRetry,
   skeletonCount = 6,
-  skeletonVariant = 'recipe'
+  skeletonVariant = 'recipe',
+  onClearFilters
 }) => {
   if (loading) {
     return <SkeletonCard count={skeletonCount} variant={skeletonVariant} />;
@@ -226,7 +228,7 @@ export const ProgressiveLoading: React.FC<ProgressiveLoadingProps> = ({
         title="No items found"
         message="Try adjusting your search or filters to find what you're looking for."
         actionText="Clear Filters"
-        onAction={onRetry}
+        onAction={onClearFilters || onRetry}
       />
     );
   }

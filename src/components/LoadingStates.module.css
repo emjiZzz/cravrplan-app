@@ -343,13 +343,10 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 20px;
+  padding: 100px 20px;
   text-align: center;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 16px;
-  border: 1px solid rgba(84, 106, 4, 0.1);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
+  margin: 40px 0;
+  position: relative;
 }
 
 .searchEmptyContainer {
@@ -368,54 +365,91 @@
 }
 
 .emptyIcon {
-  font-size: 64px;
-  margin-bottom: 20px;
-  opacity: 0.7;
-  animation: emptyFloat 3s ease-in-out infinite;
+  font-size: 72px;
+  margin-bottom: 24px;
+  animation: heartBeat 2s ease-in-out infinite;
+  filter: drop-shadow(0 4px 12px rgba(84, 106, 4, 0.3));
+  opacity: 0.8;
 }
 
 .emptyTitle {
   font-size: 24px;
-  font-weight: 600;
-  color: #2c3e2a;
-  margin: 0 0 12px 0;
+  font-weight: 700;
+  color: #F8F7E5;
+  margin: 0 0 20px 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .emptyMessage {
   font-size: 16px;
-  color: #666;
-  margin: 0 0 24px 0;
-  line-height: 1.5;
-  max-width: 400px;
+  color: #F8F7E5;
+  margin: 0 0 40px 0;
+  line-height: 1.6;
+  max-width: 450px;
+  opacity: 0.9;
+  font-weight: 500;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .actionButton {
-  background: linear-gradient(135deg, #546A04, #4a5a03);
-  color: white;
+  padding: 16px 32px;
   border: none;
-  border-radius: 8px;
-  padding: 12px 24px;
-  font-size: 14px;
-  font-weight: 500;
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #546A04 0%, #17371A 50%, #546A04 100%);
+  color: #F8F7E5;
+  box-shadow: 0 6px 20px rgba(84, 106, 4, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.actionButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.actionButton:hover::before {
+  left: 100%;
 }
 
 .actionButton:hover {
-  background: linear-gradient(135deg, #17371A, #546A04);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(84, 106, 4, 0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(84, 106, 4, 0.4);
+  background: linear-gradient(135deg, #17371A 0%, #546A04 50%, #17371A 100%);
 }
 
-@keyframes emptyFloat {
+.actionButton:active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(84, 106, 4, 0.3);
+}
+
+@keyframes heartBeat {
 
   0%,
   100% {
-    transform: translateY(0px);
+    transform: scale(1);
+    opacity: 0.8;
   }
 
   50% {
-    transform: translateY(-10px);
+    transform: scale(1.15);
+    opacity: 1;
   }
 }
 

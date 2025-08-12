@@ -154,6 +154,7 @@
   line-height: 1.3;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -170,6 +171,7 @@
   font-weight: 400;
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -224,9 +226,7 @@
 .nutritionSection {
   margin: 12px 0;
   padding: 12px;
-  background: rgba(84, 106, 4, 0.05);
   border-radius: 8px;
-  border: 1px solid rgba(84, 106, 4, 0.1);
 }
 
 .nutritionTitle {
@@ -248,9 +248,7 @@
   align-items: center;
   gap: 6px;
   padding: 4px 8px;
-  background: white;
   border-radius: 6px;
-  border: 1px solid rgba(84, 106, 4, 0.1);
 }
 
 .nutritionIndicator {

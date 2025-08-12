@@ -9,6 +9,7 @@ import RecipeDetailPage from './pages/RecipeDetailPage';
 import FridgePage from './pages/FridgePage';
 import { PlanProvider } from './context/PlanContext';
 import { ShoppingListProvider } from './context/ShoppingListContext';
+import { FavoritesProvider } from './context/FavoritesContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import { PageLoading } from './components/LoadingStates';
@@ -64,11 +65,13 @@ const AppContent: React.FC = () => {
 function App() {
   return (
     <AuthProvider>
-      <PlanProvider>
-        <ShoppingListProvider>
-          <AppContent />
-        </ShoppingListProvider>
-      </PlanProvider>
+      <FavoritesProvider>
+        <PlanProvider>
+          <ShoppingListProvider>
+            <AppContent />
+          </ShoppingListProvider>
+        </PlanProvider>
+      </FavoritesProvider>
     </AuthProvider>
   );
 }

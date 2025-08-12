@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+
 import styles from './RecipeCard.module.css';
 
 interface RecipeCardProps {
@@ -40,7 +40,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated } = useAuth();
+
   const [isHovered, setIsHovered] = useState(false);
 
   const handleCardClick = () => {
@@ -109,34 +109,14 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
     return null;
   };
 
-  const getDifficultyColor = (difficulty?: string) => {
-    switch (difficulty) {
-      case 'easy': return '#4CAF50';
-      case 'medium': return '#FF9800';
-      case 'hard': return '#F44336';
-      default: return '#546A04';
-    }
-  };
 
-  const getDifficultyIcon = (difficulty?: string) => {
-    switch (difficulty) {
-      case 'easy': return '🟢';
-      case 'medium': return '🟡';
-      case 'hard': return '🔴';
-      default: return '⚪';
-    }
-  };
 
-  const getCookingTimeBadge = () => {
-    if (recipe.readyInMinutes <= 15) {
-      return { text: 'Quick', icon: '⚡', color: '#4CAF50' };
-    } else if (recipe.readyInMinutes <= 30) {
-      return { text: 'Fast', icon: '🏃', color: '#FF9800' };
-    } else if (recipe.readyInMinutes <= 60) {
-      return { text: 'Medium', icon: '⏰', color: '#FF5722' };
-    } else {
-      return { text: 'Slow', icon: '🐌', color: '#9C27B0' };
-    }
+  const getNutritionValue = (nutrition: any, nutrientName: string): number => {
+    if (!nutrition || !nutrition.nutrients) return 0;
+    const nutrient = nutrition.nutrients.find((n: any) =>
+      n.name.toLowerCase().includes(nutrientName.toLowerCase())
+    );
+    return nutrient ? nutrient.amount : 0;
   };
 
   const getNutritionColor = (nutrition: any, type: 'calories' | 'protein' | 'carbs' | 'fat') => {
@@ -157,7 +137,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
       fat: 65         // Daily recommended fat (g)
     };
 
-    const value = nutrition[type];
+    const value = getNutritionValue(nutrition, type);
     const maxValue = maxValues[type];
     const percentage = Math.min((value / maxValue) * 100, 100);
 
@@ -248,7 +228,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
                   data-percentage={`${getNutritionColor(recipe.nutrition, 'calories').percentage}%`}
                 />
                 <span className={styles.nutritionLabel}>Calories</span>
-                <span className={styles.nutritionValue}>{Math.round(recipe.nutrition.calories)} kcal</span>
+                <span className={styles.nutritionValue}>{Math.round(getNutritionValue(recipe.nutrition, 'calories'))} kcal</span>
               </div>
               <div className={styles.nutritionItem}>
                 <div
@@ -260,7 +240,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
                   data-percentage={`${getNutritionColor(recipe.nutrition, 'protein').percentage}%`}
                 />
                 <span className={styles.nutritionLabel}>Protein</span>
-                <span className={styles.nutritionValue}>{Math.round(recipe.nutrition.protein)}g</span>
+                <span className={styles.nutritionValue}>{Math.round(getNutritionValue(recipe.nutrition, 'protein'))}g</span>
               </div>
               <div className={styles.nutritionItem}>
                 <div
@@ -272,7 +252,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
                   data-percentage={`${getNutritionColor(recipe.nutrition, 'carbs').percentage}%`}
                 />
                 <span className={styles.nutritionLabel}>Carbs</span>
-                <span className={styles.nutritionValue}>{Math.round(recipe.nutrition.carbs)}g</span>
+                <span className={styles.nutritionValue}>{Math.round(getNutritionValue(recipe.nutrition, 'carbohydrates'))}g</span>
               </div>
               <div className={styles.nutritionItem}>
                 <div
@@ -284,7 +264,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
                   data-percentage={`${getNutritionColor(recipe.nutrition, 'fat').percentage}%`}
                 />
                 <span className={styles.nutritionLabel}>Fat</span>
-                <span className={styles.nutritionValue}>{Math.round(recipe.nutrition.fat)}g</span>
+                <span className={styles.nutritionValue}>{Math.round(getNutritionValue(recipe.nutrition, 'fat'))}g</span>
               </div>
             </div>
           </div>
