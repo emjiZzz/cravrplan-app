@@ -69,42 +69,7 @@
   font-weight: 400;
 }
 
-/* Demo account info styles */
-.demoInfo {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border: 1px solid #dee2e6;
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 25px;
-  text-align: left;
-}
 
-.demoInfo h3 {
-  font-size: 18px;
-  font-weight: 600;
-  color: #2c3e2a;
-  margin: 0 0 12px 0;
-}
-
-.demoInfo p {
-  font-size: 14px;
-  color: #546A04;
-  margin: 6px 0;
-  font-weight: 500;
-}
-
-.demoInfo p strong {
-  color: #2c3e2a;
-  font-weight: 600;
-}
-
-.demoNote {
-  font-size: 13px !important;
-  color: #6c757d !important;
-  font-style: italic;
-  margin-top: 10px !important;
-  font-weight: 400 !important;
-}
 
 .loginForm {
   display: flex;
@@ -259,15 +224,5 @@
     font-size: 28px;
   }
 
-  .demoInfo {
-    padding: 15px;
-  }
 
-  .demoInfo h3 {
-    font-size: 16px;
-  }
-
-  .demoInfo p {
-    font-size: 13px;
-  }
 }

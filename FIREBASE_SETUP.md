@@ -2,11 +2,10 @@
 
 ## Overview
 
-The CravrPlan app now supports three modes of operation:
+The CravrPlan app now supports two modes of operation:
 
 1. **Guest Mode** - Users can try the app without registration (data not saved)
 2. **Member Mode** - Full functionality for registered users with data persistence
-3. **Demo Account** - Pre-configured account with sample data
 
 ## Firebase Configuration
 
@@ -20,9 +19,6 @@ The CravrPlan app now supports three modes of operation:
 
 1. In Firebase Console, go to Authentication > Sign-in method
 2. Enable Email/Password authentication
-3. Create a demo account:
-   - Email: `demo@cravrplan.com`
-   - Password: `demo123`
 
 ### 3. Set up Firestore Database
 
@@ -91,20 +87,13 @@ const firebaseConfig = {
 - ✅ Data synced across devices
 - ✅ Access to all premium features
 
-### Demo Account
-- Email: `demo@cravrplan.com`
-- Password: `demo123`
-- Pre-populated with sample data:
-  - Sample meal plans
-  - Favorite recipes
-  - Fridge ingredients
+
 
 ## Implementation Details
 
 ### Authentication Flow
 - Uses Firebase Authentication for secure user management
 - Automatic session persistence
-- Demo account with pre-configured data
 
 ### Data Storage
 - **Guest Mode**: localStorage (temporary)
@@ -120,28 +109,26 @@ const firebaseConfig = {
 ### Components
 - `GuestModeBanner`: Shows limitations and upgrade prompts
 - Updated `Header`: Shows current mode and user info
-- Updated `LoginPage`: Includes guest mode option and demo account info
+- Updated `LoginPage`: Includes guest mode option
 
 ## Usage Instructions
 
 ### For Users
 1. **Try as Guest**: Click "Continue as Guest" on login page
 2. **Create Account**: Click "Sign Up" to create a member account
-3. **Use Demo**: Login with demo credentials to see full features
-4. **Upgrade**: Guest users see upgrade prompts for member-only features
+3. **Upgrade**: Guest users see upgrade prompts for member-only features
 
 ### For Developers
 1. Set up Firebase project and update configuration
 2. Install dependencies: `npm install`
 3. Start development server: `npm run dev`
-4. Test all three modes of operation
+4. Test both guest and member modes of operation
 
 ## Security Considerations
 
 - All user data is isolated by user ID
 - Firestore security rules prevent unauthorized access
 - Guest data is stored locally and cleared on logout
-- Demo account has limited permissions
 
 ## Future Enhancements
 

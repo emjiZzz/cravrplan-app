@@ -63,7 +63,6 @@ const RecipesPage: React.FC = () => {
   const [selectedTimePreference, setSelectedTimePreference] = useState('All Time Ranges');
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filterOptions, setFilterOptions] = useState<FilterOptionsResponse | null>(null);
   const [totalResults, setTotalResults] = useState(0);
@@ -272,16 +271,8 @@ const RecipesPage: React.FC = () => {
     const searchRecipesWithFilters = async () => {
       setError(null);
 
-      // Only show loading for initial load or major filter changes
-      const shouldShowLoading = currentPage === 0 || recipes.length === 0;
-      if (shouldShowLoading) {
-        setLoading(true);
-      }
-
-      // Only show searching indicator for search queries, not filter changes
-      if (debouncedSearchQuery.trim()) {
-        setIsSearching(true);
-      }
+      // Show searching indicator for all data fetching operations
+      setIsSearching(true);
 
       try {
         // Filter favorites if showFavoritesOnly is true
@@ -360,7 +351,6 @@ const RecipesPage: React.FC = () => {
         setToastType('error');
         setShowToast(true);
       } finally {
-        setLoading(false);
         setIsSearching(false);
       }
     };
@@ -672,7 +662,7 @@ const RecipesPage: React.FC = () => {
           </div>
 
           {/* Enhanced Progressive Loading */}
-          {!loading && !error && showFavoritesOnly && recipes.length === 0 ? (
+          {showFavoritesOnly && recipes.length === 0 ? (
             // Custom empty state for favorites
             <div className={styles.favoritesEmptyState}>
               <div className={styles.favoritesEmptyIcon}>❤️</div>
@@ -693,7 +683,7 @@ const RecipesPage: React.FC = () => {
             <ProgressiveLoading
               items={recipes}
               renderItem={renderRecipeCard}
-              loading={loading}
+              loading={isSearching}
               error={error}
               onRetry={handleRetry}
               skeletonCount={6}
@@ -702,7 +692,7 @@ const RecipesPage: React.FC = () => {
           )}
 
           {/* Pagination */}
-          {!loading && !error && recipes.length > 0 && (
+          {!error && recipes.length > 0 && (
             <div className={styles.pagination}>
               <button
                 onClick={handlePreviousPage}

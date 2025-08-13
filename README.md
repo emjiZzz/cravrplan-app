@@ -37,11 +37,6 @@ A modern meal planning application built with React, TypeScript, and Firebase. C
 - Advanced meal planning tools
 - Cross-device synchronization
 
-#### Demo Account
-- Pre-configured account with sample data
-- Email: `demo@cravrplan.com`
-- Password: `demo123`
-
 ## Tech Stack
 
 - **Frontend**: React 18, TypeScript, Vite
@@ -93,7 +88,6 @@ For detailed Firebase configuration instructions, see [FIREBASE_SETUP.md](./FIRE
 ### For New Users
 1. **Try as Guest**: Click "Continue as Guest" to explore the app
 2. **Create Account**: Sign up for full access to all features
-3. **Use Demo**: Login with demo credentials to see sample data
 
 ### For Registered Users
 1. **Browse Recipes**: Search and discover new recipes

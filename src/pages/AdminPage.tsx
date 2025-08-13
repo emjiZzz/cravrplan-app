@@ -14,7 +14,7 @@ const AdminPage: React.FC = () => {
   const [exportData, setExportData] = useState('');
 
   useEffect(() => {
-    // Check if user is admin (for demo, we'll use a simple check)
+    // Check if user is admin
     if (!user || user.email !== 'admin@cravrplan.com') {
       navigate('/');
       return;
@@ -42,7 +42,6 @@ const AdminPage: React.FC = () => {
 
   const confirmDeleteUser = () => {
     if (selectedUser) {
-      // For demo purposes, we'll use a simple password
       const result = userDatabase.deleteUser(selectedUser.id, 'admin123');
       if (result.success) {
         loadUsers();

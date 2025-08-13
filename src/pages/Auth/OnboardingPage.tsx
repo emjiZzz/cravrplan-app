@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import styles from './OnboardingPage.module.css';
 import CravrPlanLogo from '../../assets/logo.png';
 import { useAuth } from '../../context/AuthContext';
-import { firestoreService } from '../../services/firestoreService';
+
 
 interface UserPreferences {
   dietaryRestrictions: string[];
@@ -19,7 +19,7 @@ const OnboardingPage: React.FC = () => {
   const navigate = useNavigate();
   const { signup } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
-  const [isSignupComplete, setIsSignupComplete] = useState(false);
+
   const signupCompletedRef = useRef(false);
   const [preferences, setPreferences] = useState<UserPreferences>({
     dietaryRestrictions: [],
@@ -148,7 +148,6 @@ const OnboardingPage: React.FC = () => {
         }
 
         // Mark signup as complete
-        setIsSignupComplete(true);
         setIsSignupSuccess(true);
         signupCompletedRef.current = true;
 

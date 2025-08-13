@@ -42,10 +42,7 @@ const LoginPage: React.FC = () => {
     }
   };
 
-  const handleGuestMode = () => {
-    continueAsGuest();
-    navigate('/recipes');
-  };
+
 
   return (
     <div className={styles.loginPageContainer}>

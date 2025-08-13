@@ -195,7 +195,6 @@ interface ProgressiveLoadingProps<T = unknown> {
   onRetry?: () => void;
   skeletonCount?: number;
   skeletonVariant?: 'recipe' | 'plan' | 'list';
-  onClearFilters?: () => void;
 }
 
 export const ProgressiveLoading = <T,>({
@@ -205,37 +204,34 @@ export const ProgressiveLoading = <T,>({
   error,
   onRetry,
   skeletonCount = 6,
-  skeletonVariant = 'recipe',
-  onClearFilters
+  skeletonVariant = 'recipe'
 }: ProgressiveLoadingProps<T>) => {
-  if (loading) {
-    return <SkeletonCard count={skeletonCount} variant={skeletonVariant} />;
-  }
-
-  if (error) {
-    return (
-      <ErrorMessage
-        title="Failed to load content"
-        message={error}
-        onRetry={onRetry}
-      />
-    );
-  }
-
-  if (items.length === 0) {
-    return (
-      <EmptyState
-        title="No items found"
-        message="Try adjusting your search or filters to find what you're looking for."
-        actionText="Clear Filters"
-        onAction={onClearFilters || onRetry}
-      />
-    );
-  }
-
+  // Always render the container immediately
   return (
     <div className={styles.progressiveContainer}>
+      {/* Show error state if there's an error */}
+      {error && (
+        <div className={styles.errorState}>
+          <ErrorMessage
+            message={error}
+            onRetry={onRetry}
+            variant="error"
+          />
+        </div>
+      )}
+
+      {/* Show loading skeletons when loading and no items yet */}
+      {loading && items.length === 0 && (
+        <SkeletonCard count={skeletonCount} variant={skeletonVariant} />
+      )}
+
+      {/* Render actual items */}
       {items.map((item, index) => renderItem(item, index))}
+
+      {/* Show additional loading skeletons at the bottom when loading and we have items */}
+      {loading && items.length > 0 && (
+        <SkeletonCard count={Math.min(3, skeletonCount)} variant={skeletonVariant} />
+      )}
     </div>
   );
 };

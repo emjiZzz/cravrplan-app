@@ -39,7 +39,6 @@ class UserDatabase {
 
   // Simple password hashing (in production, use bcrypt or similar)
   private hashPassword(password: string): string {
-    // Simple hash for demo - in production use proper hashing
     let hash = 0;
     for (let i = 0; i < password.length; i++) {
       const char = password.charCodeAt(i);

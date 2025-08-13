@@ -16,12 +16,10 @@ import { GuestProvider, useGuest } from './context/GuestContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import { PageLoading } from './components/LoadingStates';
 import { Routes, Route, useLocation } from 'react-router-dom';
-import './utils/demoSetup'; // Auto-setup demo users
 
 const AppContent: React.FC = () => {
   const location = useLocation();
-  const { isLoading, isAuthenticated } = useAuth();
-  const { isGuestMode } = useGuest();
+  const { isLoading } = useAuth();
 
   const isLoginPage = location.pathname === '/login';
   const isSignUpPage = location.pathname === '/signup';

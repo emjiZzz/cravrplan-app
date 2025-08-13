@@ -6,7 +6,7 @@ import {
   signOut,
   onAuthStateChanged
 } from 'firebase/auth';
-import type { User as FirebaseUser } from 'firebase/auth';
+
 import { auth } from '../services/firebase';
 import { firestoreService } from '../services/firestoreService';
 
@@ -106,31 +106,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
 
     try {
-      // Check if this is the demo account
-      if (email === 'demo@cravrplan.com' && password === 'demo123') {
-        // Handle demo account login
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        const firebaseUser = userCredential.user;
-
-        // Check if demo account exists in Firestore, if not create it
-        let userData = await firestoreService.getUser(firebaseUser.uid);
-        if (!userData) {
-          await firestoreService.createUser({
-            id: firebaseUser.uid,
-            email: firebaseUser.email!,
-            fullName: 'Demo User'
-          });
-
-          // Setup demo data
-          await firestoreService.setupDemoAccount(firebaseUser.uid);
-        }
-
-        return { success: true };
-      } else {
-        // Regular login
-        await signInWithEmailAndPassword(auth, email, password);
-        return { success: true };
-      }
+      // Regular login
+      await signInWithEmailAndPassword(auth, email, password);
+      return { success: true };
     } catch (error: any) {
       console.error('Login error:', error);
       let errorMessage = 'Login failed. Please try again.';
