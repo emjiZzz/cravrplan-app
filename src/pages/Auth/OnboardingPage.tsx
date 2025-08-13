@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './OnboardingPage.module.css';
 import CravrPlanLogo from '../../assets/logo.png';
@@ -17,7 +17,7 @@ interface UserPreferences {
 
 const OnboardingPage: React.FC = () => {
   const navigate = useNavigate();
-  const { signup, isLoading } = useAuth();
+  const { signup } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSignupComplete, setIsSignupComplete] = useState(false);
   const signupCompletedRef = useRef(false);
@@ -38,8 +38,16 @@ const OnboardingPage: React.FC = () => {
   });
   const [error, setError] = useState('');
   const [isSignupLoading, setIsSignupLoading] = useState(false);
+  const [isSignupSuccess, setIsSignupSuccess] = useState(false);
 
-  const totalSteps = 8;
+  const totalSteps = 7; // Back to 7 steps since we removed case 9
+
+  // Handle signup success state
+  useEffect(() => {
+    if (isSignupSuccess) {
+      console.log('Signup success detected, user should be redirected to login');
+    }
+  }, [isSignupSuccess]);
 
   const handlePreferenceChange = (category: keyof UserPreferences, value: string | string[]) => {
     setPreferences(prev => ({
@@ -122,48 +130,59 @@ const OnboardingPage: React.FC = () => {
     // Set local loading state
     setIsSignupLoading(true);
 
-    const result = await signup(signupData.fullName.trim(), signupData.email.trim(), signupData.password);
-    console.log('Signup result:', result);
+    try {
+      const result = await signup(signupData.fullName.trim(), signupData.email.trim(), signupData.password);
+      console.log('Signup result:', result);
 
-    if (result.success) {
-      console.log('=== SIGNUP SUCCESS ===');
-      console.log('Signup successful, moving to success step...');
+      if (result.success) {
+        console.log('=== SIGNUP SUCCESS ===');
+        console.log('Signup successful, redirecting to login...');
 
-      // Store preferences temporarily - they will be saved after user logs in
-      try {
-        // Store preferences in localStorage to be saved after login
-        localStorage.setItem('pending_preferences', JSON.stringify(preferences));
-        console.log('Preferences stored temporarily, will be saved after login');
-      } catch (error) {
-        console.error('Error storing preferences:', error);
-        // Don't block the signup flow if preferences fail to save
+        // Store preferences temporarily - they will be saved after user logs in
+        try {
+          localStorage.setItem('pending_preferences', JSON.stringify(preferences));
+          console.log('Preferences stored temporarily, will be saved after login');
+        } catch (error) {
+          console.error('Error storing preferences:', error);
+          // Don't block the signup flow if preferences fail to save
+        }
+
+        // Mark signup as complete
+        setIsSignupComplete(true);
+        setIsSignupSuccess(true);
+        signupCompletedRef.current = true;
+
+        // Note: User is already signed out by AuthContext after signup
+        console.log('User signed out after successful signup');
+
+        // Redirect to login page after successful signup
+        console.log('Redirecting to login page...');
+        navigate('/login');
+      } else {
+        console.log('=== SIGNUP FAILED ===');
+        console.log('Signup failed:', result.error);
+        setError(result.error || 'Signup failed. Please try again.');
+        // Stay on signup form (case 7) and show error
       }
-
-      // Mark signup as complete and advance to success step
-      setIsSignupComplete(true);
-      signupCompletedRef.current = true;
-      setCurrentStep(8); // Move to success step
-      localStorage.setItem('onboarding_signup_complete', 'false'); // Keep user on onboarding
-    } else {
-      console.log('=== SIGNUP FAILED ===');
-      console.log('Signup failed:', result.error);
-      setError(result.error || 'Signup failed. Please try again.');
+    } catch (error) {
+      console.error('Unexpected error during signup:', error);
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
+      // Clear local loading state
+      setIsSignupLoading(false);
     }
-
-    // Clear local loading state
-    setIsSignupLoading(false);
   };
 
   const renderStep = () => {
-    console.log('Rendering step:', currentStep, 'Signup completed:', signupCompletedRef.current);
+    console.log('Rendering step:', currentStep, 'Signup completed:', signupCompletedRef.current, 'Signup success:', isSignupSuccess);
 
-    // If still loading during signup (step 7), show loading message
-    if (isSignupLoading && currentStep === 7) {
+    // If signup was successful, don't render any steps - user should be redirected
+    if (isSignupSuccess) {
       return (
         <div className={styles.stepContent}>
-          <div className={styles.stepIcon}>⏳</div>
-          <h3>Creating Your Account...</h3>
-          <p>Please wait while we set up your account and save your preferences.</p>
+          <div className={styles.stepIcon}>🎉</div>
+          <h3>Account Created Successfully!</h3>
+          <p>Redirecting to login page...</p>
           <div className={styles.loadingSpinner}>
             <div className={styles.spinner}></div>
           </div>
@@ -409,40 +428,7 @@ const OnboardingPage: React.FC = () => {
           </div>
         );
 
-      case 8:
-        return (
-          <div className={styles.stepContent}>
-            <div className={styles.stepIcon}>🎉</div>
-            <h3>Account Created Successfully!</h3>
-            <p>Your CravrPlan account has been created and your preferences have been saved. Click "Done" to proceed to the login page.</p>
-            <div className={styles.successFeatures}>
-              <div className={styles.feature}>
-                <span className={styles.featureIcon}>✅</span>
-                <span>Account created successfully</span>
-              </div>
-              <div className={styles.feature}>
-                <span className={styles.featureIcon}>🎯</span>
-                <span>Preferences saved</span>
-              </div>
-              <div className={styles.feature}>
-                <span className={styles.featureIcon}>🍽️</span>
-                <span>Ready for personalized recipes</span>
-              </div>
-            </div>
-            <div className={styles.doneButtonContainer}>
-              <button
-                type="button"
-                className={styles.doneButton}
-                onClick={() => {
-                  localStorage.removeItem('onboarding_signup_complete');
-                  navigate('/login');
-                }}
-              >
-                Done
-              </button>
-            </div>
-          </div>
-        );
+
 
       default:
         return null;
@@ -462,11 +448,11 @@ const OnboardingPage: React.FC = () => {
           <div className={styles.progressBar}>
             <div
               className={styles.progressFill}
-              style={{ width: `${signupCompletedRef.current ? 100 : (currentStep / totalSteps) * 100}%` }}
+              style={{ width: `${signupCompletedRef.current || isSignupSuccess ? 100 : (currentStep / totalSteps) * 100}%` }}
             ></div>
           </div>
           <p className={styles.progressText}>
-            {signupCompletedRef.current ? 'Complete!' : `Step ${currentStep} of ${totalSteps}`}
+            {signupCompletedRef.current || isSignupSuccess ? 'Complete!' : `Step ${currentStep} of ${totalSteps}`}
           </p>
         </div>
 
