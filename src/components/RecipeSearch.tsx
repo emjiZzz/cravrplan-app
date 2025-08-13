@@ -48,19 +48,21 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ onSearchResults, onLoadingC
     if (debouncedSearchTerm || cuisine || diet || maxReadyTime) {
       performSearch();
     }
-  }, [debouncedSearchTerm, cuisine, diet, maxReadyTime, onLoadingChange, onSearchResults]);
+  }, [debouncedSearchTerm, cuisine, diet, maxReadyTime]);
 
   const performSearch = async () => {
     onLoadingChange(true);
     try {
       const query = debouncedSearchTerm || 'pasta'; // Default search
-      const recipes = await searchRecipes(query, {
+      const params = {
+        query,
         cuisine: cuisine || undefined,
         diet: diet || undefined,
-        maxReadyTime: maxReadyTime || undefined,
+        maxReadyTime: maxReadyTime ? parseInt(maxReadyTime, 10) : undefined,
         number: 20
-      });
-      onSearchResults(recipes);
+      };
+      const response = await searchRecipes(params);
+      onSearchResults(response.results || []);
     } catch (error) {
       console.error('Search error:', error);
       onSearchResults([]);

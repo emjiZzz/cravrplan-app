@@ -12,7 +12,7 @@ import { PlanProvider } from './context/PlanContext';
 
 import { FavoritesProvider } from './context/FavoritesContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { GuestProvider, useGuest } from './context/GuestContext';
+import { GuestProvider } from './context/GuestContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import { PageLoading } from './components/LoadingStates';
 import { Routes, Route, useLocation } from 'react-router-dom';
