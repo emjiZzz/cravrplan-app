@@ -99,7 +99,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
-    setIsLoading(true);
+    // Only show loading for actual login attempts, not for auth state changes
+    const isInitialLoad = !user && isLoading;
+    if (!isInitialLoad) {
+      setIsLoading(true);
+    }
+
     try {
       // Check if this is the demo account
       if (email === 'demo@cravrplan.com' && password === 'demo123') {
@@ -142,7 +147,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       return { success: false, error: errorMessage };
     } finally {
-      setIsLoading(false);
+      if (!isInitialLoad) {
+        setIsLoading(false);
+      }
     }
   };
 

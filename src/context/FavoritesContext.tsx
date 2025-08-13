@@ -140,7 +140,7 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
     };
 
     loadFavorites();
-  }, [user, isAuthenticated, isGuestMode, guestData.favoriteRecipes]);
+  }, [user, isAuthenticated, isGuestMode]);
 
   const toggleFavorite = async (recipeId: number, recipe?: FavoriteRecipe) => {
     if (isAuthenticated && user) {

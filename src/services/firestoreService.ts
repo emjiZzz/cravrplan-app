@@ -11,6 +11,7 @@ import {
   serverTimestamp
 } from 'firebase/firestore';
 import { db } from './firebase';
+import type { PlanEvent } from '../context/PlanContextTypes';
 
 export interface UserData {
   id: string;
@@ -35,7 +36,7 @@ export interface MealPlan {
   id: string;
   userId: string;
   title: string;
-  events: any[];
+  events: PlanEvent[];
   createdAt: any;
   updatedAt: any;
 }
@@ -194,7 +195,7 @@ class FirestoreService {
 
   // Demo account setup
   async setupDemoAccount(userId: string): Promise<void> {
-    // Create sample meal plans
+    // Create sample meal plans with correct PlanEvent structure
     const sampleMealPlan: Omit<MealPlan, 'createdAt' | 'updatedAt'> = {
       id: `demo-plan-${Date.now()}`,
       userId,
@@ -203,13 +204,37 @@ class FirestoreService {
         {
           id: 'demo-event-1',
           title: 'Grilled Chicken Salad',
-          start: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-          end: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-          mealType: 'lunch',
-          recipe: {
-            id: 12345,
-            title: 'Grilled Chicken Salad',
-            image: 'https://spoonacular.com/recipeImages/12345-312x231.jpg'
+          date: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          recipeId: 12345,
+          mealType: 'main course',
+          image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop',
+          difficulty: 'easy',
+          prepTime: 15,
+          cookTime: 20,
+          servings: 2,
+          nutrition: {
+            calories: 350,
+            protein: 25,
+            carbs: 15,
+            fat: 12
+          }
+        },
+        {
+          id: 'demo-event-2',
+          title: 'Overnight Oats',
+          date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          recipeId: 67890,
+          mealType: 'breakfast',
+          image: 'https://images.unsplash.com/photo-1517686469429-8bdb88b9f907?w=400&h=300&fit=crop',
+          difficulty: 'easy',
+          prepTime: 5,
+          cookTime: 0,
+          servings: 1,
+          nutrition: {
+            calories: 280,
+            protein: 12,
+            carbs: 42,
+            fat: 8
           }
         }
       ]

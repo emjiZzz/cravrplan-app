@@ -221,6 +221,9 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
               {getMealTypeIcon(getMealTypeBadge() || '')} {getMealTypeBadge()}
             </span>
           )}
+          <span className={styles.timeBadge}>
+            ⏱️ {recipe.readyInMinutes} min
+          </span>
         </div>
 
         {/* Nutritional Information */}

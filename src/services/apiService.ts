@@ -736,7 +736,7 @@ for (let i = 16; i <= 25; i++) {
   mockRecipes.push({
     id: i,
     title: `Mock Recipe ${i}`,
-    image: 'https://via.placeholder.com/400x300?text=Recipe+' + i,
+    image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop',
     imageType: 'jpg',
     servings: 2,
     readyInMinutes: 30,
@@ -805,6 +805,16 @@ class RecipeApiService {
 
   constructor() {
     this.useMockData = !API_KEY || API_KEY === 'your-api-key-here';
+
+    // Log the API configuration for debugging
+    if (CONFIG.LOG_API_ERRORS) {
+      console.log('API Service initialized:', {
+        hasApiKey: !!API_KEY && API_KEY !== 'your-api-key-here',
+        useMockData: this.useMockData,
+        rateLimitDelay: CONFIG.RATE_LIMIT_DELAY,
+        maxRetries: CONFIG.MAX_RETRIES
+      });
+    }
   }
 
   // Rate limiting helper
@@ -815,7 +825,11 @@ class RecipeApiService {
     // Basic rate limiting: max 10 requests per minute
     if (this.requestCount >= 10 && timeSinceLastRequest < 60000) {
       const waitTime = 60000 - timeSinceLastRequest;
-      throw new Error(`Rate limit exceeded. Please wait ${Math.ceil(waitTime / 1000)} seconds.`);
+      console.warn(`Rate limit exceeded. Please wait ${Math.ceil(waitTime / 1000)} seconds.`);
+      // Instead of throwing an error, wait and reset
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+      this.requestCount = 0;
+      this.lastRequestTime = Date.now();
     }
 
     if (timeSinceLastRequest > 60000) {
@@ -829,6 +843,14 @@ class RecipeApiService {
   // Enhanced error handling with retry logic
   private async makeRequest<T>(url: string, options: RequestInit = {}, retryCount: number = 0): Promise<T> {
     try {
+      // Add delay between requests to prevent rate limiting
+      if (this.lastRequestTime > 0) {
+        const timeSinceLastRequest = Date.now() - this.lastRequestTime;
+        if (timeSinceLastRequest < CONFIG.RATE_LIMIT_DELAY) {
+          await new Promise(resolve => setTimeout(resolve, CONFIG.RATE_LIMIT_DELAY - timeSinceLastRequest));
+        }
+      }
+
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), CONFIG.REQUEST_TIMEOUT);
 
@@ -926,7 +948,7 @@ class RecipeApiService {
     }
 
     if (CONFIG.USE_MOCK_DATA_FALLBACK) {
-      console.warn('Falling back to mock data due to API error:', error instanceof Error ? error.message : 'Unknown error');
+      console.log('Falling back to mock data due to API error');
       return fallbackData;
     }
 
@@ -1092,6 +1114,30 @@ class RecipeApiService {
       );
     }
 
+    // Apply maxReadyTime filter
+    if (params.maxReadyTime) {
+      filteredRecipes = filteredRecipes.filter(recipe =>
+        recipe.readyInMinutes <= params.maxReadyTime!
+      );
+    }
+
+    // Apply intolerances filter (exclude recipes with these ingredients)
+    if (params.intolerances && params.intolerances.length > 0) {
+      filteredRecipes = filteredRecipes.filter(recipe => {
+        // For mock data, we'll do a simple check against recipe properties
+        const intolerances = params.intolerances!;
+        return !intolerances.some(intolerance => {
+          const lowerIntolerance = intolerance.toLowerCase();
+          return (
+            (lowerIntolerance.includes('dairy') && recipe.dairyFree === false) ||
+            (lowerIntolerance.includes('gluten') && recipe.glutenFree === false) ||
+            (lowerIntolerance.includes('vegan') && recipe.vegan === false) ||
+            (lowerIntolerance.includes('vegetarian') && recipe.vegetarian === false)
+          );
+        });
+      });
+    }
+
     // Apply pagination
     const offset = params.offset || 0;
     const number = params.number || 20;
@@ -1181,26 +1227,36 @@ class RecipeApiService {
         { name: "Italian", value: "Italian" },
         { name: "Mexican", value: "Mexican" },
         { name: "Asian", value: "Asian" },
-        { name: "Mediterranean", value: "Mediterranean" }
+        { name: "Mediterranean", value: "Mediterranean" },
+        { name: "Greek", value: "Greek" },
+        { name: "French", value: "French" },
+        { name: "Japanese", value: "Japanese" },
+        { name: "Chinese", value: "Chinese" },
+        { name: "Thai", value: "Thai" },
+        { name: "Korean", value: "Korean" },
+        { name: "Indian", value: "Indian" },
+        { name: "Spanish", value: "Spanish" },
+        { name: "Middle Eastern", value: "Middle Eastern" }
       ],
       diets: [
         { name: "Vegetarian", value: "Vegetarian" },
         { name: "Vegan", value: "Vegan" },
-        { name: "Gluten Free", value: "Gluten Free" },
+        { name: "Gluten-Free", value: "Gluten-Free" },
+        { name: "Dairy-Free", value: "Dairy-Free" },
         { name: "Keto", value: "Keto" },
-        { name: "Paleo", value: "Paleo" }
+        { name: "Paleo", value: "Paleo" },
+        { name: "Low-Carb", value: "Low-Carb" },
+        { name: "High-Protein", value: "High-Protein" }
       ],
       intolerances: [
+        { name: "Nuts", value: "Nuts" },
         { name: "Dairy", value: "Dairy" },
-        { name: "Egg", value: "Egg" },
-        { name: "Gluten", value: "Gluten" },
-        { name: "Peanut", value: "Peanut" },
-        { name: "Seafood", value: "Seafood" },
         { name: "Shellfish", value: "Shellfish" },
+        { name: "Eggs", value: "Eggs" },
         { name: "Soy", value: "Soy" },
-        { name: "Sulfite", value: "Sulfite" },
-        { name: "Tree Nut", value: "Tree Nut" },
-        { name: "Wheat", value: "Wheat" }
+        { name: "Wheat", value: "Wheat" },
+        { name: "Fish", value: "Fish" },
+        { name: "Sesame", value: "Sesame" }
       ],
       mealTypes: [
         { name: "Main Course", value: "main course" },
@@ -1208,6 +1264,13 @@ class RecipeApiService {
         { name: "Side Dish", value: "side dish" },
         { name: "Dessert", value: "dessert" },
         { name: "Snack", value: "snack" }
+      ],
+      timePreferences: [
+        { name: "Quick (15-30 min)", value: "15-30" },
+        { name: "Medium (30-60 min)", value: "30-60" },
+        { name: "Long (60+ min)", value: "60+" },
+        { name: "Meal Prep", value: "meal-prep" },
+        { name: "Weekend Cooking", value: "weekend" }
       ]
     };
   }

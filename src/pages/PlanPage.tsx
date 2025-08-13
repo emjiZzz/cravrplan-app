@@ -7,7 +7,6 @@ import styles from './PlanPage.module.css';
 import { usePlan } from '../context/PlanContext';
 import type { PlanEvent } from '../context/PlanContextTypes';
 import ConfirmationModal from '../components/ConfirmationModal';
-import GuestModeBanner from '../components/GuestModeBanner';
 import { useGuest } from '../context/GuestContext';
 
 interface AddMealModalProps {
@@ -211,6 +210,11 @@ const GridCalendar: React.FC<{
       case 'snack': return '🍎';
       default: return '🍽️';
     }
+  };
+
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    const target = e.target as HTMLImageElement;
+    target.src = 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop';
   };
 
   const handleImageClick = (event: PlanEvent, e: React.MouseEvent) => {
@@ -582,7 +586,8 @@ const PlanPage: React.FC = () => {
     addToPlan,
     moveEvent,
     ensureNutritionData,
-    isFeatureRestricted
+    isFeatureRestricted,
+    updateEvent
   } = usePlan();
   const { isGuestMode } = useGuest();
 
@@ -694,15 +699,21 @@ const PlanPage: React.FC = () => {
     }
   };
 
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    const target = e.target as HTMLImageElement;
+    target.src = 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop';
+  };
+
   const handleEventClick = (event: PlanEvent) => {
     setSelectedRecipe(event);
     setShowRecipeModal(true);
   };
 
-  const handleClearAll = () => {
-    events.forEach(event => {
-      moveToTrash(event.id);
-    });
+  const handleClearAll = async () => {
+    // Move all events to trash one by one
+    for (const event of events) {
+      await moveToTrash(event.id);
+    }
     setShowClearConfirm(false);
   };
 
@@ -722,9 +733,9 @@ const PlanPage: React.FC = () => {
     setShowAddMealModal(true);
   };
 
-  const handleEventDrop = (eventId: string, newDate: string) => {
+  const handleEventDrop = async (eventId: string, newDate: string) => {
     // Use the new moveEvent method for better performance
-    moveEvent(eventId, newDate);
+    await moveEvent(eventId, newDate);
   };
 
   const handleAddCustomRecipe = (recipeData: { title: string; mealType: string; date: string }) => {
@@ -764,7 +775,7 @@ const PlanPage: React.FC = () => {
     setShowRecipeModal(false);
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (editingRecipe && editFormData.title.trim()) {
       // Update the recipe in the plan
       const updatedRecipe: PlanEvent = {
@@ -779,9 +790,8 @@ const PlanPage: React.FC = () => {
         nutrition: generateNutritionData(editFormData.title, editFormData.mealType)
       };
 
-      // Remove the old recipe and add the updated one
-      moveToTrash(editingRecipe.id);
-      addToPlan(updatedRecipe);
+      // Update the existing recipe in place
+      await updateEvent(editingRecipe.id, updatedRecipe);
 
       // Close edit modal and return to plan page
       setShowEditModal(false);
@@ -817,16 +827,15 @@ const PlanPage: React.FC = () => {
     setShowRecipeModal(false);
   };
 
-  const handleSaveNotes = () => {
+  const handleSaveNotes = async () => {
     if (editingRecipe) {
       const updatedRecipe: PlanEvent = {
         ...editingRecipe,
         notes: editFormData.notes.trim()
       };
 
-      // Remove the old recipe and add the updated one
-      moveToTrash(editingRecipe.id);
-      addToPlan(updatedRecipe);
+      // Update the existing recipe in place
+      await updateEvent(editingRecipe.id, updatedRecipe);
 
       setShowNotesModal(false);
       setShowAddMealModal(false); // Ensure add meal modal is closed
@@ -1097,8 +1106,8 @@ const PlanPage: React.FC = () => {
             <p>Are you sure you want to move all meals to Trash?</p>
             <div className={styles.confirmModalActions}>
               <button onClick={() => setShowClearConfirm(false)}>Cancel</button>
-              <button className={styles.confirmButton} onClick={() => {
-                handleClearAll();
+              <button className={styles.confirmButton} onClick={async () => {
+                await handleClearAll();
               }}>
                 Clear All
               </button>
@@ -1192,6 +1201,7 @@ const PlanPage: React.FC = () => {
                   src={selectedRecipe.image}
                   alt={selectedRecipe.title}
                   className={styles.recipeModalImage}
+                  onError={handleImageError}
                 />
               )}
 
@@ -1310,20 +1320,20 @@ const PlanPage: React.FC = () => {
       <ConfirmationModal
         isOpen={showConfirmModal}
         onClose={() => setShowConfirmModal(false)}
-        onConfirm={() => {
+        onConfirm={async () => {
           setShowConfirmModal(false);
           // Handle different actions based on the message
           if (confirmMessage.includes('move') && selectedRecipe) {
-            moveToTrash(selectedRecipe.id);
+            await moveToTrash(selectedRecipe.id);
 
           } else if (confirmMessage.includes('restore') && selectedRecipe) {
-            restoreFromTrash(selectedRecipe.id);
+            await restoreFromTrash(selectedRecipe.id);
 
           } else if (confirmMessage.includes('permanently delete') && selectedRecipe) {
-            deleteFromTrash(selectedRecipe.id);
+            await deleteFromTrash(selectedRecipe.id);
 
           } else if (confirmMessage.includes('empty the trash')) {
-            clearTrash();
+            await clearTrash();
             setShowTrashModal(false);
 
           }
@@ -1358,6 +1368,7 @@ const PlanPage: React.FC = () => {
                         src={customImage || editFormData.image}
                         alt="Recipe preview"
                         className={styles.previewImage}
+                        onError={handleImageError}
                       />
                       <button
                         type="button"
@@ -1464,7 +1475,7 @@ const PlanPage: React.FC = () => {
                 setEditingRecipe(null);
                 setCustomImage(null);
               }}>Cancel</button>
-              <button className={styles.confirmButton} onClick={handleSaveEdit}>
+              <button className={styles.confirmButton} onClick={async () => await handleSaveEdit()}>
                 Save Changes
               </button>
             </div>
@@ -1499,7 +1510,7 @@ const PlanPage: React.FC = () => {
                 setEditingRecipe(null);
                 setCustomImage(null);
               }}>Cancel</button>
-              <button className={styles.confirmButton} onClick={handleSaveNotes}>
+              <button className={styles.confirmButton} onClick={async () => await handleSaveNotes()}>
                 Save Notes
               </button>
             </div>

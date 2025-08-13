@@ -42,9 +42,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to={redirectTo} replace />;
   }
 
-  // If authentication is not required and user is authenticated, redirect to recipes
-  if (!requireAuth && isAuthenticated) {
-    return <Navigate to="/recipes" replace />;
+  // If authentication is not required, allow access regardless of auth state
+  // This fixes the plan page issue where authenticated users were being redirected
+  if (!requireAuth) {
+    return <>{children}</>;
   }
 
   return <>{children}</>;

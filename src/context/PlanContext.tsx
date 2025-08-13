@@ -228,7 +228,15 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
           if (firestoreMealPlans.length > 0) {
             // Convert Firestore data to events format
             const eventsData = firestoreMealPlans.flatMap(plan => plan.events || []);
-            setEvents(eventsData);
+            // Ensure all events have the required PlanEvent structure
+            const validEvents = eventsData.filter(event =>
+              event &&
+              event.id &&
+              event.title &&
+              event.date &&
+              event.mealType
+            );
+            setEvents(validEvents);
           }
         } catch (error) {
           console.error('Error loading meal plans from Firestore:', error);
@@ -243,8 +251,9 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
       }
     };
 
+    // Only load meal plans when user state changes, not on every guest data change
     loadMealPlans();
-  }, [user, isAuthenticated, isGuestMode, guestData.mealPlans]);
+  }, [user, isAuthenticated, isGuestMode]);
 
   const addToPlan: PlanContextType['addToPlan'] = async (event) => {
     // Automatically add nutrition data if missing
@@ -259,12 +268,26 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
     if (isAuthenticated && user) {
       // Save to Firestore for authenticated users
       try {
-        const mealPlan = {
-          id: `plan-${Date.now()}`,
-          userId: user.id,
-          title: 'My Meal Plan',
-          events: [...events, newEvent]
-        };
+        // Check if user already has a meal plan, if not create one
+        const existingPlans = await firestoreService.getMealPlans(user.id);
+        let mealPlan;
+
+        if (existingPlans.length > 0) {
+          // Update existing plan
+          mealPlan = {
+            ...existingPlans[0],
+            events: [...existingPlans[0].events, newEvent]
+          };
+        } else {
+          // Create new plan
+          mealPlan = {
+            id: `plan-${Date.now()}`,
+            userId: user.id,
+            title: 'My Meal Plan',
+            events: [newEvent]
+          };
+        }
+
         await firestoreService.saveMealPlan(mealPlan);
         setEvents(prev => [...prev, newEvent]);
       } catch (error) {
@@ -281,16 +304,16 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
     if (isAuthenticated && user) {
       // Remove from Firestore for authenticated users
       try {
-        // Note: This is a simplified approach. In a real app, you'd update the specific plan
-        const updatedEvents = events.filter(event => event.id !== id);
-        const mealPlan = {
-          id: `plan-${Date.now()}`,
-          userId: user.id,
-          title: 'My Meal Plan',
-          events: updatedEvents
-        };
-        await firestoreService.saveMealPlan(mealPlan);
-        setEvents(updatedEvents);
+        const existingPlans = await firestoreService.getMealPlans(user.id);
+        if (existingPlans.length > 0) {
+          const updatedEvents = existingPlans[0].events.filter(event => event.id !== id);
+          const mealPlan = {
+            ...existingPlans[0],
+            events: updatedEvents
+          };
+          await firestoreService.saveMealPlan(mealPlan);
+          setEvents(updatedEvents);
+        }
       } catch (error) {
         console.error('Error removing meal from Firestore:', error);
       }
@@ -301,38 +324,115 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
     }
   };
 
-  const moveToTrash: PlanContextType['moveToTrash'] = (id) => {
+  const moveToTrash: PlanContextType['moveToTrash'] = async (id) => {
     const eventToTrash = events.find(event => event.id === id);
     if (eventToTrash) {
-      setEvents(prev => prev.filter(event => event.id !== id));
+      // Check if the event is already in trash to prevent duplication
+      const alreadyInTrash = trashedEvents.find(event => event.id === id);
+      if (alreadyInTrash) {
+        console.warn('Event is already in trash:', id);
+        return;
+      }
+
+      const updatedEvents = events.filter(event => event.id !== id);
+
+      if (isAuthenticated && user) {
+        // Update in Firestore for authenticated users
+        try {
+          const existingPlans = await firestoreService.getMealPlans(user.id);
+          if (existingPlans.length > 0) {
+            const mealPlan = {
+              ...existingPlans[0],
+              events: updatedEvents
+            };
+            await firestoreService.saveMealPlan(mealPlan);
+          }
+        } catch (error) {
+          console.error('Error updating meal plan in Firestore:', error);
+        }
+      }
+
+      setEvents(updatedEvents);
       setTrashedEvents(prev => [...prev, eventToTrash]);
     }
   };
 
-  const restoreFromTrash: PlanContextType['restoreFromTrash'] = (id) => {
+  const restoreFromTrash: PlanContextType['restoreFromTrash'] = async (id) => {
     const eventToRestore = trashedEvents.find(event => event.id === id);
     if (eventToRestore) {
+      const updatedEvents = [...events, eventToRestore];
+
+      if (isAuthenticated && user) {
+        // Update in Firestore for authenticated users
+        try {
+          const existingPlans = await firestoreService.getMealPlans(user.id);
+          if (existingPlans.length > 0) {
+            const mealPlan = {
+              ...existingPlans[0],
+              events: updatedEvents
+            };
+            await firestoreService.saveMealPlan(mealPlan);
+          }
+        } catch (error) {
+          console.error('Error updating meal plan in Firestore:', error);
+        }
+      }
+
       setTrashedEvents(prev => prev.filter(event => event.id !== id));
-      setEvents(prev => [...prev, eventToRestore]);
+      setEvents(updatedEvents);
     }
   };
 
-  const deleteFromTrash: PlanContextType['deleteFromTrash'] = (id) => {
+  const deleteFromTrash: PlanContextType['deleteFromTrash'] = async (id) => {
     setTrashedEvents(prev => prev.filter(event => event.id !== id));
   };
 
-  const clearTrash: PlanContextType['clearTrash'] = () => {
-    setTrashedEvents([]);
+  const clearTrash: PlanContextType['clearTrash'] = async () => {
+    if (isAuthenticated && user) {
+      // Clear trash from Firestore for authenticated users
+      try {
+        // Note: Firestore doesn't store trash separately, so we just clear the local state
+        // The trash is only stored locally in the app state
+        setTrashedEvents([]);
+      } catch (error) {
+        console.error('Error clearing trash from Firestore:', error);
+      }
+    } else if (isGuestMode) {
+      // Clear trash from guest context for guest users
+      // Note: Guest context doesn't store trash separately, so we just clear the local state
+      setTrashedEvents([]);
+    } else {
+      // For any other case, just clear the local state
+      setTrashedEvents([]);
+    }
   };
 
   const updateEvent: PlanContextType['updateEvent'] = (id, updatedEvent) => {
     setEvents(prev => prev.map(event => event.id === id ? updatedEvent : event));
   };
 
-  const moveEvent: PlanContextType['moveEvent'] = (id, newDate) => {
-    setEvents(prev => prev.map(event =>
+  const moveEvent: PlanContextType['moveEvent'] = async (id, newDate) => {
+    const updatedEvents = events.map(event =>
       event.id === id ? { ...event, date: newDate } : event
-    ));
+    );
+
+    if (isAuthenticated && user) {
+      // Update in Firestore for authenticated users
+      try {
+        const existingPlans = await firestoreService.getMealPlans(user.id);
+        if (existingPlans.length > 0) {
+          const mealPlan = {
+            ...existingPlans[0],
+            events: updatedEvents
+          };
+          await firestoreService.saveMealPlan(mealPlan);
+        }
+      } catch (error) {
+        console.error('Error updating meal plan in Firestore:', error);
+      }
+    }
+
+    setEvents(updatedEvents);
   };
 
   const clearAll: PlanContextType['clearAll'] = () => {

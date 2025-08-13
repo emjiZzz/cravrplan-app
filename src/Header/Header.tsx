@@ -84,11 +84,17 @@ const Header: React.FC = () => {
 
         <div className={styles.authLinks}>
           {isAuthenticated ? (
-            <button onClick={handleLogout} className={styles.logoutButton}>
+            <button
+              onClick={handleLogout}
+              className={styles.logoutButton}
+            >
               LOG OUT
             </button>
           ) : (
-            <button onClick={handleLogin} className={styles.loginButton}>
+            <button
+              onClick={handleLogin}
+              className={styles.loginButton}
+            >
               LOG IN
             </button>
           )}

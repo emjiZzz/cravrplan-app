@@ -160,7 +160,7 @@ const AddToPlanModal: React.FC<AddToPlanModalProps> = ({ isOpen, onClose, recipe
               className={styles.recipeImage}
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
-                target.src = 'https://via.placeholder.com/300x200?text=No+Image';
+                target.src = 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop';
               }}
             />
           </div>

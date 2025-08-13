@@ -11,6 +11,9 @@ export interface RecipeSearchParams {
   offset?: number;
   number?: number;
   type?: string;
+  // Additional parameters for onboarding preferences
+  excludeCuisine?: string[];
+  excludeIngredients?: string[];
 }
 
 export interface Recipe {
@@ -205,4 +208,5 @@ export interface FilterOptionsResponse {
   diets: { name: string; value: string }[];
   intolerances: { name: string; value: string }[];
   mealTypes: { name: string; value: string }[];
+  timePreferences: { name: string; value: string }[];
 }

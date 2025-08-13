@@ -98,7 +98,7 @@ const FridgePage: React.FC = () => {
         localStorage.removeItem(getStorageKey('ingredients'));
       }
     }
-  }, [user, getStorageKey, isGuestMode, guestData.fridgeIngredients]);
+  }, [user, getStorageKey, isGuestMode]);
 
   // Save ingredients based on user mode
   useEffect(() => {
@@ -200,7 +200,12 @@ const FridgePage: React.FC = () => {
   const searchRecipes = async () => {
     if (selectedIngredients.length === 0) return;
 
-    setLoading(true);
+    // Only show loading for actual searches, not for filter changes
+    const shouldShowLoading = recipes.length === 0;
+    if (shouldShowLoading) {
+      setLoading(true);
+    }
+
     try {
       const ingredientNames = selectedIngredients.map(ing => ing.name);
       const response = await searchRecipesByIngredients(ingredientNames, maxMissing);
@@ -389,7 +394,7 @@ const FridgePage: React.FC = () => {
                         className={styles.recipeImage}
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          target.src = 'https://via.placeholder.com/300x200?text=No+Image';
+                          target.src = 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop';
                         }}
                       />
                       <div className={styles.recipeOverlay}>

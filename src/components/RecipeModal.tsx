@@ -68,7 +68,7 @@ const RecipeModal: React.FC<RecipeModalProps> = ({
                 className={styles.recipeImage}
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
-                  target.src = 'https://via.placeholder.com/300x200?text=No+Image';
+                  target.src = 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop';
                 }}
               />
             </div>
@@ -76,7 +76,7 @@ const RecipeModal: React.FC<RecipeModalProps> = ({
 
           <div className={styles.recipeInfo}>
             <h3 className={styles.recipeTitle}>{recipe.title}</h3>
-            
+
             <div className={styles.recipeMeta}>
               <div className={styles.mealType}>
                 <span className={styles.mealTypeIcon}>
@@ -84,13 +84,13 @@ const RecipeModal: React.FC<RecipeModalProps> = ({
                 </span>
                 <span>{recipe.mealType}</span>
               </div>
-              
+
               <div className={styles.recipeDate}>
                 📅 {formatDate(recipe.date)}
               </div>
-              
+
               {recipe.difficulty && (
-                <div 
+                <div
                   className={styles.difficultyBadge}
                   style={{ backgroundColor: getDifficultyColor(recipe.difficulty) }}
                 >
@@ -107,14 +107,14 @@ const RecipeModal: React.FC<RecipeModalProps> = ({
                     <span className={styles.detailValue}>{recipe.prepTime} minutes</span>
                   </div>
                 )}
-                
+
                 {recipe.cookTime && (
                   <div className={styles.detailItem}>
                     <span className={styles.detailLabel}>Cook Time:</span>
                     <span className={styles.detailValue}>{recipe.cookTime} minutes</span>
                   </div>
                 )}
-                
+
                 {recipe.servings && (
                   <div className={styles.detailItem}>
                     <span className={styles.detailLabel}>Servings:</span>
