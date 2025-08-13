@@ -1295,7 +1295,7 @@ const PlanPage: React.FC = () => {
                         className={styles.addNotesButton}
                         onClick={() => handleAddNotes(selectedRecipe)}
                       >
-                        📝 Add Notes
+                        📝 {selectedRecipe.notes && selectedRecipe.notes.trim() ? 'Edit Notes' : 'Add Notes'}
                       </button>
                     </div>
                   </div>

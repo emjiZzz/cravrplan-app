@@ -23,9 +23,11 @@
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
+  overflow-x: hidden;
   position: relative;
   animation: modalSlideIn 0.3s ease-out;
   border: 1px solid rgba(84, 106, 4, 0.2);
+  box-sizing: border-box;
 }
 
 @keyframes modalSlideIn {
@@ -33,6 +35,7 @@
     opacity: 0;
     transform: translateY(-30px) scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -77,6 +80,9 @@
 
 .modalBody {
   padding: 30px;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .recipeImageContainer {
@@ -96,6 +102,9 @@
 
 .recipeInfo {
   color: #17371A;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .recipeTitle {
@@ -215,36 +224,114 @@
   color: #546A04;
 }
 
+.notesSection {
+  margin-top: 20px;
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid rgba(84, 106, 4, 0.1);
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.notesSection h4 {
+  margin: 0 0 16px 0;
+  color: #17371A;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.notesContent {
+  color: #17371A;
+  line-height: 1.6 !important;
+  font-size: 0.95rem;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  white-space: normal;
+  hyphens: auto;
+  max-height: 200px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 8px;
+  width: 100%;
+  box-sizing: border-box;
+  display: block;
+  min-width: 0;
+}
+
+/* Handle very long unbroken strings */
+.notesContent>* {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  max-width: 100%;
+}
+
+.notesContent::-webkit-scrollbar {
+  width: 6px;
+}
+
+.notesContent::-webkit-scrollbar-track {
+  background: rgba(84, 106, 4, 0.05);
+  border-radius: 3px;
+}
+
+.notesContent::-webkit-scrollbar-thumb {
+  background: rgba(84, 106, 4, 0.3);
+  border-radius: 3px;
+}
+
+.notesContent::-webkit-scrollbar-thumb:hover {
+  background: rgba(84, 106, 4, 0.5);
+}
+
 @media (max-width: 768px) {
   .modalContent {
     margin: 20px;
     max-height: calc(100vh - 40px);
   }
-  
+
   .modalHeader {
     padding: 16px 20px;
   }
-  
+
   .modalBody {
     padding: 20px;
   }
-  
+
   .recipeTitle {
     font-size: 1.5rem;
   }
-  
+
   .recipeMeta {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .nutritionGrid {
     grid-template-columns: 1fr;
   }
-  
+
   .detailItem {
     flex-direction: column;
     align-items: flex-start;
     gap: 4px;
+  }
+
+  .notesSection {
+    margin-top: 16px;
+    padding: 16px;
+  }
+
+  .notesContent {
+    max-height: 150px;
+    font-size: 0.9rem;
+    line-height: 1.6 !important;
+    word-break: break-word;
+    white-space: normal;
+    overflow-x: hidden;
+    min-width: 0;
   }
 }

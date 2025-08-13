@@ -147,6 +147,15 @@ const RecipeModal: React.FC<RecipeModalProps> = ({
                 </div>
               )}
             </div>
+
+            {recipe.notes && (
+              <div className={styles.notesSection}>
+                <h4>Notes</h4>
+                <div className={styles.notesContent}>
+                  {recipe.notes}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
