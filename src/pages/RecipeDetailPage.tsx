@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { getRecipeDetails, recipeApiService } from '../services/apiService';
+import { getRecipeDetails } from '../services/apiService';
 import type { Recipe } from '../types/recipeTypes';
 import styles from './RecipeDetailPage.module.css';
 import AddToPlanModal from '../components/AddToPlanModal';
@@ -33,8 +33,6 @@ const RecipeDetailPage: React.FC = () => {
         if (id) {
           const data = await getRecipeDetails(Number(id));
           setRecipe(data);
-
-          // Mock data loaded for recipe details
         } else {
           setError('No recipe ID provided.');
         }
@@ -47,28 +45,12 @@ const RecipeDetailPage: React.FC = () => {
     fetchRecipe();
   }, [id]);
 
-  // Show minimal loading for mock data, full loading for API calls
-  if (loading) {
-    const isUsingMockData = recipeApiService['useMockData'];
-
-    if (isUsingMockData) {
-      // For mock data, show a very brief loading state or skip entirely
-      return (
-        <div className={styles.loading}>
-          <div className={styles.loadingSpinner}></div>
-          <p>Loading recipe...</p>
-        </div>
-      );
-    } else {
-      // For real API calls, show full loading state
-      return (
-        <div className={styles.loading}>
-          <div className={styles.loadingSpinner}></div>
-          <p>Loading recipe from API...</p>
-        </div>
-      );
-    }
-  }
+  if (loading) return (
+    <div className={styles.loading}>
+      <div className={styles.loadingSpinner}></div>
+      <p>Loading recipe...</p>
+    </div>
+  );
 
   if (error) return (
     <div className={styles.error}>

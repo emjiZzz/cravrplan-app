@@ -2,8 +2,8 @@
 // src/pages/RecipesPage.tsx
 
 import React, { useState, useEffect, useCallback } from 'react';
-import type { Recipe, RecipeSearchParams, FilterOptionsResponse, ExtendedIngredient } from '../types/recipeTypes';
-import { searchRecipes, getFilterOptions, getRecipeDetails, recipeApiService } from '../services/apiService';
+import type { Recipe, RecipeSearchParams, FilterOptionsResponse } from '../types/recipeTypes';
+import { searchRecipes, getFilterOptions, getRecipeDetails } from '../services/apiService';
 import { useFavorites } from '../context/FavoritesContext';
 import { useAuth } from '../context/AuthContext';
 import { firestoreService } from '../services/firestoreService';
@@ -11,13 +11,14 @@ import { mapPreferencesToSearchParams, type UserPreferences } from '../utils/pre
 import { sanitizeRecipeForFirestore } from '../utils/recipeSanitizer';
 import styles from './RecipesPage.module.css';
 
+// Import enhanced loading components
 import RecipeCard from '../components/RecipeCard';
 import {
   ProgressiveLoading,
   Toast
 } from '../components/LoadingStates';
 
-// Favorites storage interface
+// Enhanced favorites storage interface
 interface FavoriteRecipe {
   id: number;
   title: string;
@@ -48,6 +49,7 @@ interface FavoriteRecipe {
   occasions: string[];
   extendedIngredients: import('../types/recipeTypes').ExtendedIngredient[];
   summary?: string;
+  // Store timestamp for potential cleanup
   addedAt: number;
 }
 
@@ -75,9 +77,10 @@ const RecipesPage: React.FC = () => {
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState<'success' | 'error' | 'warning' | 'info'>('info');
   const [userPreferences, setUserPreferences] = useState<UserPreferences | null>(null);
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
-  // Search suggestions
+
+
+  // Enhanced search suggestions with more comprehensive data
   const popularSearches = [
     'chicken', 'pasta', 'salad', 'soup', 'dessert', 'breakfast', 'lunch', 'dinner',
     'vegetarian', 'vegan', 'quick', 'healthy', 'italian', 'mexican', 'asian', 'indian',
@@ -90,6 +93,10 @@ const RecipesPage: React.FC = () => {
     'kale', 'broccoli', 'cauliflower', 'carrot', 'onion', 'garlic', 'ginger',
     'lemon', 'lime', 'orange', 'apple', 'banana', 'berry', 'strawberry', 'blueberry'
   ];
+
+
+
+
 
   // Load filter options on component mount
   useEffect(() => {
@@ -108,14 +115,15 @@ const RecipesPage: React.FC = () => {
     loadFilterOptions();
   }, []);
 
-  // Load user preferences and restore filters from localStorage
+  // Load user preferences when user is authenticated
   useEffect(() => {
-    const loadUserPreferencesAndFilters = async () => {
+    const loadUserPreferences = async () => {
       if (isAuthenticated && user) {
         try {
           const preferences = await firestoreService.getUserPreferences(user.id);
           if (preferences) {
             setUserPreferences(preferences);
+            console.log('Loaded user preferences:', preferences);
 
             // Set initial filter values based on preferences
             if (preferences.cuisinePreferences.length > 0) {
@@ -139,7 +147,9 @@ const RecipesPage: React.FC = () => {
           console.error('Error loading user preferences:', error);
         }
       } else {
+        // Clear user preferences when not authenticated (guest mode)
         setUserPreferences(null);
+        console.log('Cleared user preferences for guest mode');
 
         // Reset filter values to defaults for guest mode
         setSelectedMenu('All Menus');
@@ -153,6 +163,7 @@ const RecipesPage: React.FC = () => {
           try {
             const preferences = JSON.parse(pendingPreferences);
             setUserPreferences(preferences);
+            console.log('Loaded pending preferences:', preferences);
 
             // Set initial filter values based on pending preferences
             if (preferences.cuisinePreferences.length > 0) {
@@ -176,81 +187,50 @@ const RecipesPage: React.FC = () => {
           }
         }
       }
-
-      // Restore filters from localStorage
-      try {
-        const savedFilters = recipeApiService.getLastUsedFilters();
-        if (savedFilters.query) {
-          setSearchQuery(savedFilters.query);
-          setDebouncedSearchQuery(savedFilters.query);
-        }
-        if (savedFilters.cuisine) {
-          setSelectedMenu(savedFilters.cuisine);
-        }
-        if (savedFilters.diet) {
-          setSelectedDiet(savedFilters.diet);
-        }
-        if (savedFilters.type) {
-          setSelectedMealType(savedFilters.type);
-        }
-        if (savedFilters.maxReadyTime) {
-          if (savedFilters.maxReadyTime <= 30) {
-            setSelectedTimePreference('15-30');
-          } else if (savedFilters.maxReadyTime <= 60) {
-            setSelectedTimePreference('30-60');
-          } else {
-            setSelectedTimePreference('60+');
-          }
-        }
-      } catch (error) {
-        console.warn('Failed to restore filters from localStorage:', error);
-      }
     };
 
-    loadUserPreferencesAndFilters();
+    loadUserPreferences();
   }, [isAuthenticated, user]);
 
   // Debounce search query to avoid too many API calls
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
-    }, 300);
+    }, 300); // 300ms delay
 
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Load favorite recipes with enhanced error handling
+  // Function to load favorite recipes with fallback to stored data
   const loadFavoriteRecipes = async (favoriteIds: number[]): Promise<Recipe[]> => {
     const loadedRecipes: Recipe[] = [];
 
     for (const favoriteId of favoriteIds) {
       try {
-        // First check if we have the recipe in stored data
+        // First try to get from stored favorite recipes
         const storedRecipe = favoriteRecipes.find(recipe => recipe.id === favoriteId);
         if (storedRecipe) {
-          // Convert stored recipe back to Recipe format
+          // Convert FavoriteRecipe to Recipe format
           const recipe: Recipe = {
             id: storedRecipe.id,
             title: storedRecipe.title,
             image: storedRecipe.image,
             imageType: storedRecipe.imageType,
-            servings: storedRecipe.servings,
             readyInMinutes: storedRecipe.readyInMinutes,
+            servings: storedRecipe.servings,
+            nutrition: storedRecipe.nutrition,
+            cuisines: storedRecipe.cuisines,
+            dishTypes: storedRecipe.dishTypes,
+            diets: storedRecipe.diets,
             aggregateLikes: storedRecipe.aggregateLikes,
             healthScore: storedRecipe.healthScore,
             spoonacularScore: storedRecipe.spoonacularScore,
             pricePerServing: storedRecipe.pricePerServing,
-            analyzedInstructions: [],
             cheap: storedRecipe.cheap,
-            cuisines: storedRecipe.cuisines,
             dairyFree: storedRecipe.dairyFree,
-            diets: storedRecipe.diets,
-            gaps: '',
             glutenFree: storedRecipe.glutenFree,
-            instructions: '',
             ketogenic: storedRecipe.ketogenic,
             lowFodmap: storedRecipe.lowFodmap,
-            occasions: storedRecipe.occasions,
             sustainable: storedRecipe.sustainable,
             vegan: storedRecipe.vegan,
             vegetarian: storedRecipe.vegetarian,
@@ -258,14 +238,17 @@ const RecipesPage: React.FC = () => {
             veryPopular: storedRecipe.veryPopular,
             whole30: storedRecipe.whole30,
             weightWatcherSmartPoints: storedRecipe.weightWatcherSmartPoints,
-            dishTypes: storedRecipe.dishTypes,
-            extendedIngredients: storedRecipe.extendedIngredients as ExtendedIngredient[],
+            occasions: storedRecipe.occasions,
+            extendedIngredients: storedRecipe.extendedIngredients,
+            // Add other required fields with defaults
+            analyzedInstructions: [],
+            instructions: '',
             summary: storedRecipe.summary || '',
-            license: '',
-            sourceName: '',
             sourceUrl: '',
-            spoonacularSourceUrl: '',
-            creditsText: ''
+            sourceName: '',
+            creditsText: '',
+            license: '',
+            gaps: ''
           };
           loadedRecipes.push(recipe);
           continue;
@@ -276,6 +259,7 @@ const RecipesPage: React.FC = () => {
         loadedRecipes.push(recipeDetail);
       } catch (err) {
         console.error(`❌ Error loading favorite recipe ${favoriteId}:`, err);
+        // Continue loading other recipes even if one fails
       }
     }
 
@@ -287,12 +271,11 @@ const RecipesPage: React.FC = () => {
     const searchRecipesWithFilters = async () => {
       setError(null);
 
-      const shouldShowLoading = !isInitialLoad || !recipeApiService['useMockData'];
-      if (shouldShowLoading) {
-        setIsSearching(true);
-      }
+      // Show searching indicator for all data fetching operations
+      setIsSearching(true);
 
       try {
+        // Filter favorites if showFavoritesOnly is true
         if (showFavoritesOnly) {
           if (favorites.length === 0) {
             setRecipes([]);
@@ -308,26 +291,27 @@ const RecipesPage: React.FC = () => {
           }
         } else {
           const searchParams: RecipeSearchParams = {
-            number: 20,
+            number: 20, // 20 recipes per page
             offset: currentPage * 20
           };
 
+          // Add search query if provided
           if (debouncedSearchQuery.trim()) {
             searchParams.query = debouncedSearchQuery.trim();
           }
 
-          // Apply user preferences first
+          // Apply user preferences first (these take priority)
           if (userPreferences) {
             const preferenceParams = mapPreferencesToSearchParams(userPreferences);
             Object.assign(searchParams, preferenceParams);
           }
 
-          // Add manual diet filter if selected
+          // Add manual diet filter if selected (overrides preferences)
           if (selectedDiet !== 'No Diet Restrictions') {
             searchParams.diet = selectedDiet;
           }
 
-          // Add manual cuisine filter if selected
+          // Add manual cuisine filter if selected (overrides preferences)
           if (selectedMenu !== 'All Menus') {
             searchParams.cuisine = selectedMenu;
           }
@@ -368,12 +352,13 @@ const RecipesPage: React.FC = () => {
         setShowToast(true);
       } finally {
         setIsSearching(false);
-        setIsInitialLoad(false);
       }
     };
 
     searchRecipesWithFilters();
   }, [debouncedSearchQuery, selectedMenu, selectedDiet, selectedMealType, selectedTimePreference, showFavoritesOnly, currentPage, favorites, userPreferences]);
+
+
 
   const handleNextPage = () => {
     setCurrentPage(prev => prev + 1);
@@ -384,69 +369,40 @@ const RecipesPage: React.FC = () => {
   };
 
   const handleMenuChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newValue = e.target.value;
-    setSelectedMenu(newValue);
+    setSelectedMenu(e.target.value);
     setCurrentPage(0);
-
-    if (isAuthenticated && user && userPreferences) {
-      const updatedPreferences: UserPreferences = {
-        ...userPreferences,
-        cuisinePreferences: newValue !== 'All Menus' ? [newValue] : []
-      };
-      saveUserPreferences(updatedPreferences);
-    }
+    // Don't trigger loading state for filter changes - let the useEffect handle it
   };
 
   const handleDietChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newValue = e.target.value;
-    setSelectedDiet(newValue);
+    setSelectedDiet(e.target.value);
     setCurrentPage(0);
-
-    if (isAuthenticated && user && userPreferences) {
-      const updatedPreferences: UserPreferences = {
-        ...userPreferences,
-        dietaryRestrictions: newValue !== 'No Diet Restrictions' ? [newValue] : []
-      };
-      saveUserPreferences(updatedPreferences);
-    }
+    // Don't trigger loading state for filter changes - let the useEffect handle it
   };
 
   const handleMealTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedMealType(e.target.value);
     setCurrentPage(0);
+    // Don't trigger loading state for filter changes - let the useEffect handle it
   };
 
   const handleTimePreferenceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newValue = e.target.value;
-    setSelectedTimePreference(newValue);
+    setSelectedTimePreference(e.target.value);
     setCurrentPage(0);
-
-    if (isAuthenticated && user && userPreferences) {
-      const updatedPreferences: UserPreferences = {
-        ...userPreferences,
-        timePreferences: newValue !== 'All Time Ranges' ? [newValue] : []
-      };
-      saveUserPreferences(updatedPreferences);
-    }
+    // Don't trigger loading state for filter changes - let the useEffect handle it
   };
 
-  // Function to save user preferences
-  const saveUserPreferences = async (preferences: UserPreferences) => {
-    if (isAuthenticated && user) {
-      try {
-        await firestoreService.saveUserPreferences(user.id, preferences);
-        setUserPreferences(preferences);
-      } catch (error) {
-        console.error('Error saving user preferences:', error);
-      }
-    }
-  };
+
 
   const handleSuggestionClick = (suggestion: string) => {
     setSearchQuery(suggestion);
     setShowSuggestions(false);
     setCurrentPage(0);
   };
+
+
+
+
 
   const handleToggleFavorite = async (recipeId: number, isCurrentlyFavorite: boolean) => {
     try {
@@ -455,8 +411,10 @@ const RecipesPage: React.FC = () => {
         setToastMessage('Removed from favorites');
         setToastType('info');
       } else {
+        // Find the recipe in current recipes and add to favorites
         const recipeToAdd = recipes.find(recipe => recipe.id === recipeId);
         if (recipeToAdd) {
+          // Sanitize the recipe before creating the favorite recipe object
           const sanitizedRecipe = sanitizeRecipeForFirestore(recipeToAdd);
           const favoriteRecipe: FavoriteRecipe = {
             ...sanitizedRecipe,
@@ -483,28 +441,32 @@ const RecipesPage: React.FC = () => {
     setCurrentPage(0);
   };
 
-  // Search suggestions with better matching
+  // Enhanced search suggestions with better matching
   const getSearchSuggestions = useCallback((query: string) => {
     if (!query.trim()) return [];
 
     const queryLower = query.toLowerCase();
 
+    // First, find exact matches
     const exactMatches = popularSearches.filter(search =>
       search.toLowerCase() === queryLower
     );
 
+    // Then, find starts with matches
     const startsWithMatches = popularSearches.filter(search =>
       search.toLowerCase().startsWith(queryLower) && search.toLowerCase() !== queryLower
     );
 
+    // Finally, find contains matches
     const containsMatches = popularSearches.filter(search =>
       search.toLowerCase().includes(queryLower) &&
       !search.toLowerCase().startsWith(queryLower) &&
       search.toLowerCase() !== queryLower
     );
 
+    // Combine and limit results
     const suggestions = [...exactMatches, ...startsWithMatches, ...containsMatches];
-    return suggestions.slice(0, 8);
+    return suggestions.slice(0, 8); // Show up to 8 suggestions
   }, []);
 
   const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -530,6 +492,7 @@ const RecipesPage: React.FC = () => {
   };
 
   const handleSearchInputBlur = () => {
+    // Delay hiding suggestions to allow for clicks
     setTimeout(() => {
       setShowSuggestions(false);
     }, 200);
@@ -538,6 +501,7 @@ const RecipesPage: React.FC = () => {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       setShowSuggestions(false);
+      // The search will be triggered by the debounced search query
     } else if (e.key === 'Escape') {
       setShowSuggestions(false);
     }
@@ -546,6 +510,7 @@ const RecipesPage: React.FC = () => {
   const handleRetry = () => {
     setError(null);
     setCurrentPage(0);
+    // This will trigger the useEffect to retry the search
   };
 
   const renderRecipeCard = (recipe: Recipe) => (
@@ -555,7 +520,10 @@ const RecipesPage: React.FC = () => {
         ...recipe,
         nutrition: recipe.nutrition
           ? {
-            nutrients: recipe.nutrition.nutrients || []
+            calories: (recipe.nutrition as { calories?: number }).calories ?? 0,
+            protein: (recipe.nutrition as { protein?: number }).protein ?? 0,
+            carbs: (recipe.nutrition as { carbs?: number }).carbs ?? 0,
+            fat: (recipe.nutrition as { fat?: number }).fat ?? 0,
           }
           : undefined,
       }}
@@ -566,6 +534,7 @@ const RecipesPage: React.FC = () => {
 
   return (
     <>
+      {/* Toast Notification */}
       {showToast && (
         <Toast
           message={toastMessage}
@@ -577,6 +546,7 @@ const RecipesPage: React.FC = () => {
 
       <div className={styles.recipesPageContainer}>
         <div className={styles.contentWrapper}>
+          {/* Enhanced Search Bar */}
           <div className={styles.searchBar}>
             <div className={styles.searchInputContainer}>
               <input
@@ -627,6 +597,9 @@ const RecipesPage: React.FC = () => {
             </div>
           </div>
 
+
+
+          {/* Filter Dropdowns */}
           <div className={styles.filters}>
             <div className={styles.basicFilters}>
               <select
@@ -655,18 +628,6 @@ const RecipesPage: React.FC = () => {
               </select>
               <select
                 className={styles.filterDropdown}
-                value={selectedTimePreference}
-                onChange={handleTimePreferenceChange}
-              >
-                <option value="All Time Ranges">All Time Ranges</option>
-                {filterOptions?.timePreferences.map((timePref) => (
-                  <option key={timePref.value} value={timePref.value}>
-                    {timePref.name}
-                  </option>
-                ))}
-              </select>
-              <select
-                className={styles.filterDropdown}
                 value={selectedMealType}
                 onChange={handleMealTypeChange}
               >
@@ -674,6 +635,19 @@ const RecipesPage: React.FC = () => {
                 {filterOptions?.mealTypes.map((mealType) => (
                   <option key={mealType.value} value={mealType.value}>
                     {mealType.name}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                className={styles.filterDropdown}
+                value={selectedTimePreference}
+                onChange={handleTimePreferenceChange}
+              >
+                <option value="All Time Ranges">All Time Ranges</option>
+                {filterOptions?.timePreferences.map((timePref) => (
+                  <option key={timePref.value} value={timePref.value}>
+                    {timePref.name}
                   </option>
                 ))}
               </select>
@@ -687,7 +661,9 @@ const RecipesPage: React.FC = () => {
             </div>
           </div>
 
+          {/* Enhanced Progressive Loading */}
           {showFavoritesOnly && recipes.length === 0 ? (
+            // Custom empty state for favorites
             <div className={styles.favoritesEmptyState}>
               <div className={styles.favoritesEmptyIcon}>❤️</div>
               <h3 className={styles.favoritesEmptyTitle}>No Favorite Recipes Yet</h3>
@@ -715,6 +691,7 @@ const RecipesPage: React.FC = () => {
             />
           )}
 
+          {/* Pagination */}
           {!error && recipes.length > 0 && (
             <div className={styles.pagination}>
               <button

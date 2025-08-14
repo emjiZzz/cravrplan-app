@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { searchRecipes, recipeApiService } from '../services/apiService';
+import { searchRecipes } from '../services/apiService';
 import styles from './RecipeSearch.module.css';
 
 import type { Recipe } from '../types/recipeTypes';
@@ -48,28 +48,19 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ onSearchResults, onLoadingC
     if (debouncedSearchTerm || cuisine || diet || maxReadyTime) {
       performSearch();
     }
-  }, [debouncedSearchTerm, cuisine, diet, maxReadyTime]);
+  }, [debouncedSearchTerm, cuisine, diet, maxReadyTime, onLoadingChange, onSearchResults]);
 
   const performSearch = async () => {
-    // Only show loading for non-mock data searches
-    const isUsingMockData = recipeApiService['useMockData'];
-    if (!isUsingMockData) {
-      onLoadingChange(true);
-    }
-
+    onLoadingChange(true);
     try {
       const query = debouncedSearchTerm || 'pasta'; // Default search
-      const params = {
-        query,
+      const recipes = await searchRecipes(query, {
         cuisine: cuisine || undefined,
         diet: diet || undefined,
-        maxReadyTime: maxReadyTime ? parseInt(maxReadyTime, 10) : undefined,
+        maxReadyTime: maxReadyTime || undefined,
         number: 20
-      };
-      const response = await searchRecipes(params);
-      onSearchResults(response.results || []);
-
-      // Mock data loaded for search results
+      });
+      onSearchResults(recipes);
     } catch (error) {
       console.error('Search error:', error);
       onSearchResults([]);
