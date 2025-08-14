@@ -48,7 +48,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: any) => {
       if (firebaseUser) {
-        // User is signed in
         try {
           // Get user data from Firestore
           const userData = await firestoreService.getUser(firebaseUser.uid);
@@ -73,7 +72,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 const preferences = JSON.parse(pendingPreferences);
                 await firestoreService.saveUserPreferences(firebaseUser.uid, preferences);
                 localStorage.removeItem('pending_preferences');
-                console.log('Pending preferences saved successfully');
               } catch (error) {
                 console.error('Error saving pending preferences:', error);
               }
@@ -99,14 +97,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
-    // Only show loading for actual login attempts, not for auth state changes
     const isInitialLoad = !user && isLoading;
     if (!isInitialLoad) {
       setIsLoading(true);
     }
 
     try {
-      // Regular login
       await signInWithEmailAndPassword(auth, email, password);
       return { success: true };
     } catch (error: any) {
@@ -133,32 +129,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signup = async (fullName: string, email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     setIsLoading(true);
-    console.log('AuthContext: Starting signup process...');
+    
     try {
-      console.log('AuthContext: Creating user in Firebase Auth...');
       // Create user in Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const firebaseUser = userCredential.user;
-      console.log('AuthContext: Firebase user created:', firebaseUser.uid);
 
-      console.log('AuthContext: Creating user in Firestore...');
       // Create user in Firestore
       await firestoreService.createUser({
         id: firebaseUser.uid,
         email: firebaseUser.email!,
         fullName: fullName
       });
-      console.log('AuthContext: User created in Firestore');
 
       // Sign out the user immediately after creating account
-      // This prevents automatic login after signup
       await signOut(auth);
-      console.log('AuthContext: User signed out after account creation');
 
-      console.log('AuthContext: Signup successful');
       return { success: true };
     } catch (error: any) {
-      console.error('AuthContext: Signup error:', error);
+      console.error('Signup error:', error);
       let errorMessage = 'Signup failed. Please try again.';
 
       if (error.code === 'auth/email-already-in-use') {
@@ -178,14 +167,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = async () => {
     try {
       await signOut(auth);
-      // User state will be cleared by the auth state listener
     } catch (error) {
       console.error('Logout error:', error);
     }
   };
 
   const continueAsGuest = () => {
-    // Clear any existing user data
     setUser(null);
     localStorage.removeItem('cravrplan_user');
     setIsLoading(false);

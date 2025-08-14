@@ -119,7 +119,7 @@ class FirestoreService {
     const q = query(collection(db, 'mealPlans'), where('userId', '==', userId));
     const querySnapshot = await getDocs(q);
 
-    return querySnapshot.docs.map(doc => ({
+    return querySnapshot.docs.map((doc: any) => ({
       id: doc.id,
       ...doc.data()
     })) as MealPlan[];
@@ -143,7 +143,7 @@ class FirestoreService {
     const q = query(collection(db, 'favoriteRecipes'), where('userId', '==', userId));
     const querySnapshot = await getDocs(q);
 
-    return querySnapshot.docs.map(doc => ({
+    return querySnapshot.docs.map((doc: any) => ({
       id: doc.id,
       ...doc.data()
     })) as FavoriteRecipe[];
@@ -177,7 +177,7 @@ class FirestoreService {
     const q = query(collection(db, 'fridgeIngredients'), where('userId', '==', userId));
     const querySnapshot = await getDocs(q);
 
-    return querySnapshot.docs.map(doc => ({
+    return querySnapshot.docs.map((doc: any) => ({
       id: doc.id,
       ...doc.data()
     })) as FridgeIngredient[];

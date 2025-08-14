@@ -1,22 +1,27 @@
+// Utility functions for cleaning up recipe data before saving to the database
+// This helps prevent errors when storing recipes in Firestore
+
 import type { Recipe } from '../types/recipeTypes';
 
 /**
- * Sanitizes a recipe object for Firestore storage by removing undefined values
- * and ensuring all fields are valid for Firestore
+ * Cleans up a recipe object so it can be safely stored in Firestore
+ * Removes undefined values and ensures all fields have proper defaults
  */
 export function sanitizeRecipeForFirestore(recipe: Recipe): any {
   const sanitized: any = {};
 
-  // Helper function to recursively remove undefined values
+  // Helper function to remove undefined values from nested objects and arrays
   const removeUndefined = (obj: any): any => {
     if (obj === null || obj === undefined) {
       return null;
     }
 
+    // Handle arrays - clean each item and remove null values
     if (Array.isArray(obj)) {
       return obj.map(removeUndefined).filter(item => item !== null);
     }
 
+    // Handle objects - clean each property
     if (typeof obj === 'object') {
       const cleaned: any = {};
       for (const [key, value] of Object.entries(obj)) {
@@ -28,13 +33,14 @@ export function sanitizeRecipeForFirestore(recipe: Recipe): any {
       return Object.keys(cleaned).length > 0 ? cleaned : null;
     }
 
+    // Return primitive values as-is
     return obj;
   };
 
-  // Copy all properties and remove undefined values
+  // Clean the recipe by removing all undefined values
   const cleanedRecipe = removeUndefined(recipe);
 
-  // Ensure required fields are present with fallbacks
+  // Return a clean recipe object with fallback values for missing fields
   return {
     id: cleanedRecipe.id || 0,
     title: cleanedRecipe.title || '',
@@ -64,11 +70,13 @@ export function sanitizeRecipeForFirestore(recipe: Recipe): any {
     occasions: cleanedRecipe.occasions || [],
     extendedIngredients: cleanedRecipe.extendedIngredients || [],
     summary: cleanedRecipe.summary || '',
+
     // Only include nutrition if it's properly structured
     ...(cleanedRecipe.nutrition && typeof cleanedRecipe.nutrition === 'object' ? {
       nutrition: cleanedRecipe.nutrition
     } : {}),
-    // Include other optional fields if they exist
+
+    // Include other optional fields only if they exist
     ...(cleanedRecipe.analyzedInstructions ? { analyzedInstructions: cleanedRecipe.analyzedInstructions } : {}),
     ...(cleanedRecipe.instructions ? { instructions: cleanedRecipe.instructions } : {}),
     ...(cleanedRecipe.sourceName ? { sourceName: cleanedRecipe.sourceName } : {}),
@@ -81,11 +89,12 @@ export function sanitizeRecipeForFirestore(recipe: Recipe): any {
 }
 
 /**
- * Validates if a recipe object is safe for Firestore storage
+ * Checks if a recipe object is safe to store in Firestore
+ * Returns true if the recipe is valid, false if there are problems
  */
 export function validateRecipeForFirestore(recipe: any): boolean {
   try {
-    // Check for undefined values in critical fields
+    // Check that critical fields are not undefined
     const criticalFields = ['id', 'title', 'image'];
     for (const field of criticalFields) {
       if (recipe[field] === undefined) {
@@ -94,14 +103,14 @@ export function validateRecipeForFirestore(recipe: any): boolean {
       }
     }
 
-    // Check nutrition field specifically
+    // Check the nutrition field specifically since it's complex
     if (recipe.nutrition !== undefined && recipe.nutrition !== null) {
       if (typeof recipe.nutrition !== 'object') {
         console.warn('Recipe validation failed: nutrition is not an object');
         return false;
       }
 
-      // Check if nutrition has undefined values
+      // Check if nutrition contains any undefined values
       const hasUndefinedInNutrition = JSON.stringify(recipe.nutrition).includes('undefined');
       if (hasUndefinedInNutrition) {
         console.warn('Recipe validation failed: nutrition contains undefined values');

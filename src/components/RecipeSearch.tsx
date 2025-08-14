@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { searchRecipes } from '../services/apiService';
+import { searchRecipes, recipeApiService } from '../services/apiService';
 import styles from './RecipeSearch.module.css';
 
 import type { Recipe } from '../types/recipeTypes';
@@ -51,7 +51,12 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ onSearchResults, onLoadingC
   }, [debouncedSearchTerm, cuisine, diet, maxReadyTime]);
 
   const performSearch = async () => {
-    onLoadingChange(true);
+    // Only show loading for non-mock data searches
+    const isUsingMockData = recipeApiService['useMockData'];
+    if (!isUsingMockData) {
+      onLoadingChange(true);
+    }
+
     try {
       const query = debouncedSearchTerm || 'pasta'; // Default search
       const params = {
@@ -63,6 +68,8 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ onSearchResults, onLoadingC
       };
       const response = await searchRecipes(params);
       onSearchResults(response.results || []);
+
+      // Mock data loaded for search results
     } catch (error) {
       console.error('Search error:', error);
       onSearchResults([]);

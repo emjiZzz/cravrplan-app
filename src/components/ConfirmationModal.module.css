@@ -41,9 +41,17 @@
   }
 }
 
+.modalHeader {
+  padding: 20px 24px 0 24px;
+}
 
-
-
+.modalTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+  text-align: center;
+}
 
 .modalBody {
   padding: 20px 24px;
@@ -127,8 +135,6 @@
     width: 95%;
     margin: 20px;
   }
-
-
 
   .modalBody {
     padding: 16px 20px;

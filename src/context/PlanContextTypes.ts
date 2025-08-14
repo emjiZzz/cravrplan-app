@@ -20,14 +20,7 @@ export interface PlanEvent {
   notes?: string;
 }
 
-export interface MealPlanTemplate {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
-  events: Omit<PlanEvent, 'id' | 'date'>[];
-  category: 'weekly' | 'occasion' | 'diet';
-}
+
 
 export interface NutritionalStats {
   calories: number;
@@ -42,7 +35,6 @@ export interface NutritionalStats {
 export interface PlanContextType {
   events: PlanEvent[];
   trashedEvents: PlanEvent[];
-  templates: MealPlanTemplate[];
   addToPlan: (event: Omit<PlanEvent, 'id'>) => void;
   removeFromPlan: (id: string) => void;
   moveToTrash: (id: string) => void;
@@ -53,7 +45,6 @@ export interface PlanContextType {
   moveEvent: (id: string, newDate: string) => void;
   clearAll: () => void;
   getEventsForDate: (date: string) => PlanEvent[];
-  applyTemplate: (template: MealPlanTemplate, startDate: string) => void;
   getNutritionalStats: (date: string) => NutritionalStats;
   getQuickSuggestions: (mealType: PlanEvent['mealType'], maxTime?: number) => Promise<PlanEvent[]>;
   ensureNutritionData: () => void;

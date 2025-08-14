@@ -16,7 +16,6 @@
   border: 3px solid rgba(84, 106, 4, 0.1);
   border-top: 3px solid #546A04;
   animation: spin 0.8s linear infinite;
-  /* Faster animation */
 }
 
 .spinner.small {
@@ -45,7 +44,7 @@
   background: rgba(84, 106, 4, 0.05);
 }
 
-/* New: Dots Spinner */
+/* Dots Spinner */
 .dotsSpinner {
   display: flex;
   gap: 8px;
@@ -96,7 +95,7 @@
   animation-delay: 0.2s;
 }
 
-/* New: Pulse Spinner */
+/* Pulse Spinner */
 .pulseSpinner {
   border-radius: 50%;
   background: #546A04;
@@ -118,7 +117,7 @@
   height: 48px;
 }
 
-/* New: Bars Spinner */
+/* Bars Spinner */
 .barsSpinner {
   display: flex;
   gap: 4px;
@@ -337,122 +336,6 @@
   }
 }
 
-/* Empty State */
-.emptyContainer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 100px 20px;
-  text-align: center;
-  margin: 40px 0;
-  position: relative;
-}
-
-.searchEmptyContainer {
-  border-color: rgba(84, 106, 4, 0.2);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(84, 106, 4, 0.02));
-}
-
-.favoritesEmptyContainer {
-  border-color: rgba(220, 53, 69, 0.2);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(220, 53, 69, 0.02));
-}
-
-.planEmptyContainer {
-  border-color: rgba(13, 202, 240, 0.2);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(13, 202, 240, 0.02));
-}
-
-.emptyIcon {
-  font-size: 72px;
-  margin-bottom: 24px;
-  animation: heartBeat 2s ease-in-out infinite;
-  filter: drop-shadow(0 4px 12px rgba(84, 106, 4, 0.3));
-  opacity: 0.8;
-}
-
-.emptyTitle {
-  font-size: 24px;
-  font-weight: 700;
-  color: #F8F7E5;
-  margin: 0 0 20px 0;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.emptyMessage {
-  font-size: 16px;
-  color: #F8F7E5;
-  margin: 0 0 40px 0;
-  line-height: 1.6;
-  max-width: 450px;
-  opacity: 0.9;
-  font-weight: 500;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-}
-
-.actionButton {
-  padding: 16px 32px;
-  border: none;
-  border-radius: 16px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: linear-gradient(135deg, #546A04 0%, #17371A 50%, #546A04 100%);
-  color: #F8F7E5;
-  box-shadow: 0 6px 20px rgba(84, 106, 4, 0.3);
-  position: relative;
-  overflow: hidden;
-}
-
-.actionButton::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s ease;
-}
-
-.actionButton:hover::before {
-  left: 100%;
-}
-
-.actionButton:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(84, 106, 4, 0.4);
-  background: linear-gradient(135deg, #17371A 0%, #546A04 50%, #17371A 100%);
-}
-
-.actionButton:active {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 15px rgba(84, 106, 4, 0.3);
-}
-
-@keyframes heartBeat {
-
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 0.8;
-  }
-
-  50% {
-    transform: scale(1.15);
-    opacity: 1;
-  }
-}
-
 /* Skeleton Loading */
 .skeletonCard {
   background: rgba(255, 255, 255, 0.95);
@@ -461,7 +344,6 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   border: 1px solid rgba(84, 106, 4, 0.1);
   animation: skeletonPulse 1.2s ease-in-out infinite;
-  /* Faster animation */
   transition: all 0.3s ease;
 }
 
@@ -488,7 +370,6 @@
   background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
   background-size: 200% 100%;
   animation: skeletonShimmer 1.2s infinite;
-  /* Faster animation */
 }
 
 .skeletonContent {
@@ -549,24 +430,6 @@
   }
 }
 
-/* Search Loading */
-.searchLoadingContainer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 20px;
-  text-align: center;
-}
-
-.searchQuery {
-  margin-top: 12px;
-  font-size: 14px;
-  color: #546A04;
-  font-weight: 500;
-  font-style: italic;
-}
-
 /* Progressive Loading */
 .progressiveContainer {
   display: grid;
@@ -580,20 +443,6 @@
   justify-content: center;
   align-items: center;
   padding: 40px 20px;
-}
-
-/* Inline Loading */
-.inlineLoading {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-}
-
-.inlineText {
-  font-size: 14px;
-  color: #546A04;
-  font-weight: 500;
 }
 
 /* Toast Notifications */
@@ -689,42 +538,8 @@
   padding: 40px 20px;
 }
 
-/* Shimmer Effect */
-.shimmer {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-  border-radius: 4px;
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-
-  100% {
-    background-position: 200% 0;
-  }
-}
-
 /* Responsive Design */
 @media (max-width: 768px) {
-  .emptyContainer {
-    padding: 40px 20px;
-  }
-
-  .emptyIcon {
-    font-size: 48px;
-  }
-
-  .emptyTitle {
-    font-size: 20px;
-  }
-
-  .emptyMessage {
-    font-size: 14px;
-  }
-
   .errorTitle {
     font-size: 18px;
   }
@@ -751,22 +566,6 @@
 }
 
 @media (max-width: 480px) {
-  .emptyContainer {
-    padding: 30px 16px;
-  }
-
-  .emptyIcon {
-    font-size: 40px;
-  }
-
-  .emptyTitle {
-    font-size: 18px;
-  }
-
-  .emptyMessage {
-    font-size: 13px;
-  }
-
   .errorContainer {
     padding: 30px 16px;
   }
@@ -795,21 +594,12 @@
     grid-template-columns: 1fr;
     gap: 12px;
   }
-
-  .inlineLoading {
-    padding: 6px 8px;
-  }
-
-  .inlineText {
-    font-size: 12px;
-  }
 }
 
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
 
   .errorContainer,
-  .emptyContainer,
   .skeletonCard,
   .skeletonPlanCard,
   .skeletonListCard {
@@ -817,13 +607,11 @@
     border-color: rgba(84, 106, 4, 0.3);
   }
 
-  .errorTitle,
-  .emptyTitle {
+  .errorTitle {
     color: #e0e0e0;
   }
 
-  .errorMessage,
-  .emptyMessage {
+  .errorMessage {
     color: #b0b0b0;
   }
 
@@ -831,10 +619,6 @@
   .skeletonTitle,
   .skeletonMetaItem,
   .skeletonButton {
-    background: linear-gradient(90deg, #404040 25%, #505050 50%, #404040 75%);
-  }
-
-  .shimmer {
     background: linear-gradient(90deg, #404040 25%, #505050 50%, #404040 75%);
   }
 }

@@ -18,7 +18,7 @@ interface AddMealModalProps {
   isGuestMode?: boolean;
 }
 
-const AddMealModal: React.FC<AddMealModalProps> = ({ isOpen, onClose, onAddCustomRecipe, onBrowseRecipes, selectedDate, isGuestMode = false }) => {
+const AddMealModal: React.FC<AddMealModalProps> = ({ isOpen, onClose, onAddCustomRecipe, onBrowseRecipes, selectedDate }) => {
   const [recipeTitle, setRecipeTitle] = useState('');
   const [mealType, setMealType] = useState('breakfast');
   const [isCustomRecipe, setIsCustomRecipe] = useState(false);
@@ -156,7 +156,7 @@ const GridCalendar: React.FC<{
   onEventDrop: (eventId: string, newDate: string) => void;
   view: 'month' | 'week';
   isGuestMode?: boolean;
-}> = ({ events, onEventClick, onImageClick, onDayClick, onEventDrop, view, isGuestMode = false }) => {
+}> = ({ events, onEventClick, onImageClick, onDayClick, onEventDrop, view }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [draggedEvent, setDraggedEvent] = useState<PlanEvent | null>(null);
   const [dragOverDate, setDragOverDate] = useState<string | null>(null);
@@ -586,8 +586,9 @@ const PlanPage: React.FC = () => {
     addToPlan,
     moveEvent,
     ensureNutritionData,
-    isFeatureRestricted,
-    updateEvent
+
+    updateEvent,
+    clearAll
   } = usePlan();
   const { isGuestMode } = useGuest();
 
@@ -622,6 +623,11 @@ const PlanPage: React.FC = () => {
   });
   const [dragOver, setDragOver] = useState(false);
   const [customImage, setCustomImage] = useState<string | null>(null);
+
+  // Toast state variables - commented out for now
+  // const [showToast, setShowToast] = useState(false);
+  // const [toastMessage, setToastMessage] = useState('');
+  // const [toastType, setToastType] = useState<'success' | 'error' | 'warning' | 'info'>('info');
 
   const today = new Date();
   const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
@@ -710,10 +716,8 @@ const PlanPage: React.FC = () => {
   };
 
   const handleClearAll = async () => {
-    // Move all events to trash one by one
-    for (const event of events) {
-      await moveToTrash(event.id);
-    }
+    // Use the clearAll function from context to properly clear all events
+    await clearAll();
     setShowClearConfirm(false);
   };
 

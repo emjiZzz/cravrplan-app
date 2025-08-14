@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import { useLocation } from 'react-router-dom';
+
 
 interface GuestData {
   mealPlans: any[];
@@ -44,18 +44,13 @@ export const GuestProvider: React.FC<GuestProviderProps> = ({ children }) => {
   });
 
   const [isGuestMode, setIsGuestMode] = useState(false);
-  const location = useLocation();
+
 
   // Check if user is in guest mode
   useEffect(() => {
     const checkGuestMode = () => {
       const user = localStorage.getItem('cravrplan_user');
       const newGuestMode = !user;
-      console.log('Guest mode check:', {
-        user: !!user,
-        isGuestMode: newGuestMode,
-        localStorageUser: user
-      });
       setIsGuestMode(newGuestMode);
     };
 
@@ -125,7 +120,7 @@ export const GuestProvider: React.FC<GuestProviderProps> = ({ children }) => {
   const saveGuestMealPlan = (plan: any) => {
     setGuestData(prev => ({
       ...prev,
-      mealPlans: [...prev.mealPlans, { ...plan, id: `guest-${Date.now()}` }]
+      mealPlans: [...prev.mealPlans, plan]
     }));
   };
 

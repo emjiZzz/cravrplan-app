@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styles from './Header.module.css';
-import CravrPlanBowlLogo from '../assets/salad.png';
+import CravrPlanBowlLogo from '../assets/logo.png';
 import { useAuth } from '../context/AuthContext';
 import { useGuest } from '../context/GuestContext';
 
@@ -48,7 +48,6 @@ const Header: React.FC = () => {
             alt="CravrPlan Logo"
             className={styles.logoImage}
           />
-          <h1>CravrPlan</h1>
         </div>
 
         <nav className={`${styles.navigation} ${isPlanPage ? styles.planPage : ''}`}>

@@ -1,3 +1,4 @@
+// Login page component - handles user authentication
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -7,16 +8,19 @@ import { useAuth } from '../../context/AuthContext';
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const { login, continueAsGuest, isLoading } = useAuth();
+  const { login, isLoading } = useAuth();
+
+  // State for form inputs and error handling
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
+  // Handle form submission when user tries to log in
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
-    setError('');
+    setError(''); // Clear any previous errors
 
-    // Enhanced validation
+    // Basic validation - make sure user entered something
     if (!email.trim()) {
       setError('Please enter your email address');
       return;
@@ -27,26 +31,25 @@ const LoginPage: React.FC = () => {
       return;
     }
 
-    // Basic email format validation
+    // Check if email format looks valid
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email.trim())) {
       setError('Please enter a valid email address');
       return;
     }
 
+    // Try to log in
     const result = await login(email.trim(), password);
     if (result.success) {
-      navigate('/recipes');
+      navigate('/recipes'); // Go to recipes page on success
     } else {
       setError(result.error || 'Login failed. Please try again.');
     }
   };
 
-
-
   return (
     <div className={styles.loginPageContainer}>
-      {/* Logo section */}
+      {/* Logo section at the top */}
       <div className={styles.logoSection}>
         <img src={CravrPlanLogo} alt="CravrPlan Logo" className={styles.logo} />
       </div>
@@ -55,16 +58,16 @@ const LoginPage: React.FC = () => {
         <h2 className={styles.title}>Log in</h2>
         <p className={styles.subtitle}>Welcome back to CravrPlan</p>
 
-        {/* Error message */}
+        {/* Show error message if there is one */}
         {error && (
           <div className={styles.errorMessage}>
             {error}
           </div>
         )}
 
-        {/* The login form itself */}
+        {/* The login form */}
         <form className={styles.loginForm} onSubmit={handleLogin}>
-          {/* Email Input Field */}
+          {/* Email input field */}
           <div className={styles.inputGroup}>
             <label htmlFor="email" className={styles.label}>Email</label>
             <input
@@ -79,7 +82,7 @@ const LoginPage: React.FC = () => {
             />
           </div>
 
-          {/* Password Input Field */}
+          {/* Password input field */}
           <div className={styles.inputGroup}>
             <label htmlFor="password" className={styles.label}>Password</label>
             <input
@@ -94,7 +97,7 @@ const LoginPage: React.FC = () => {
             />
           </div>
 
-          {/* Login Button */}
+          {/* Login button */}
           <button
             type="submit"
             className={styles.loginButton}
@@ -104,7 +107,7 @@ const LoginPage: React.FC = () => {
           </button>
         </form>
 
-        {/* Section for "Don't have an account?" */}
+        {/* Link to sign up page */}
         <p className={styles.signupText}>
           Don't have an account? <button onClick={() => navigate('/onboarding')} className={styles.signupLink}>SIGN UP</button>
         </p>

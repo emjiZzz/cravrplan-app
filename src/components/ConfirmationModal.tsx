@@ -5,7 +5,7 @@ interface ConfirmationModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  title: string;
+  title?: string;
   message: string;
   confirmText?: string;
   cancelText?: string;
@@ -16,6 +16,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   isOpen,
   onClose,
   onConfirm,
+  title,
   message,
   confirmText = 'Confirm',
   cancelText = 'Cancel',
@@ -48,6 +49,12 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
       tabIndex={-1}
     >
       <div className={`${styles.modalContent} ${styles[type]}`}>
+        {title && (
+          <div className={styles.modalHeader}>
+            <h3 className={styles.modalTitle}>{title}</h3>
+          </div>
+        )}
+
         <div className={styles.modalBody}>
           <p className={styles.modalMessage}>{message}</p>
         </div>
@@ -60,7 +67,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
             {cancelText}
           </button>
           <button
-            className={`${styles.modalButton} ${styles.confirmButton} ${styles[type]}`}
+            className={`${styles.modalButton} ${styles.confirmButton}`}
             onClick={handleConfirm}
           >
             {confirmText}

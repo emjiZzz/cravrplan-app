@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './FridgePage.module.css';
-import { searchRecipesByIngredients } from '../services/apiService';
+import { recipeApiService } from '../services/apiService';
 import type { Recipe } from '../types/recipeTypes';
 import { useAuth } from '../context/AuthContext';
 import { useGuest } from '../context/GuestContext';
@@ -19,7 +19,7 @@ interface Ingredient {
 
 const FridgePage: React.FC = () => {
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth();
+  const { user } = useAuth();
   const { isGuestMode, guestData, addGuestFridgeIngredient, removeGuestFridgeIngredient } = useGuest();
   const [customIngredient, setCustomIngredient] = useState('');
 
@@ -37,10 +37,8 @@ const FridgePage: React.FC = () => {
       // Use localStorage for authenticated users
       try {
         const savedIngredients = localStorage.getItem(getStorageKey('ingredients'));
-        console.log('Loading ingredients from localStorage:', savedIngredients);
         if (savedIngredients) {
           const parsed = JSON.parse(savedIngredients);
-          console.log('Parsed ingredients:', parsed);
           return parsed;
         }
       } catch (error) {
@@ -107,10 +105,18 @@ const FridgePage: React.FC = () => {
       return;
     } else {
       // Save to localStorage for authenticated users
-      console.log('Saving ingredients to localStorage:', selectedIngredients);
       localStorage.setItem(getStorageKey('ingredients'), JSON.stringify(selectedIngredients));
     }
   }, [selectedIngredients, getStorageKey, isGuestMode]);
+
+  // Auto-apply filters when maxMissing changes (if recipes are already loaded)
+  useEffect(() => {
+    // Only apply filters if we have recipes loaded
+    if (recipes.length > 0) {
+      // The filteredRecipes will automatically update due to the searchFilters function
+      // This effect ensures the UI re-renders when maxMissing changes
+    }
+  }, [maxMissing, recipes.length]);
 
   const ingredientCategories = {
     'Vegetables': ['tomato', 'onion', 'garlic', 'bell pepper', 'carrot', 'potato', 'spinach', 'lettuce', 'cucumber', 'mushroom'],
@@ -183,7 +189,7 @@ const FridgePage: React.FC = () => {
   };
 
   const clearAllIngredients = () => {
-    console.log('Clearing all ingredients');
+    // Clearing all ingredients
     setSelectedIngredients([]);
 
     if (isGuestMode) {
@@ -201,15 +207,26 @@ const FridgePage: React.FC = () => {
     if (selectedIngredients.length === 0) return;
 
     // Only show loading for actual searches, not for filter changes
-    const shouldShowLoading = recipes.length === 0;
+    // For mock data, minimize loading time
+    const isUsingMockData = recipeApiService['useMockData'];
+    const shouldShowLoading = recipes.length === 0 && !isUsingMockData;
+
     if (shouldShowLoading) {
       setLoading(true);
     }
 
     try {
       const ingredientNames = selectedIngredients.map(ing => ing.name);
-      const response = await searchRecipesByIngredients(ingredientNames, maxMissing);
-      setRecipes(response as FridgeRecipe[]);
+      const response = await recipeApiService.searchRecipes({
+        query: ingredientNames.join(','),
+        number: 20
+      });
+      setRecipes(response.results as FridgeRecipe[]);
+
+      // If using mock data, show a subtle indicator
+      if (isUsingMockData) {
+        // Mock data loaded for recipes
+      }
     } catch (error) {
       console.error('Error searching recipes:', error);
     } finally {
@@ -217,9 +234,29 @@ const FridgePage: React.FC = () => {
     }
   };
 
-  const filteredRecipes = recipes.filter(recipe =>
-    !searchQuery || recipe.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  /**
+   * Filters recipes based on search query and max missing ingredients
+   * @param recipes - Array of recipes to filter
+   * @returns Filtered array of recipes that match the criteria
+   */
+  const searchFilters = (recipes: FridgeRecipe[]): FridgeRecipe[] => {
+    return recipes.filter(recipe => {
+      // Filter by search query if provided
+      if (searchQuery && !recipe.title.toLowerCase().includes(searchQuery.toLowerCase())) {
+        return false;
+      }
+
+      // Filter by max missing ingredients - only show recipes with missing ingredients <= maxMissing
+      if (recipe.missedIngredientCount > maxMissing) {
+        return false;
+      }
+
+      return true;
+    });
+  };
+
+  // Update filteredRecipes to use searchFilters
+  const filteredRecipes = searchFilters(recipes);
 
   return (
     <div className={styles.fridgePageContainer}>

@@ -21,14 +21,6 @@
   width: auto;
 }
 
-.logo h1 {
-  font-size: 30px;
-  color: #17371A;
-  font-weight: bold;
-  margin-top: 10px;
-  /* Adjusted the top margin to move the text down */
-}
-
 /* Navigation container */
 .navigation {
   display: flex;
@@ -200,10 +192,6 @@
     padding: 10px 15px;
     flex-wrap: wrap;
     gap: 10px;
-  }
-
-  .logo h1 {
-    font-size: 24px;
   }
 
   .logoImage {

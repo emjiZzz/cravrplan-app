@@ -1,3 +1,5 @@
+// Service for handling recipe API calls and mock data
+
 import type {
   Recipe,
   RecipeSearchParams,
@@ -10,16 +12,16 @@ import type {
 const API_BASE_URL = 'https://api.spoonacular.com/recipes';
 const API_KEY = import.meta.env.VITE_SPOONACULAR_API_KEY || 'your-api-key-here';
 
-// Configuration options
 const CONFIG = {
-  LOG_API_ERRORS: import.meta.env.DEV, // Only log errors in development
-  USE_MOCK_DATA_FALLBACK: true, // Always fallback to mock data on API errors
-  RATE_LIMIT_DELAY: 1000, // 1 second between requests
-  MAX_RETRIES: 3, // Maximum retry attempts for failed requests
-  REQUEST_TIMEOUT: 10000, // 10 seconds timeout
+  LOG_API_ERRORS: import.meta.env.DEV,
+  USE_MOCK_DATA_FALLBACK: true,
+  RATE_LIMIT_DELAY: 1000,
+  MAX_RETRIES: 3,
+  REQUEST_TIMEOUT: 10000,
+  MOCK_DATA_DELAY: 0,
 };
 
-// Enhanced error types
+// Custom error types
 export interface ApiError {
   code: string;
   message: string;
@@ -41,83 +43,161 @@ export class RecipeApiError extends Error {
   }
 }
 
-// Mock data for development when API key is not available
+// Mock recipe data for when the API is unavailable
 const mockRecipes: Recipe[] = [
   {
     id: 1,
-    title: "Fried Egg Breakfast Tostadas",
+    title: "Crispy Chicken Tacos with Avocado Salsa",
     image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop",
     imageType: "jpg",
-    servings: 2,
-    readyInMinutes: 20,
-    aggregateLikes: 45,
-    healthScore: 85,
-    spoonacularScore: 92,
-    pricePerServing: 250,
+    servings: 4,
+    readyInMinutes: 25,
+    aggregateLikes: 89,
+    healthScore: 78,
+    spoonacularScore: 94,
+    pricePerServing: 320,
     analyzedInstructions: [],
     cheap: false,
     cuisines: ["Mexican"],
     dairyFree: false,
-    diets: ["Vegetarian"],
+    diets: ["High-Protein"],
     gaps: "GAPS",
     glutenFree: false,
-    instructions: "1. Toast the tortillas until crispy\n2. Fry eggs to desired doneness\n3. Top with avocado, tomato, and feta\n4. Drizzle with hot sauce",
+    instructions: "1. Season chicken with spices and pan-fry until crispy\n2. Warm corn tortillas\n3. Make fresh avocado salsa with lime and cilantro\n4. Assemble tacos with chicken, salsa, and crumbled queso fresco",
     ketogenic: false,
     lowFodmap: false,
-    occasions: ["Breakfast"],
+    occasions: ["Dinner", "Lunch"],
     sustainable: true,
     vegan: false,
-    vegetarian: true,
+    vegetarian: false,
     veryHealthy: true,
-    veryPopular: false,
+    veryPopular: true,
     whole30: false,
     weightWatcherSmartPoints: 8,
-    dishTypes: ["Breakfast"],
+    dishTypes: ["Main Course"],
     extendedIngredients: [
       {
         id: 1,
-        aisle: "Bakery",
-        amount: 2,
-        unit: "pieces",
-        name: "corn tortillas",
-        original: "2 corn tortillas",
-        originalName: "corn tortillas",
-        meta: [],
-        image: "tortilla.jpg"
+        aisle: "Meat",
+        amount: 1.5,
+        unit: "pounds",
+        name: "chicken breast",
+        original: "1.5 pounds chicken breast, sliced",
+        originalName: "chicken breast",
+        meta: ["sliced"],
+        image: "chicken-breast.jpg"
       },
       {
         id: 2,
         aisle: "Produce",
         amount: 2,
-        unit: "large",
-        name: "eggs",
-        original: "2 large eggs",
-        originalName: "eggs",
+        unit: "avocados",
+        name: "avocado",
+        original: "2 ripe avocados",
+        originalName: "avocado",
+        meta: ["ripe"],
+        image: "avocado.jpg"
+      },
+      {
+        id: 3,
+        aisle: "Bakery",
+        amount: 8,
+        unit: "corn tortillas",
+        name: "corn tortillas",
+        original: "8 corn tortillas",
+        originalName: "corn tortillas",
         meta: [],
-        image: "egg.jpg"
+        image: "corn-tortillas.jpg"
       }
     ],
-    summary: "A delicious breakfast featuring crispy tostadas topped with fried eggs, fresh avocado, and tangy feta cheese."
+    summary: "Crispy pan-fried chicken tacos topped with fresh avocado salsa and crumbled queso fresco. A quick and flavorful Mexican-inspired meal perfect for weeknight dinners."
   },
   {
     id: 2,
-    title: "Pan-Fried Beef Meatballs",
-    image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop",
+    title: "Mediterranean Quinoa Bowl with Roasted Vegetables",
+    image: "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=400&h=300&fit=crop",
+    imageType: "jpg",
+    servings: 3,
+    readyInMinutes: 35,
+    aggregateLikes: 76,
+    healthScore: 92,
+    spoonacularScore: 88,
+    pricePerServing: 280,
+    analyzedInstructions: [],
+    cheap: true,
+    cuisines: ["Mediterranean"],
+    dairyFree: true,
+    diets: ["Vegetarian", "Vegan"],
+    gaps: "GAPS",
+    glutenFree: true,
+    instructions: "1. Cook quinoa according to package instructions\n2. Roast chickpeas, bell peppers, and zucchini with olive oil and herbs\n3. Prepare lemon-tahini dressing\n4. Assemble bowls with quinoa, vegetables, and dressing",
+    ketogenic: false,
+    lowFodmap: false,
+    occasions: ["Lunch", "Dinner"],
+    sustainable: true,
+    vegan: true,
+    vegetarian: true,
+    veryHealthy: true,
+    veryPopular: false,
+    whole30: false,
+    weightWatcherSmartPoints: 6,
+    dishTypes: ["Main Course"],
+    extendedIngredients: [
+      {
+        id: 4,
+        aisle: "Pasta and Rice",
+        amount: 1,
+        unit: "cup",
+        name: "quinoa",
+        original: "1 cup quinoa",
+        originalName: "quinoa",
+        meta: [],
+        image: "quinoa.jpg"
+      },
+      {
+        id: 5,
+        aisle: "Canned and Jarred",
+        amount: 1,
+        unit: "can",
+        name: "chickpeas",
+        original: "1 can chickpeas, drained",
+        originalName: "chickpeas",
+        meta: ["drained"],
+        image: "chickpeas.jpg"
+      },
+      {
+        id: 6,
+        aisle: "Produce",
+        amount: 2,
+        unit: "bell peppers",
+        name: "bell peppers",
+        original: "2 bell peppers, sliced",
+        originalName: "bell peppers",
+        meta: ["sliced"],
+        image: "bell-peppers.jpg"
+      }
+    ],
+    summary: "A nutritious Mediterranean-inspired quinoa bowl featuring roasted chickpeas, colorful bell peppers, and zucchini, topped with a creamy lemon-tahini dressing."
+  },
+  {
+    id: 3,
+    title: "Thai Green Curry with Coconut Rice",
+    image: "https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=400&h=300&fit=crop",
     imageType: "jpg",
     servings: 4,
-    readyInMinutes: 35,
-    aggregateLikes: 67,
-    healthScore: 78,
-    spoonacularScore: 88,
-    pricePerServing: 320,
+    readyInMinutes: 40,
+    aggregateLikes: 94,
+    healthScore: 71,
+    spoonacularScore: 91,
+    pricePerServing: 350,
     analyzedInstructions: [],
     cheap: false,
-    cuisines: ["Italian"],
-    dairyFree: false,
+    cuisines: ["Thai"],
+    dairyFree: true,
     diets: ["High-Protein"],
     gaps: "GAPS",
     glutenFree: false,
-    instructions: "1. Mix ground beef with breadcrumbs and seasonings\n2. Form into meatballs\n3. Pan-fry until golden brown\n4. Serve with marinara sauce",
+    instructions: "1. Cook coconut rice with pandan leaves\n2. Stir-fry chicken with green curry paste\n3. Add coconut milk and vegetables\n4. Simmer until sauce thickens and serve over rice",
     ketogenic: false,
     lowFodmap: false,
     occasions: ["Dinner"],
@@ -131,652 +211,134 @@ const mockRecipes: Recipe[] = [
     dishTypes: ["Main Course"],
     extendedIngredients: [
       {
-        id: 3,
+        id: 7,
         aisle: "Meat",
         amount: 1,
         unit: "pound",
-        name: "ground beef",
-        original: "1 pound ground beef",
-        originalName: "ground beef",
-        meta: [],
-        image: "beef.jpg"
-      }
-    ],
-    summary: "Juicy beef meatballs pan-fried to perfection and served with a rich spinach marinara sauce over creamy polenta."
-  },
-  {
-    id: 3,
-    title: "Thai Red Curry Fried Rice",
-    image: "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=400&h=300&fit=crop",
-    imageType: "jpg",
-    servings: 3,
-    readyInMinutes: 25,
-    aggregateLikes: 89,
-    healthScore: 72,
-    spoonacularScore: 85,
-    pricePerServing: 280,
-    analyzedInstructions: [],
-    cheap: true,
-    cuisines: ["Thai"],
-    dairyFree: true,
-    diets: ["High-Protein"],
-    gaps: "GAPS",
-    glutenFree: false,
-    instructions: "1. Cook rice and let it cool\n2. Stir-fry vegetables and pork\n3. Add curry paste and rice\n4. Season and serve",
-    ketogenic: false,
-    lowFodmap: false,
-    occasions: ["Dinner"],
-    sustainable: false,
-    vegan: false,
-    vegetarian: false,
-    veryHealthy: false,
-    veryPopular: true,
-    whole30: false,
-    weightWatcherSmartPoints: 10,
-    dishTypes: ["Main Course"],
-    extendedIngredients: [
-      {
-        id: 4,
-        aisle: "Produce",
-        amount: 2,
-        unit: "cups",
-        name: "cooked rice",
-        original: "2 cups cooked rice",
-        originalName: "cooked rice",
-        meta: [],
-        image: "rice.jpg"
-      }
-    ],
-    summary: "Aromatic Thai red curry fried rice with ground pork, fresh carrots, and snap peas for a quick and flavorful meal."
-  },
-  {
-    id: 4,
-    title: "Miso-Hoisin Rice Noodles",
-    image: "https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=400&h=300&fit=crop",
-    imageType: "jpg",
-    servings: 2,
-    readyInMinutes: 30,
-    aggregateLikes: 56,
-    healthScore: 81,
-    spoonacularScore: 79,
-    pricePerServing: 310,
-    analyzedInstructions: [],
-    cheap: false,
-    cuisines: ["Asian"],
-    dairyFree: true,
-    diets: ["High-Protein"],
-    gaps: "GAPS",
-    glutenFree: false,
-    instructions: "1. Cook rice noodles\n2. Stir-fry chicken and vegetables\n3. Add miso and hoisin sauce\n4. Combine and serve",
-    ketogenic: false,
-    lowFodmap: false,
-    occasions: ["Dinner"],
-    sustainable: false,
-    vegan: false,
-    vegetarian: false,
-    veryHealthy: true,
-    veryPopular: false,
-    whole30: false,
-    weightWatcherSmartPoints: 9,
-    dishTypes: ["Main Course"],
-    extendedIngredients: [
-      {
-        id: 5,
-        aisle: "Produce",
-        amount: 8,
-        unit: "ounces",
-        name: "rice noodles",
-        original: "8 ounces rice noodles",
-        originalName: "rice noodles",
-        meta: [],
-        image: "noodles.jpg"
-      }
-    ],
-    summary: "Savory rice noodles tossed with tender chicken, crisp bok choy, and colorful bell peppers in a rich miso-hoisin sauce."
-  },
-  {
-    id: 5,
-    title: "Pasta Salad",
-    image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop",
-    imageType: "jpg",
-    servings: 6,
-    readyInMinutes: 15,
-    aggregateLikes: 34,
-    healthScore: 88,
-    spoonacularScore: 76,
-    pricePerServing: 180,
-    analyzedInstructions: [],
-    cheap: true,
-    cuisines: ["American"],
-    dairyFree: true,
-    diets: ["Vegetarian"],
-    gaps: "GAPS",
-    glutenFree: false,
-    instructions: "1. Cook pasta and cool\n2. Mix with vegetables\n3. Add dressing\n4. Chill and serve",
-    ketogenic: false,
-    lowFodmap: false,
-    occasions: ["Lunch"],
-    sustainable: true,
-    vegan: true,
-    vegetarian: true,
-    veryHealthy: true,
-    veryPopular: false,
-    whole30: false,
-    weightWatcherSmartPoints: 6,
-    dishTypes: ["Side Dish"],
-    extendedIngredients: [
-      {
-        id: 6,
-        aisle: "Pasta and Rice",
-        amount: 1,
-        unit: "pound",
-        name: "pasta",
-        original: "1 pound pasta",
-        originalName: "pasta",
-        meta: [],
-        image: "pasta.jpg"
-      }
-    ],
-    summary: "Fresh and colorful pasta salad loaded with edamame, cucumber, carrots, and a zesty peanut-lime dressing."
-  },
-  {
-    id: 6,
-    title: "Savory Cottage Cheese",
-    image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop",
-    imageType: "jpg",
-    servings: 1,
-    readyInMinutes: 5,
-    aggregateLikes: 23,
-    healthScore: 92,
-    spoonacularScore: 68,
-    pricePerServing: 120,
-    analyzedInstructions: [],
-    cheap: true,
-    cuisines: ["American"],
-    dairyFree: false,
-    diets: ["High-Protein"],
-    gaps: "GAPS",
-    glutenFree: true,
-    instructions: "1. Mix cottage cheese with vegetables\n2. Add seasonings\n3. Top with seeds\n4. Serve immediately",
-    ketogenic: false,
-    lowFodmap: false,
-    occasions: ["Breakfast", "Snack"],
-    sustainable: true,
-    vegan: false,
-    vegetarian: true,
-    veryHealthy: true,
-    veryPopular: false,
-    whole30: false,
-    weightWatcherSmartPoints: 3,
-    dishTypes: ["Breakfast"],
-    extendedIngredients: [
-      {
-        id: 7,
-        aisle: "Dairy",
-        amount: 1,
-        unit: "cup",
-        name: "cottage cheese",
-        original: "1 cup cottage cheese",
-        originalName: "cottage cheese",
-        meta: [],
-        image: "cottage-cheese.jpg"
-      }
-    ],
-    summary: "Protein-rich cottage cheese topped with fresh cucumber, juicy tomatoes, and nutty sesame seeds for a healthy snack."
-  },
-  {
-    id: 7,
-    title: "Cottage Cheese with Peaches",
-    image: "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=400&h=300&fit=crop",
-    imageType: "jpg",
-    servings: 1,
-    readyInMinutes: 3,
-    aggregateLikes: 41,
-    healthScore: 89,
-    spoonacularScore: 71,
-    pricePerServing: 140,
-    analyzedInstructions: [],
-    cheap: true,
-    cuisines: ["American"],
-    dairyFree: false,
-    diets: ["High-Protein"],
-    gaps: "GAPS",
-    glutenFree: true,
-    instructions: "1. Top cottage cheese with peaches\n2. Add blueberries\n3. Drizzle with maple syrup\n4. Serve",
-    ketogenic: false,
-    lowFodmap: false,
-    occasions: ["Breakfast", "Snack"],
-    sustainable: true,
-    vegan: false,
-    vegetarian: true,
-    veryHealthy: true,
-    veryPopular: false,
-    whole30: false,
-    weightWatcherSmartPoints: 4,
-    dishTypes: ["Breakfast"],
-    extendedIngredients: [
+        name: "chicken thigh",
+        original: "1 pound chicken thighs, cubed",
+        originalName: "chicken thigh",
+        meta: ["cubed"],
+        image: "chicken-thigh.jpg"
+      },
       {
         id: 8,
-        aisle: "Produce",
-        amount: 1,
-        unit: "peach",
-        name: "peach",
-        original: "1 peach",
-        originalName: "peach",
+        aisle: "Ethnic Foods",
+        amount: 2,
+        unit: "tablespoons",
+        name: "green curry paste",
+        original: "2 tablespoons green curry paste",
+        originalName: "green curry paste",
         meta: [],
-        image: "peach.jpg"
-      }
-    ],
-    summary: "Sweet and creamy cottage cheese topped with fresh peaches, plump blueberries, and a drizzle of maple syrup."
-  },
-  {
-    id: 8,
-    title: "English Muffin Pizzas",
-    image: "https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=400&h=300&fit=crop",
-    imageType: "jpg",
-    servings: 2,
-    readyInMinutes: 12,
-    aggregateLikes: 67,
-    healthScore: 65,
-    spoonacularScore: 82,
-    pricePerServing: 220,
-    analyzedInstructions: [],
-    cheap: true,
-    cuisines: ["American"],
-    dairyFree: false,
-    diets: ["Vegetarian"],
-    gaps: "GAPS",
-    glutenFree: false,
-    instructions: "1. Toast English muffins\n2. Spread with pesto\n3. Add cheese and tomatoes\n4. Broil until melted",
-    ketogenic: false,
-    lowFodmap: false,
-    occasions: ["Lunch", "Snack"],
-    sustainable: false,
-    vegan: false,
-    vegetarian: true,
-    veryHealthy: false,
-    veryPopular: true,
-    whole30: false,
-    weightWatcherSmartPoints: 8,
-    dishTypes: ["Main Course"],
-    extendedIngredients: [
+        image: "green-curry-paste.jpg"
+      },
       {
         id: 9,
-        aisle: "Bakery",
-        amount: 2,
-        unit: "English muffins",
-        name: "English muffins",
-        original: "2 English muffins",
-        originalName: "English muffins",
-        meta: [],
-        image: "english-muffin.jpg"
-      }
-    ],
-    summary: "Quick and delicious mini pizzas made on English muffins with basil pesto, creamy goat cheese, and fresh tomatoes."
-  },
-  {
-    id: 9,
-    title: "Chicken Salad",
-    image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop",
-    imageType: "jpg",
-    servings: 4,
-    readyInMinutes: 20,
-    aggregateLikes: 78,
-    healthScore: 83,
-    spoonacularScore: 87,
-    pricePerServing: 290,
-    analyzedInstructions: [],
-    cheap: false,
-    cuisines: ["American"],
-    dairyFree: false,
-    diets: ["High-Protein"],
-    gaps: "GAPS",
-    glutenFree: true,
-    instructions: "1. Cook and shred chicken\n2. Mix with vegetables\n3. Add dressing\n4. Chill and serve",
-    ketogenic: false,
-    lowFodmap: false,
-    occasions: ["Lunch"],
-    sustainable: false,
-    vegan: false,
-    vegetarian: false,
-    veryHealthy: true,
-    veryPopular: true,
-    whole30: false,
-    weightWatcherSmartPoints: 7,
-    dishTypes: ["Main Course"],
-    extendedIngredients: [
-      {
-        id: 10,
-        aisle: "Meat",
-        amount: 2,
-        unit: "chicken breasts",
-        name: "chicken breasts",
-        original: "2 chicken breasts",
-        originalName: "chicken breasts",
-        meta: [],
-        image: "chicken.jpg"
-      }
-    ],
-    summary: "Fresh and flavorful chicken salad with crisp cucumbers, sweet peaches, aromatic mint, creamy goat cheese, and crunchy almonds."
-  },
-  {
-    id: 10,
-    title: "Spicy Seared Lamb Chops",
-    image: "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=400&h=300&fit=crop",
-    imageType: "jpg",
-    servings: 2,
-    readyInMinutes: 25,
-    aggregateLikes: 95,
-    healthScore: 71,
-    spoonacularScore: 91,
-    pricePerServing: 450,
-    analyzedInstructions: [],
-    cheap: false,
-    cuisines: ["Mediterranean"],
-    dairyFree: false,
-    diets: ["High-Protein"],
-    gaps: "GAPS",
-    glutenFree: true,
-    instructions: "1. Season lamb chops\n2. Sear until medium-rare\n3. Serve with side salad\n4. Drizzle with yogurt sauce",
-    ketogenic: false,
-    lowFodmap: false,
-    occasions: ["Dinner"],
-    sustainable: false,
-    vegan: false,
-    vegetarian: false,
-    veryHealthy: false,
-    veryPopular: true,
-    whole30: false,
-    weightWatcherSmartPoints: 15,
-    dishTypes: ["Main Course"],
-    extendedIngredients: [
-      {
-        id: 11,
-        aisle: "Meat",
-        amount: 4,
-        unit: "lamb chops",
-        name: "lamb chops",
-        original: "4 lamb chops",
-        originalName: "lamb chops",
-        meta: [],
-        image: "lamb.jpg"
-      }
-    ],
-    summary: "Perfectly seared lamb chops with a spicy kick, served alongside a refreshing salad of cucumbers, peaches, almonds, and creamy yogurt."
-  },
-  {
-    id: 11,
-    title: "Grilled Salmon with Lemon Herb Butter",
-    image: "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=400&h=300&fit=crop",
-    imageType: "jpg",
-    servings: 2,
-    readyInMinutes: 30,
-    aggregateLikes: 88,
-    healthScore: 89,
-    spoonacularScore: 94,
-    pricePerServing: 380,
-    analyzedInstructions: [],
-    cheap: false,
-    cuisines: ["Mediterranean"],
-    dairyFree: false,
-    diets: ["High-Protein"],
-    gaps: "GAPS",
-    glutenFree: true,
-    instructions: "1. Season salmon fillets\n2. Grill until flaky\n3. Top with herb butter\n4. Serve with vegetables",
-    ketogenic: false,
-    lowFodmap: false,
-    occasions: ["Dinner"],
-    sustainable: true,
-    vegan: false,
-    vegetarian: false,
-    veryHealthy: true,
-    veryPopular: true,
-    whole30: false,
-    weightWatcherSmartPoints: 8,
-    dishTypes: ["Main Course"],
-    extendedIngredients: [
-      {
-        id: 12,
-        aisle: "Seafood",
-        amount: 2,
-        unit: "salmon fillets",
-        name: "salmon fillets",
-        original: "2 salmon fillets",
-        originalName: "salmon fillets",
-        meta: [],
-        image: "salmon.jpg"
-      }
-    ],
-    summary: "Fresh salmon fillets grilled to perfection and topped with a zesty lemon herb butter sauce."
-  },
-  {
-    id: 12,
-    title: "Vegetarian Buddha Bowl",
-    image: "https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=400&h=300&fit=crop",
-    imageType: "jpg",
-    servings: 2,
-    readyInMinutes: 25,
-    aggregateLikes: 72,
-    healthScore: 95,
-    spoonacularScore: 87,
-    pricePerServing: 220,
-    analyzedInstructions: [],
-    cheap: true,
-    cuisines: ["Asian"],
-    dairyFree: true,
-    diets: ["Vegetarian", "Vegan"],
-    gaps: "GAPS",
-    glutenFree: true,
-    instructions: "1. Cook quinoa\n2. Roast vegetables\n3. Prepare tahini sauce\n4. Assemble bowl",
-    ketogenic: false,
-    lowFodmap: false,
-    occasions: ["Lunch", "Dinner"],
-    sustainable: true,
-    vegan: true,
-    vegetarian: true,
-    veryHealthy: true,
-    veryPopular: false,
-    whole30: false,
-    weightWatcherSmartPoints: 5,
-    dishTypes: ["Main Course"],
-    extendedIngredients: [
-      {
-        id: 13,
-        aisle: "Produce",
+        aisle: "Canned and Jarred",
         amount: 1,
-        unit: "cup",
-        name: "quinoa",
-        original: "1 cup quinoa",
-        originalName: "quinoa",
+        unit: "can",
+        name: "coconut milk",
+        original: "1 can coconut milk",
+        originalName: "coconut milk",
         meta: [],
-        image: "quinoa.jpg"
+        image: "coconut-milk.jpg"
       }
     ],
-    summary: "A colorful and nutritious Buddha bowl packed with quinoa, roasted vegetables, and a creamy tahini dressing."
-  },
-  {
-    id: 13,
-    title: "Classic Beef Burger",
-    image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop",
-    imageType: "jpg",
-    servings: 4,
-    readyInMinutes: 20,
-    aggregateLikes: 95,
-    healthScore: 45,
-    spoonacularScore: 89,
-    pricePerServing: 280,
-    analyzedInstructions: [],
-    cheap: false,
-    cuisines: ["American"],
-    dairyFree: false,
-    diets: ["High-Protein"],
-    gaps: "GAPS",
-    glutenFree: false,
-    instructions: "1. Form burger patties\n2. Grill to desired doneness\n3. Add toppings\n4. Serve on buns",
-    ketogenic: false,
-    lowFodmap: false,
-    occasions: ["Lunch", "Dinner"],
-    sustainable: false,
-    vegan: false,
-    vegetarian: false,
-    veryHealthy: false,
-    veryPopular: true,
-    whole30: false,
-    weightWatcherSmartPoints: 14,
-    dishTypes: ["Main Course"],
-    extendedIngredients: [
-      {
-        id: 14,
-        aisle: "Meat",
-        amount: 1,
-        unit: "pound",
-        name: "ground beef",
-        original: "1 pound ground beef",
-        originalName: "ground beef",
-        meta: [],
-        image: "beef.jpg"
-      }
-    ],
-    summary: "Juicy beef burgers with all the classic toppings - lettuce, tomato, cheese, and special sauce."
-  },
-  {
-    id: 14,
-    title: "Chocolate Chip Cookies",
-    image: "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=400&h=300&fit=crop",
-    imageType: "jpg",
-    servings: 24,
-    readyInMinutes: 35,
-    aggregateLikes: 98,
-    healthScore: 25,
-    spoonacularScore: 92,
-    pricePerServing: 120,
-    analyzedInstructions: [],
-    cheap: true,
-    cuisines: ["American"],
-    dairyFree: false,
-    diets: ["Vegetarian"],
-    gaps: "GAPS",
-    glutenFree: false,
-    instructions: "1. Mix ingredients\n2. Form cookie dough\n3. Bake until golden\n4. Cool and enjoy",
-    ketogenic: false,
-    lowFodmap: false,
-    occasions: ["Dessert"],
-    sustainable: false,
-    vegan: false,
-    vegetarian: true,
-    veryHealthy: false,
-    veryPopular: true,
-    whole30: false,
-    weightWatcherSmartPoints: 6,
-    dishTypes: ["Dessert"],
-    extendedIngredients: [
-      {
-        id: 15,
-        aisle: "Baking",
-        amount: 2,
-        unit: "cups",
-        name: "all-purpose flour",
-        original: "2 cups all-purpose flour",
-        originalName: "all-purpose flour",
-        meta: [],
-        image: "flour.jpg"
-      }
-    ],
-    summary: "Classic homemade chocolate chip cookies with crispy edges and chewy centers."
-  },
-  {
-    id: 15,
-    title: "Caesar Salad",
-    image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop",
-    imageType: "jpg",
-    servings: 4,
-    readyInMinutes: 15,
-    aggregateLikes: 65,
-    healthScore: 75,
-    spoonacularScore: 78,
-    pricePerServing: 180,
-    analyzedInstructions: [],
-    cheap: true,
-    cuisines: ["Italian"],
-    dairyFree: false,
-    diets: ["Vegetarian"],
-    gaps: "GAPS",
-    glutenFree: false,
-    instructions: "1. Wash and chop lettuce\n2. Make Caesar dressing\n3. Add croutons and cheese\n4. Toss and serve",
-    ketogenic: false,
-    lowFodmap: false,
-    occasions: ["Lunch", "Dinner"],
-    sustainable: true,
-    vegan: false,
-    vegetarian: true,
-    veryHealthy: false,
-    veryPopular: true,
-    whole30: false,
-    weightWatcherSmartPoints: 4,
-    dishTypes: ["Side Dish"],
-    extendedIngredients: [
-      {
-        id: 16,
-        aisle: "Produce",
-        amount: 1,
-        unit: "head",
-        name: "romaine lettuce",
-        original: "1 head romaine lettuce",
-        originalName: "romaine lettuce",
-        meta: [],
-        image: "lettuce.jpg"
-      }
-    ],
-    summary: "Classic Caesar salad with crisp romaine lettuce, homemade dressing, croutons, and Parmesan cheese."
+    summary: "Aromatic Thai green curry with tender chicken, bamboo shoots, and Thai basil, served over fragrant coconut rice for an authentic Southeast Asian dining experience."
   }
 ];
 
-// Add more mock recipes below to ensure at least 25 for pagination
-for (let i = 16; i <= 25; i++) {
+// Add more mock recipes for variety
+for (let i = 4; i <= 20; i++) {
+  const recipeTemplates = [
+    {
+      title: "Grilled Vegetable Panini",
+      cuisines: ["Italian"],
+      diets: ["Vegetarian"],
+      dishTypes: ["Main Course"],
+      readyInMinutes: 20,
+      healthScore: 85
+    },
+    {
+      title: "Spicy Tofu Stir-Fry",
+      cuisines: ["Asian"],
+      diets: ["Vegan"],
+      dishTypes: ["Main Course"],
+      readyInMinutes: 25,
+      healthScore: 88
+    },
+    {
+      title: "Classic Caesar Salad",
+      cuisines: ["Italian"],
+      diets: ["Vegetarian"],
+      dishTypes: ["Side Dish"],
+      readyInMinutes: 15,
+      healthScore: 75
+    },
+    {
+      title: "Beef and Broccoli",
+      cuisines: ["Chinese"],
+      diets: ["High-Protein"],
+      dishTypes: ["Main Course"],
+      readyInMinutes: 30,
+      healthScore: 72
+    },
+    {
+      title: "Chocolate Chip Cookies",
+      cuisines: ["American"],
+      diets: ["Vegetarian"],
+      dishTypes: ["Dessert"],
+      readyInMinutes: 35,
+      healthScore: 45
+    }
+  ];
+
+  const template = recipeTemplates[(i - 4) % recipeTemplates.length];
+
   mockRecipes.push({
     id: i,
-    title: `Mock Recipe ${i}`,
+    title: template.title,
     image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop',
     imageType: 'jpg',
-    servings: 2,
-    readyInMinutes: 30,
-    aggregateLikes: 10 + i,
-    healthScore: 50 + i,
-    spoonacularScore: 60 + i,
-    pricePerServing: 200 + i,
+    servings: 2 + (i % 3),
+    readyInMinutes: template.readyInMinutes,
+    aggregateLikes: 50 + (i * 3),
+    healthScore: template.healthScore,
+    spoonacularScore: 70 + (i * 2),
+    pricePerServing: 200 + (i * 20),
     analyzedInstructions: [],
-    cheap: false,
-    cuisines: ['Test'],
-    dairyFree: false,
-    diets: ['Vegetarian'],
+    cheap: i % 2 === 0,
+    cuisines: template.cuisines,
+    dairyFree: template.diets.includes('Vegan'),
+    diets: template.diets,
     gaps: 'GAPS',
-    glutenFree: false,
-    instructions: '1. Do something\n2. Do something else',
+    glutenFree: template.diets.includes('Gluten-Free'),
+    instructions: `1. Prepare ingredients\n2. Cook according to recipe\n3. Serve and enjoy`,
     ketogenic: false,
     lowFodmap: false,
-    occasions: ['Test'],
-    sustainable: false,
-    vegan: false,
-    vegetarian: true,
-    veryHealthy: false,
-    veryPopular: false,
+    occasions: ['Dinner'],
+    sustainable: i % 2 === 0,
+    vegan: template.diets.includes('Vegan'),
+    vegetarian: template.diets.includes('Vegetarian'),
+    veryHealthy: template.healthScore > 80,
+    veryPopular: i % 3 === 0,
     whole30: false,
-    weightWatcherSmartPoints: 5,
-    dishTypes: ['Main Course'],
+    weightWatcherSmartPoints: 5 + (i % 8),
+    dishTypes: template.dishTypes,
     extendedIngredients: [
       {
         id: 100 + i,
-        aisle: 'Test',
+        aisle: 'Produce',
         amount: 1,
         unit: 'unit',
-        name: 'Test Ingredient',
-        original: '1 unit Test Ingredient',
-        originalName: 'Test Ingredient',
+        name: 'Main Ingredient',
+        original: '1 unit Main Ingredient',
+        originalName: 'Main Ingredient',
         meta: [],
         image: 'ingredient.jpg'
       }
     ],
-    summary: `This is a mock recipe for testing pagination. Recipe #${i}.`
+    summary: `A delicious ${template.title.toLowerCase()} recipe perfect for any occasion.`
   });
 }
 
@@ -797,16 +359,17 @@ const buildQueryParams = (params: Record<string, string | number | boolean | str
   return searchParams.toString();
 };
 
-// API Service Class
+// Main API Service Class
 class RecipeApiService {
   private useMockData: boolean;
   private requestCount: number = 0;
   private lastRequestTime: number = 0;
+  private mockDataLoaded: boolean = false;
 
   constructor() {
     this.useMockData = !API_KEY || API_KEY === 'your-api-key-here';
+    this.preloadMockData();
 
-    // Log the API configuration for debugging
     if (CONFIG.LOG_API_ERRORS) {
       console.log('API Service initialized:', {
         hasApiKey: !!API_KEY && API_KEY !== 'your-api-key-here',
@@ -817,16 +380,61 @@ class RecipeApiService {
     }
   }
 
-  // Rate limiting helper
+  private preloadMockData(): void {
+    if (!this.mockDataLoaded) {
+      this.mockDataLoaded = true;
+      if (CONFIG.LOG_API_ERRORS) {
+        console.log('Mock data preloaded for instant access');
+      }
+    }
+  }
+
+  private saveFiltersToStorage(filters: Record<string, any>): void {
+    try {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          localStorage.setItem(`cravrplan_filters_${key}`, JSON.stringify(value));
+        } else {
+          localStorage.removeItem(`cravrplan_filters_${key}`);
+        }
+      });
+    } catch (error) {
+      console.warn('Failed to save filters to localStorage:', error);
+    }
+  }
+
+  private loadFiltersFromStorage(): Record<string, any> {
+    const filters: Record<string, any> = {};
+    try {
+      const filterKeys = ['query', 'cuisine', 'diet', 'intolerances', 'maxReadyTime', 'type'];
+      filterKeys.forEach(key => {
+        const stored = localStorage.getItem(`cravrplan_filters_${key}`);
+        if (stored) {
+          try {
+            filters[key] = JSON.parse(stored);
+          } catch (e) {
+            console.warn(`Failed to parse stored filter ${key}:`, e);
+          }
+        }
+      });
+    } catch (error) {
+      console.warn('Failed to load filters from localStorage:', error);
+    }
+    return filters;
+  }
+
   private async checkRateLimit(): Promise<void> {
+    // Skip rate limiting when using mock data
+    if (this.useMockData) {
+      return;
+    }
+
     const now = Date.now();
     const timeSinceLastRequest = now - this.lastRequestTime;
 
-    // Basic rate limiting: max 10 requests per minute
     if (this.requestCount >= 10 && timeSinceLastRequest < 60000) {
       const waitTime = 60000 - timeSinceLastRequest;
       console.warn(`Rate limit exceeded. Please wait ${Math.ceil(waitTime / 1000)} seconds.`);
-      // Instead of throwing an error, wait and reset
       await new Promise(resolve => setTimeout(resolve, waitTime));
       this.requestCount = 0;
       this.lastRequestTime = Date.now();
@@ -840,11 +448,10 @@ class RecipeApiService {
     this.lastRequestTime = now;
   }
 
-  // Enhanced error handling with retry logic
   private async makeRequest<T>(url: string, options: RequestInit = {}, retryCount: number = 0): Promise<T> {
     try {
-      // Add delay between requests to prevent rate limiting
-      if (this.lastRequestTime > 0) {
+      // Only apply rate limiting delay if not using mock data
+      if (!this.useMockData && this.lastRequestTime > 0) {
         const timeSinceLastRequest = Date.now() - this.lastRequestTime;
         if (timeSinceLastRequest < CONFIG.RATE_LIMIT_DELAY) {
           await new Promise(resolve => setTimeout(resolve, CONFIG.RATE_LIMIT_DELAY - timeSinceLastRequest));
@@ -875,23 +482,30 @@ class RecipeApiService {
             false,
             errorData
           );
+        } else if (response.status === 402) {
+          throw new RecipeApiError(
+            'API payment required. Using mock data instead.',
+            'PAYMENT_REQUIRED',
+            false,
+            errorData
+          );
         } else if (response.status === 429) {
           throw new RecipeApiError(
-            'API rate limit exceeded. Please try again later.',
+            'API rate limit exceeded. Using mock data instead.',
             'RATE_LIMIT_ERROR',
             true,
             errorData
           );
         } else if (response.status >= 500) {
           throw new RecipeApiError(
-            'Server error. Please try again later.',
+            'Server error. Using mock data instead.',
             'SERVER_ERROR',
             true,
             errorData
           );
         } else {
           throw new RecipeApiError(
-            `API request failed: ${response.status} ${response.statusText}`,
+            `API request failed: ${response.status} ${response.statusText}. Using mock data instead.`,
             'REQUEST_ERROR',
             false,
             errorData
@@ -907,21 +521,20 @@ class RecipeApiService {
 
       if (error instanceof Error && error.name === 'AbortError') {
         throw new RecipeApiError(
-          'Request timeout. Please try again.',
+          'Request timeout. Using mock data instead.',
           'TIMEOUT_ERROR',
           true
         );
       }
 
-      // Retry logic for retryable errors
       if (retryCount < CONFIG.MAX_RETRIES && this.isRetryableError(error as { code?: string; name?: string })) {
-        const delay = Math.pow(2, retryCount) * 1000; // Exponential backoff
+        const delay = Math.pow(2, retryCount) * 1000;
         await new Promise(resolve => setTimeout(resolve, delay));
         return this.makeRequest<T>(url, options, retryCount + 1);
       }
 
       throw new RecipeApiError(
-        `Network error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `Network error: ${error instanceof Error ? error.message : 'Unknown error'}. Using mock data instead.`,
         'NETWORK_ERROR',
         false,
         error
@@ -936,10 +549,9 @@ class RecipeApiService {
       error.name === 'AbortError';
   }
 
-  // Enhanced error handling with fallback
   private handleApiError<T>(error: unknown, fallbackData: T): T {
     if (CONFIG.LOG_API_ERRORS) {
-      console.error('API Error:', {
+      console.warn('API Error - falling back to mock data:', {
         message: error instanceof Error ? error.message : 'Unknown error',
         code: (error as { code?: string })?.code,
         retryable: (error as { retryable?: boolean })?.retryable,
@@ -948,15 +560,16 @@ class RecipeApiService {
     }
 
     if (CONFIG.USE_MOCK_DATA_FALLBACK) {
-      console.log('Falling back to mock data due to API error');
+      console.log('✅ Using mock data for instant response');
       return fallbackData;
     }
 
     throw error;
   }
 
-  // Search recipes with various filters
   async searchRecipes(params: RecipeSearchParams): Promise<RecipeSearchResponse> {
+    this.saveFiltersToStorage(params);
+
     if (this.useMockData) {
       return this.getMockSearchResults(params);
     }
@@ -979,84 +592,6 @@ class RecipeApiService {
     }
   }
 
-  // Search recipes by ingredients
-  async searchRecipesByIngredients(ingredients: string[], maxMissingIngredients: number = 3): Promise<Recipe[]> {
-    if (this.useMockData) {
-      return this.getMockRecipesByIngredients(ingredients, maxMissingIngredients);
-    }
-
-    try {
-      await this.checkRateLimit();
-
-      const queryParams = buildQueryParams({
-        ingredients: ingredients.join(','),
-        ranking: 2, // Maximize used ingredients
-        ignorePantry: true,
-        number: 20,
-        apiKey: API_KEY,
-        addRecipeInformation: true,
-        fillIngredients: true
-      });
-
-      const response = await this.makeRequest<{ results: Array<{ missedIngredientCount: number }> }>(`${API_BASE_URL}/findByIngredients?${queryParams}`);
-
-      // Filter results based on maxMissingIngredients and convert to Recipe format
-      const filteredResults = response.results.filter((recipe) =>
-        recipe.missedIngredientCount <= maxMissingIngredients
-      );
-
-      // Convert to Recipe format - this is a simplified conversion
-      // In a real implementation, you'd need to fetch full recipe details
-      return filteredResults.map((result, index) => ({
-        id: index + 1,
-        title: `Recipe with ${ingredients.join(', ')}`,
-        image: '',
-        imageType: '',
-        servings: 4,
-        readyInMinutes: 30,
-        license: '',
-        sourceName: '',
-        sourceUrl: '',
-        spoonacularSourceUrl: '',
-        aggregateLikes: 0,
-        healthScore: 0,
-        spoonacularScore: 0,
-        pricePerServing: 0,
-        analyzedInstructions: [],
-        cheap: false,
-        creditsText: '',
-        cuisines: [],
-        dairyFree: false,
-        diets: [],
-        gaps: '',
-        glutenFree: false,
-        instruction: '',
-        instructions: '',
-        ketogenic: false,
-        lowFodmap: false,
-        occasions: [],
-        sustainable: false,
-        vegan: false,
-        vegetarian: false,
-        veryHealthy: false,
-        veryPopular: false,
-        whole30: false,
-        weightWatcherSmartPoints: 0,
-        dishTypes: [],
-        extendedIngredients: [],
-        summary: '',
-        winePairing: {
-          pairedWines: [],
-          pairingText: '',
-          productMatches: []
-        }
-      } as Recipe));
-    } catch (error: unknown) {
-      return this.handleApiError(error, this.getMockRecipesByIngredients(ingredients, maxMissingIngredients));
-    }
-  }
-
-  // Get detailed recipe information
   async getRecipeDetails(recipeId: number): Promise<RecipeDetailResponse> {
     if (this.useMockData) {
       return this.getMockRecipeDetails(recipeId);
@@ -1077,18 +612,18 @@ class RecipeApiService {
     }
   }
 
-  // Get available filter options
   async getFilterOptions(): Promise<FilterOptionsResponse> {
-    // For now, always use mock data since the Spoonacular filter endpoints are not reliable
-    // This prevents 404 errors and provides a consistent user experience
     return this.getMockFilterOptions();
+  }
+
+  getLastUsedFilters(): RecipeSearchParams {
+    return this.loadFiltersFromStorage();
   }
 
   // Mock data methods
   private getMockSearchResults(params: RecipeSearchParams): RecipeSearchResponse {
     let filteredRecipes = [...mockRecipes];
 
-    // Apply search query filter
     if (params.query) {
       const query = params.query.toLowerCase();
       filteredRecipes = filteredRecipes.filter(recipe =>
@@ -1100,31 +635,26 @@ class RecipeApiService {
       );
     }
 
-    // Apply diet filter
     if (params.diet) {
       filteredRecipes = filteredRecipes.filter(recipe =>
         recipe.diets.includes(params.diet!)
       );
     }
 
-    // Apply cuisine filter
     if (params.cuisine) {
       filteredRecipes = filteredRecipes.filter(recipe =>
         recipe.cuisines.includes(params.cuisine!)
       );
     }
 
-    // Apply maxReadyTime filter
     if (params.maxReadyTime) {
       filteredRecipes = filteredRecipes.filter(recipe =>
         recipe.readyInMinutes <= params.maxReadyTime!
       );
     }
 
-    // Apply intolerances filter (exclude recipes with these ingredients)
     if (params.intolerances && params.intolerances.length > 0) {
       filteredRecipes = filteredRecipes.filter(recipe => {
-        // For mock data, we'll do a simple check against recipe properties
         const intolerances = params.intolerances!;
         return !intolerances.some(intolerance => {
           const lowerIntolerance = intolerance.toLowerCase();
@@ -1138,7 +668,6 @@ class RecipeApiService {
       });
     }
 
-    // Apply pagination
     const offset = params.offset || 0;
     const number = params.number || 20;
     const paginatedRecipes = filteredRecipes.slice(offset, offset + number);
@@ -1274,22 +803,28 @@ class RecipeApiService {
       ]
     };
   }
-
-  private getMockRecipesByIngredients(ingredients: string[], maxMissingIngredients: number = 3): Recipe[] {
-    return mockRecipes.filter(recipe => {
-      const recipeIngredients = recipe.extendedIngredients.map(ing => ing.name.toLowerCase());
-      const missingCount = ingredients.filter(ing => !recipeIngredients.includes(ing.toLowerCase())).length;
-      return missingCount <= maxMissingIngredients;
-    });
-  }
 }
 
-// Export singleton instance
+// Create a single instance of the API service
 export const recipeApiService = new RecipeApiService();
 
 // Export individual functions for convenience
 export const searchRecipes = (params: RecipeSearchParams) => recipeApiService.searchRecipes(params);
 export const getRecipeDetails = (recipeId: number) => recipeApiService.getRecipeDetails(recipeId);
 export const getFilterOptions = () => recipeApiService.getFilterOptions();
-export const searchRecipesByIngredients = (ingredients: string[], maxMissingIngredients: number = 3) => recipeApiService.searchRecipesByIngredients(ingredients, maxMissingIngredients);
+
+// Export utility functions
+export const getLastUsedFilters = () => recipeApiService.getLastUsedFilters();
+export const isUsingMockData = () => recipeApiService['useMockData'];
+export const clearStoredFilters = () => {
+  try {
+    const filterKeys = ['query', 'cuisine', 'diet', 'intolerances', 'maxReadyTime', 'type'];
+    filterKeys.forEach(key => {
+      localStorage.removeItem(`cravrplan_filters_${key}`);
+    });
+    console.log('✅ Stored filters cleared');
+  } catch (error) {
+    console.warn('Failed to clear stored filters:', error);
+  }
+};
 

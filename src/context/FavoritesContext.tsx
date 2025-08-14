@@ -4,7 +4,7 @@ import { useAuth } from './AuthContext';
 import { useGuest } from './GuestContext';
 import { firestoreService } from '../services/firestoreService';
 
-// Enhanced favorites storage interface
+// Favorites storage interface
 interface FavoriteRecipe {
   id: number;
   title: string;
@@ -85,7 +85,7 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
     user = authContext.user;
     isAuthenticated = authContext.isAuthenticated;
   } catch (error) {
-    console.log('Auth context not available yet, using guest mode');
+    // Auth context not available yet, using guest mode
   }
 
   // Add error handling for useGuest
@@ -101,7 +101,7 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
     removeGuestFavorite = guestContext.removeGuestFavorite;
     guestData = guestContext.guestData;
   } catch (error) {
-    console.log('Guest context not available yet');
+    // Guest context not available yet
   }
 
   // Load favorites based on user mode

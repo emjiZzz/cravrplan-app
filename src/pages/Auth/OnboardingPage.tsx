@@ -45,7 +45,7 @@ const OnboardingPage: React.FC = () => {
   // Handle signup success state
   useEffect(() => {
     if (isSignupSuccess) {
-      console.log('Signup success detected, user should be redirected to login');
+      // Signup success detected, user should be redirected to login
     }
   }, [isSignupSuccess]);
 
@@ -66,13 +66,11 @@ const OnboardingPage: React.FC = () => {
   const nextStep = () => {
     // Prevent step changes after signup is complete
     if (signupCompletedRef.current) {
-      console.log('Preventing nextStep after signup completion');
+      // Preventing nextStep after signup completion
       return;
     }
 
-    console.log('nextStep called, currentStep:', currentStep, 'totalSteps:', totalSteps);
     if (currentStep < totalSteps) {
-      console.log('Setting currentStep to:', currentStep + 1);
       setCurrentStep(currentStep + 1);
       setError('');
     }
@@ -81,7 +79,7 @@ const OnboardingPage: React.FC = () => {
   const prevStep = () => {
     // Prevent step changes after signup is complete
     if (signupCompletedRef.current) {
-      console.log('Preventing prevStep after signup completion');
+      // Preventing prevStep after signup completion
       return;
     }
 
@@ -93,9 +91,6 @@ const OnboardingPage: React.FC = () => {
 
   const handleSignup = async (event: React.FormEvent) => {
     event.preventDefault();
-    console.log('=== SIGNUP PROCESS START ===');
-    console.log('Signup form submitted');
-    console.log('Form data:', signupData);
     setError('');
 
     // Validation
@@ -124,24 +119,18 @@ const OnboardingPage: React.FC = () => {
       return;
     }
 
-    console.log('Validation passed, calling signup...');
-    console.log('Email being used:', signupData.email.trim());
+    // Validation passed, proceeding with signup
 
     // Set local loading state
     setIsSignupLoading(true);
 
     try {
       const result = await signup(signupData.fullName.trim(), signupData.email.trim(), signupData.password);
-      console.log('Signup result:', result);
 
       if (result.success) {
-        console.log('=== SIGNUP SUCCESS ===');
-        console.log('Signup successful, redirecting to login...');
-
         // Store preferences temporarily - they will be saved after user logs in
         try {
           localStorage.setItem('pending_preferences', JSON.stringify(preferences));
-          console.log('Preferences stored temporarily, will be saved after login');
         } catch (error) {
           console.error('Error storing preferences:', error);
           // Don't block the signup flow if preferences fail to save
@@ -151,15 +140,9 @@ const OnboardingPage: React.FC = () => {
         setIsSignupSuccess(true);
         signupCompletedRef.current = true;
 
-        // Note: User is already signed out by AuthContext after signup
-        console.log('User signed out after successful signup');
-
         // Redirect to login page after successful signup
-        console.log('Redirecting to login page...');
         navigate('/login');
       } else {
-        console.log('=== SIGNUP FAILED ===');
-        console.log('Signup failed:', result.error);
         setError(result.error || 'Signup failed. Please try again.');
         // Stay on signup form (case 7) and show error
       }
@@ -173,7 +156,6 @@ const OnboardingPage: React.FC = () => {
   };
 
   const renderStep = () => {
-    console.log('Rendering step:', currentStep, 'Signup completed:', signupCompletedRef.current, 'Signup success:', isSignupSuccess);
 
     // If signup was successful, don't render any steps - user should be redirected
     if (isSignupSuccess) {

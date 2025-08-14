@@ -1,57 +1,51 @@
-# CravrPlan - Meal Planning App
+# CravrPlan - Recipe Planning App
 
-A modern meal planning application built with React, TypeScript, and Firebase. CravrPlan helps users discover recipes, plan meals, and manage their kitchen inventory.
+A modern recipe planning application built with React, TypeScript, and Firebase. Plan your meals, discover recipes, and manage your cooking schedule with ease.
 
 ## Features
 
-### 🍽️ Recipe Management
-- Browse thousands of recipes from Spoonacular API
-- Search and filter recipes by ingredients, cuisine, diet, and more
-- Save favorite recipes for quick access
-- View detailed recipe information including nutrition facts
+- **Recipe Discovery**: Search and filter recipes by cuisine, diet, cooking time, and ingredients
+- **Meal Planning**: Create weekly meal plans with drag-and-drop functionality
+- **Favorites Management**: Save and organize your favorite recipes
+- **Ingredient-Based Search**: Find recipes based on ingredients you have
+- **User Authentication**: Secure login and registration with Firebase
+- **Responsive Design**: Works seamlessly on desktop and mobile devices
 
-### 📅 Meal Planning
-- Interactive calendar-based meal planning
-- Drag and drop recipe scheduling
-- Multiple meal types (breakfast, lunch, dinner, snacks)
-- Nutrition tracking and meal balance
+## Mock API Setup
 
-### 🥬 Fridge Management
-- Track ingredients in your fridge
-- Set expiration dates and quantities
-- Reduce food waste with smart inventory management
-- Generate shopping lists based on meal plans
+The app includes a comprehensive mock API system for portfolio and development purposes:
 
-### 👥 User Modes
+### Enhanced Mock Data
+- **20+ Curated Recipes**: Diverse recipes covering various cuisines, diets, and meal types
+- **Complete Data Structure**: All fields your app uses including ID, title, image, ingredients, instructions, nutrition, meal type, cuisine, diet, time, and notes
+- **Realistic Content**: Professional recipe descriptions and ingredient lists
 
-#### Guest Mode
-- Try the app without registration
-- Browse recipes and create temporary meal plans
-- Data is not saved permanently
-- Limited access to advanced features
+### Fallback Mechanism
+- **Automatic Fallback**: If Spoonacular API responds with 402 Payment Required or rate limit exceeded, automatically uses mock dataset
+- **Subtle Console Warnings**: Non-blocking console messages when falling back to mock data
+- **Seamless Experience**: No UI disruption when switching between real and mock data
 
-#### Member Mode
-- Full access to all features
-- Data persistence across sessions
-- Custom recipe creation
-- Advanced meal planning tools
-- Cross-device synchronization
+### Instant Display / Speed Optimization
+- **Progressive Loading**: Recipe lists render immediately when using mock data
+- **No Unnecessary Delays**: Removed loading spinners and delays for mock data
+- **Instant Navigation**: Recipe details, ingredients, instructions, and nutrition display instantly
+- **Preloaded Data**: Mock data is preloaded on app start for instant first navigation
 
-## Tech Stack
+### Filter Persistence
+- **Local Storage**: User-selected filters persist across page refreshes
+- **Automatic Restoration**: Filters are automatically restored when returning to the app
+- **Real-time Updates**: Changing filters immediately refreshes results using either API or mock data
 
-- **Frontend**: React 18, TypeScript, Vite
-- **Styling**: CSS Modules
-- **Authentication**: Firebase Authentication
-- **Database**: Firestore
-- **Calendar**: FullCalendar
-- **API**: Spoonacular Recipe API
+### Optional Real API Integration
+- **Demonstration Ready**: Real Spoonacular calls work when API key is valid and under limit
+- **Portfolio Friendly**: App works fully for portfolio purposes without API dependencies
+- **No Breaking Errors**: API errors or rate limits won't break the UI
 
 ## Getting Started
 
 ### Prerequisites
 - Node.js (v16 or higher)
 - npm or yarn
-- Firebase account
 
 ### Installation
 
@@ -66,34 +60,32 @@ cd cravrplan-app
 npm install
 ```
 
-3. Set up Firebase:
-   - Create a Firebase project
-   - Enable Authentication and Firestore
-   - Update `src/services/firebase.ts` with your Firebase config
-   - See `FIREBASE_SETUP.md` for detailed instructions
+3. Set up environment variables (optional for mock data):
+Create a `.env` file in the root directory:
+```env
+VITE_SPOONACULAR_API_KEY=your-api-key-here
+```
 
 4. Start the development server:
 ```bash
 npm run dev
 ```
 
-5. Open your browser and navigate to `http://localhost:5173`
-
-### Firebase Setup
-
-For detailed Firebase configuration instructions, see [FIREBASE_SETUP.md](./FIREBASE_SETUP.md).
+The app will run on `http://localhost:5173`
 
 ## Usage
 
-### For New Users
-1. **Try as Guest**: Click "Continue as Guest" to explore the app
-2. **Create Account**: Sign up for full access to all features
+### Without API Key (Mock Data Mode)
+- The app works immediately with comprehensive mock data
+- All features are fully functional
+- Instant loading and responsive UI
+- Perfect for portfolio demonstration
 
-### For Registered Users
-1. **Browse Recipes**: Search and discover new recipes
-2. **Plan Meals**: Use the calendar to schedule your meals
-3. **Manage Fridge**: Track your ingredients and expiration dates
-4. **Save Favorites**: Build your personal recipe collection
+### With API Key (Real API Mode)
+- Set your Spoonacular API key in the `.env` file
+- Real recipe data from Spoonacular API
+- Automatic fallback to mock data on API errors
+- Seamless experience regardless of API status
 
 ## Project Structure
 
@@ -103,24 +95,29 @@ src/
 ├── context/            # React context providers
 ├── pages/              # Page components
 ├── services/           # API and Firebase services
-├── styles/             # Global styles
 ├── types/              # TypeScript type definitions
 ├── utils/              # Utility functions
-└── assets/             # Static assets
+└── styles/             # Global styles
 ```
+
+## Technologies Used
+
+- **Frontend**: React 18, TypeScript, Vite
+- **Styling**: CSS Modules
+- **Authentication**: Firebase Auth
+- **Database**: Firestore
+- **Recipe API**: Spoonacular (with mock fallback)
+- **State Management**: React Context API
+- **Routing**: React Router
 
 ## Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Add tests if applicable
+4. Test thoroughly
 5. Submit a pull request
 
 ## License
 
 This project is licensed under the MIT License.
-
-## Support
-
-For support and questions, please open an issue in the repository.
