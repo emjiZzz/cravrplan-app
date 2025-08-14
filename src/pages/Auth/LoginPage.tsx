@@ -1,32 +1,73 @@
+// Login page component - handles user authentication
 
-import React from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './LoginPage.module.css';
 import CravrPlanLogo from '../../assets/logo.png';
+import { useAuth } from '../../context/AuthContext';
 
-// This is our LoginPage component, responsible for the user login interface.
 const LoginPage: React.FC = () => {
+  const navigate = useNavigate();
+  const { login, isLoading } = useAuth();
 
+  // State for form inputs and error handling
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
-  const handleLogin = (event: React.FormEvent) => {
+  // Handle form submission when user tries to log in
+  const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
-    console.log('Login button clicked!');
+    setError(''); // Clear any previous errors
+
+    // Basic validation - make sure user entered something
+    if (!email.trim()) {
+      setError('Please enter your email address');
+      return;
+    }
+
+    if (!password.trim()) {
+      setError('Please enter your password');
+      return;
+    }
+
+    // Check if email format looks valid
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      setError('Please enter a valid email address');
+      return;
+    }
+
+    // Try to log in
+    const result = await login(email.trim(), password);
+    if (result.success) {
+      navigate('/recipes'); // Go to recipes page on success
+    } else {
+      setError(result.error || 'Login failed. Please try again.');
+    }
   };
 
   return (
-    // The main container for our login page, centered on the screen.
     <div className={styles.loginPageContainer}>
-      {/* Logo section */}
+      {/* Logo section at the top */}
       <div className={styles.logoSection}>
         <img src={CravrPlanLogo} alt="CravrPlan Logo" className={styles.logo} />
       </div>
 
       <div className={styles.loginBox}>
-        <h2 className={styles.title}> Log in </h2>
-        <p className={styles.subtitle}> </p>
+        <h2 className={styles.title}>Log in</h2>
+        <p className={styles.subtitle}>Welcome back to CravrPlan</p>
 
-        {/* The login form itself */}
+        {/* Show error message if there is one */}
+        {error && (
+          <div className={styles.errorMessage}>
+            {error}
+          </div>
+        )}
+
+        {/* The login form */}
         <form className={styles.loginForm} onSubmit={handleLogin}>
-          {/* Email Input Field */}
+          {/* Email input field */}
           <div className={styles.inputGroup}>
             <label htmlFor="email" className={styles.label}>Email</label>
             <input
@@ -35,11 +76,13 @@ const LoginPage: React.FC = () => {
               name="email"
               placeholder=" "
               className={styles.inputField}
-              required // Makes this field mandatory
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
             />
           </div>
 
-          {/* Password Input Field */}
+          {/* Password input field */}
           <div className={styles.inputGroup}>
             <label htmlFor="password" className={styles.label}>Password</label>
             <input
@@ -48,18 +91,25 @@ const LoginPage: React.FC = () => {
               name="password"
               placeholder=" "
               className={styles.inputField}
-              required // Makes this field mandatory
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
             />
-
           </div>
 
-          {/* Login Button */}
-          <button type="submit" className={styles.loginButton}>LOG IN</button>
+          {/* Login button */}
+          <button
+            type="submit"
+            className={styles.loginButton}
+            disabled={isLoading}
+          >
+            {isLoading ? 'LOGGING IN...' : 'LOG IN'}
+          </button>
         </form>
 
-        {/* Section for "Don't have an account?" */}
+        {/* Link to sign up page */}
         <p className={styles.signupText}>
-          Don't have an account? <a href="/signup" className={styles.signupLink}>SIGN UP</a>
+          Don't have an account? <button onClick={() => navigate('/onboarding')} className={styles.signupLink}>SIGN UP</button>
         </p>
       </div>
     </div>

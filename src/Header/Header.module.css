@@ -3,13 +3,11 @@
 }
 
 .headerContainer {
-  background-color: var(--primary-purple);
-  color: var(--text-white);
+  background-color: #F8F7E5;
   padding: 15px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .logo {
@@ -23,14 +21,6 @@
   width: auto;
 }
 
-.logo h1 {
-  font-size: 30px;
-  color: var(--text-white);
-  font-weight: bold;
-  margin-top: 10px;
-  /* Adjusted the top margin to move the text down */
-}
-
 /* Navigation container */
 .navigation {
   display: flex;
@@ -40,27 +30,87 @@
 /* Button styling */
 .navigation button {
   font-size: 16px;
-  color: var(--text-white);
+  color: #17371A;
   background: none;
-  border: none;
-  font-weight: 500;
+  border: 2px solid transparent;
+  outline: none;
+  font-weight: 600;
   text-decoration: none;
-  transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out;
-  padding: 6px 12px;
-  border-radius: 0px;
+  transition: all 0.3s ease;
+  padding: 8px 16px;
+  border-radius: 8px;
   cursor: pointer;
+  box-shadow: none;
+  position: relative;
 }
 
 .navigation button:hover {
-  color: var(--text-white);
+  color: #546A04;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+
+.navigation button:focus {
+  outline: none;
+  border: none;
+  box-shadow: none;
+}
+
+.navigation button:active {
+  outline: none;
+  border: none;
+  box-shadow: none;
   background-color: transparent;
 }
 
-
 /* Active button */
 .active {
-  background-color: transparent;
-  color: var(--light-gray);
+  background-color: #546A04;
+  color: #F8F7E5;
+  border: 2px solid #546A04;
+  outline: none;
+  box-shadow: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-weight: 700;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.active:hover {
+  background-color: #17371A;
+  border-color: #17371A;
+  color: #F8F7E5;
+  outline: none;
+  box-shadow: 0 4px 12px rgba(84, 106, 4, 0.3);
+  transform: translateY(-1px);
+}
+
+.active:focus {
+  outline: none;
+  border: none;
+  box-shadow: none;
+}
+
+.active:active {
+  outline: none;
+  border: none;
+  box-shadow: none;
+  background-color: #546A04;
+}
+
+.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 3px;
+  background: linear-gradient(90deg, #546A04, #17371A);
+  border-radius: 2px;
 }
 
 /* Auth links (e.g. login) */
@@ -69,19 +119,114 @@
   align-items: center;
 }
 
+/* User Profile Section */
+.userSection {
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+}
+
+.userProfile {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  background: rgba(84, 106, 4, 0.1);
+  border-radius: 20px;
+  border: 1px solid rgba(84, 106, 4, 0.2);
+}
+
+.userGreeting {
+  font-size: 14px;
+  color: #17371A;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.guestMode {
+  font-size: 14px;
+  color: #6c757d;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
 .authLinks button {
   font-size: 16px;
-  color: var(--text-white);
+  color: #17371A;
   background: none;
   border: none;
+  outline: none;
   font-weight: 600;
   cursor: pointer;
   transition: color 0.2s ease-in-out;
   padding: 8px 12px;
   border-radius: 0px;
   margin-left: 30px;
+  box-shadow: none;
 }
 
 .authLinks button:hover {
-  color: var(--light-gray);
+  color: #546A04;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+
+.authLinks button:focus {
+  outline: none;
+  border: none;
+  box-shadow: none;
+}
+
+.authLinks button:active {
+  outline: none;
+  border: none;
+  box-shadow: none;
+  background-color: transparent;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .headerContainer {
+    padding: 10px 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .logoImage {
+    height: 30px;
+  }
+
+  .navigation {
+    gap: 15px;
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    margin-top: 10px;
+  }
+
+  .navigation button {
+    font-size: 14px;
+    padding: 6px 12px;
+  }
+
+  .userSection {
+    margin-right: 10px;
+  }
+
+  .userProfile {
+    padding: 6px 12px;
+  }
+
+  .userGreeting,
+  .guestMode {
+    font-size: 12px;
+  }
+
+  .authLinks button {
+    font-size: 12px;
+    padding: 6px 8px;
+    margin-left: 15px;
+  }
 }

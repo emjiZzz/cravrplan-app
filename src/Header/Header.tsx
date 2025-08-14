@@ -1,11 +1,15 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styles from './Header.module.css';
-import CravrPlanBowlLogo from '../assets/bowl-logo.png';
+import CravrPlanBowlLogo from '../assets/logo.png';
+import { useAuth } from '../context/AuthContext';
+import { useGuest } from '../context/GuestContext';
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, isAuthenticated, logout } = useAuth();
+  const { isGuestMode, clearGuestData } = useGuest();
 
   const handleLogoClick = () => {
     navigate('/');
@@ -15,7 +19,20 @@ const Header: React.FC = () => {
     navigate(path);
   };
 
-  // Check if we're on the Plan page
+  const handleLogout = () => {
+    if (isGuestMode) {
+      clearGuestData();
+      navigate('/');
+    } else {
+      logout();
+      navigate('/');
+    }
+  };
+
+  const handleLogin = () => {
+    navigate('/login');
+  };
+
   const isPlanPage = location.pathname === '/plan';
 
   return (
@@ -31,15 +48,20 @@ const Header: React.FC = () => {
             alt="CravrPlan Logo"
             className={styles.logoImage}
           />
-          <h1>CravrPlan</h1>
         </div>
 
         <nav className={`${styles.navigation} ${isPlanPage ? styles.planPage : ''}`}>
           <button
             onClick={() => handleNavClick('/recipes')}
-            className={location.pathname === '/recipes' ? styles.active : ''}
+            className={location.pathname === '/recipes' || location.pathname.startsWith('/recipes/') ? styles.active : ''}
           >
             RECIPES
+          </button>
+          <button
+            onClick={() => handleNavClick('/fridge')}
+            className={location.pathname === '/fridge' ? styles.active : ''}
+          >
+            FRIDGE
           </button>
           <button
             onClick={() => handleNavClick('/plan')}
@@ -47,16 +69,34 @@ const Header: React.FC = () => {
           >
             MEAL PLAN
           </button>
-          <button
-            onClick={() => handleNavClick('/shop')}
-            className={location.pathname === '/shop' ? styles.active : ''}
-          >
-            GROCERY
-          </button>
         </nav>
 
+        <div className={styles.userSection}>
+          <div className={styles.userProfile}>
+            {isAuthenticated && user ? (
+              <span className={styles.userGreeting}>HI {user.fullName?.toUpperCase() || 'USER'}</span>
+            ) : (
+              <span className={styles.guestMode}>IN GUEST MODE</span>
+            )}
+          </div>
+        </div>
+
         <div className={styles.authLinks}>
-          <button onClick={() => handleNavClick('/login')}>LOG IN</button>
+          {isAuthenticated ? (
+            <button
+              onClick={handleLogout}
+              className={styles.logoutButton}
+            >
+              LOG OUT
+            </button>
+          ) : (
+            <button
+              onClick={handleLogin}
+              className={styles.loginButton}
+            >
+              LOG IN
+            </button>
+          )}
         </div>
       </header>
     </div>
