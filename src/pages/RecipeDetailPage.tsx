@@ -7,6 +7,7 @@ import { getRecipeDetails } from '../services/apiService';
 import type { Recipe } from '../types/recipeTypes';
 import styles from './RecipeDetailPage.module.css';
 import AddToPlanModal from '../components/AddToPlanModal';
+import { getIngredientImageUrl, handleImageError } from '../utils/imageUtils';
 
 const RecipeDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -317,9 +318,10 @@ const RecipeDetailPage: React.FC = () => {
                         <div className={styles.ingredientImage}>
                           {ingredient.image ? (
                             <img
-                              src={`https://spoonacular.com/cdn/ingredients_100x100/${ingredient.image}`}
+                              src={getIngredientImageUrl(ingredient.image)}
                               alt={ingredient.name}
                               className={styles.ingredientImg}
+                              onError={(e) => handleImageError(e.nativeEvent)}
                             />
                           ) : (
                             <div className={styles.ingredientPlaceholder}>

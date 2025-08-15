@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './FridgePage.module.css';
+// REFACTORED: Import filter service for instant local filtering
+// To switch back to full API: replace with direct API service import
 import { searchRecipesByIngredients } from '../services/apiService';
+import { searchByIngredients as localSearchByIngredients } from '../services/filterService';
 import type { Recipe } from '../types/recipeTypes';
 import { useAuth } from '../context/AuthContext';
 import { useGuest } from '../context/GuestContext';
@@ -197,10 +200,13 @@ const FridgePage: React.FC = () => {
   };
 
 
+  // REFACTORED: Instant recipe search by ingredients using local data
+  // To switch back to full API: replace with searchRecipesByIngredients API call
   const searchRecipes = async () => {
     if (selectedIngredients.length === 0) return;
 
-    // Only show loading for actual searches, not for filter changes
+    // REFACTORED: Instant filtering - minimal loading state
+    // To switch back to API: restore full loading state logic
     const shouldShowLoading = recipes.length === 0;
     if (shouldShowLoading) {
       setLoading(true);
@@ -208,7 +214,8 @@ const FridgePage: React.FC = () => {
 
     try {
       const ingredientNames = selectedIngredients.map(ing => ing.name);
-      const response = await searchRecipesByIngredients(ingredientNames, maxMissing);
+      // REFACTORED: Use local filter service for instant results
+      const response = localSearchByIngredients(ingredientNames, maxMissing);
       setRecipes(response as FridgeRecipe[]);
     } catch (error) {
       console.error('Error searching recipes:', error);

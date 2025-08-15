@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
+// REFACTORED: Import filter service for instant local filtering
+// To switch back to full API: replace with direct API service import
 import { searchRecipes } from '../services/apiService';
+import { filterRecipes as localFilterRecipes } from '../services/filterService';
 import styles from './RecipeSearch.module.css';
+
 
 import type { Recipe } from '../types/recipeTypes';
 
@@ -15,10 +19,11 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ onSearchResults, onLoadingC
   const [diet, setDiet] = useState('');
   const [maxReadyTime, setMaxReadyTime] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+  const [currentSearchParams, setCurrentSearchParams] = useState<any>(null);
 
   const cuisines = [
     'American', 'Italian', 'Mexican', 'Asian', 'Mediterranean',
-    'French', 'Indian', 'Thai', 'Japanese', 'Greek', 'Spanish'
+    'French', 'Indian', 'Thai', 'Japanese', 'Greek'
   ];
 
   const diets = [
@@ -50,17 +55,25 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ onSearchResults, onLoadingC
     }
   }, [debouncedSearchTerm, cuisine, diet, maxReadyTime, onLoadingChange, onSearchResults]);
 
+  // REFACTORED: Instant recipe search using local data
+  // To switch back to full API: replace with searchRecipes API call
   const performSearch = async () => {
     onLoadingChange(true);
     try {
       const query = debouncedSearchTerm || 'pasta'; // Default search
-      const recipes = await searchRecipes(query, {
+      const searchParams = {
+        query: query,
         cuisine: cuisine || undefined,
         diet: diet || undefined,
-        maxReadyTime: maxReadyTime || undefined,
+        maxReadyTime: maxReadyTime ? parseInt(maxReadyTime) : undefined,
         number: 20
-      });
-      onSearchResults(recipes);
+      };
+
+      setCurrentSearchParams(searchParams);
+      // REFACTORED: Use local filter service for instant results
+      const response = localFilterRecipes(searchParams);
+      onSearchResults(response.recipes);
+
     } catch (error) {
       console.error('Search error:', error);
       onSearchResults([]);
@@ -77,6 +90,8 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ onSearchResults, onLoadingC
   };
 
   const hasActiveFilters = searchTerm || cuisine || diet || maxReadyTime;
+
+
 
   return (
     <div className={styles.searchContainer}>

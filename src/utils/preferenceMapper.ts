@@ -41,8 +41,7 @@ export function mapPreferencesToSearchParams(preferences: UserPreferences): Part
     } else if (timePref.includes('60+')) {
       searchParams.maxReadyTime = 120; // Set a reasonable upper limit
     }
-    // Note: 'Meal Prep' and 'Weekend Cooking' don't have direct time mappings
-    // but we can still apply them as general time preferences
+    // Note: Time preferences are mapped to maxReadyTime for API compatibility
   }
 
   // Map allergies to intolerances parameter

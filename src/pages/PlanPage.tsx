@@ -587,7 +587,8 @@ const PlanPage: React.FC = () => {
     moveEvent,
     ensureNutritionData,
     isFeatureRestricted,
-    updateEvent
+    updateEvent,
+    clearAllToTrash
   } = usePlan();
   const { isGuestMode } = useGuest();
 
@@ -710,10 +711,8 @@ const PlanPage: React.FC = () => {
   };
 
   const handleClearAll = async () => {
-    // Move all events to trash one by one
-    for (const event of events) {
-      await moveToTrash(event.id);
-    }
+    // Use the optimized bulk operation to move all events to trash at once
+    await clearAllToTrash();
     setShowClearConfirm(false);
   };
 

@@ -3,7 +3,10 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import type { Recipe, RecipeSearchParams, FilterOptionsResponse } from '../types/recipeTypes';
+// REFACTORED: Import filter service for instant local filtering
+// To switch back to full API: replace with direct API service imports
 import { searchRecipes, getFilterOptions, getRecipeDetails } from '../services/apiService';
+import { filterRecipes as localFilterRecipes, getFilterOptions as localGetFilterOptions } from '../services/filterService';
 import { useFavorites } from '../context/FavoritesContext';
 import { useAuth } from '../context/AuthContext';
 import { firestoreService } from '../services/firestoreService';
@@ -84,7 +87,7 @@ const RecipesPage: React.FC = () => {
   const popularSearches = [
     'chicken', 'pasta', 'salad', 'soup', 'dessert', 'breakfast', 'lunch', 'dinner',
     'vegetarian', 'vegan', 'quick', 'healthy', 'italian', 'mexican', 'asian', 'indian',
-    'mediterranean', 'greek', 'french', 'japanese', 'chinese', 'thai', 'korean',
+    'mediterranean', 'greek', 'french', 'japanese', 'chinese', 'thai',
     'pizza', 'burger', 'sushi', 'curry', 'stir fry', 'grilled', 'baked', 'fried',
     'smoothie', 'juice', 'coffee', 'tea', 'bread', 'cake', 'cookie', 'ice cream',
     'low carb', 'keto', 'paleo', 'gluten free', 'dairy free', 'nut free', 'seafood',
@@ -98,11 +101,13 @@ const RecipesPage: React.FC = () => {
 
 
 
-  // Load filter options on component mount
+  // REFACTORED: Load filter options instantly from local data
+  // To switch back to full API: replace with getFilterOptions() API call
   useEffect(() => {
     const loadFilterOptions = async () => {
       try {
-        const options = await getFilterOptions();
+        // REFACTORED: Use local filter service for instant results
+        const options = localGetFilterOptions();
         setFilterOptions(options);
       } catch (err) {
         console.error('Error loading filter options:', err);
@@ -218,7 +223,17 @@ const RecipesPage: React.FC = () => {
             imageType: storedRecipe.imageType,
             readyInMinutes: storedRecipe.readyInMinutes,
             servings: storedRecipe.servings,
-            nutrition: storedRecipe.nutrition,
+            nutrition: storedRecipe.nutrition ? {
+              nutrients: (storedRecipe.nutrition.nutrients || []).map(n => ({
+                ...n,
+                percentOfDailyNeeds: 0
+              })),
+              properties: [],
+              flavonoids: [],
+              ingredients: [],
+              caloricBreakdown: { percentProtein: 0, percentFat: 0, percentCarbs: 0 },
+              weightPerServing: { amount: 0, unit: 'g' }
+            } : undefined,
             cuisines: storedRecipe.cuisines,
             dishTypes: storedRecipe.dishTypes,
             diets: storedRecipe.diets,
@@ -239,7 +254,17 @@ const RecipesPage: React.FC = () => {
             whole30: storedRecipe.whole30,
             weightWatcherSmartPoints: storedRecipe.weightWatcherSmartPoints,
             occasions: storedRecipe.occasions,
-            extendedIngredients: storedRecipe.extendedIngredients,
+            extendedIngredients: storedRecipe.extendedIngredients.map(ing => ({
+              id: ing.id,
+              aisle: 'Unknown',
+              amount: ing.amount,
+              unit: ing.unit,
+              name: ing.name,
+              original: ing.original,
+              originalName: ing.name,
+              meta: [],
+              image: ''
+            })),
             // Add other required fields with defaults
             analyzedInstructions: [],
             instructions: '',
@@ -266,13 +291,18 @@ const RecipesPage: React.FC = () => {
     return loadedRecipes;
   };
 
-  // Search recipes when filters change or page changes
+  // REFACTORED: Instant recipe filtering with local data
+  // To switch back to full API: replace localFilterRecipes with searchRecipes API call
   useEffect(() => {
     const searchRecipesWithFilters = async () => {
       setError(null);
 
-      // Show searching indicator for all data fetching operations
-      setIsSearching(true);
+      // REFACTORED: Instant filtering - no loading state needed
+      // To switch back to API: restore loading state logic
+      const shouldShowLoading = recipes.length === 0;
+      if (shouldShowLoading) {
+        setIsSearching(true);
+      }
 
       try {
         // Filter favorites if showFavoritesOnly is true
@@ -333,11 +363,19 @@ const RecipesPage: React.FC = () => {
             }
           }
 
-          const response = await searchRecipes(searchParams);
-          setRecipes(response.results);
+          // REFACTORED: Use local filter service for instant results
+          const response = localFilterRecipes(searchParams);
+          setRecipes(response.recipes);
           setTotalResults(response.totalResults);
           setHasNextPage(response.offset + response.number < response.totalResults);
           setHasPreviousPage(response.offset > 0);
+
+          // Handle no results
+          if (response.recipes.length === 0) {
+            setError('No recipes found. Try adjusting your search or filters.');
+          } else {
+            setError(null);
+          }
         }
       } catch (err) {
         console.error('Error searching recipes:', err);
@@ -513,20 +551,12 @@ const RecipesPage: React.FC = () => {
     // This will trigger the useEffect to retry the search
   };
 
+
+
   const renderRecipeCard = (recipe: Recipe) => (
     <RecipeCard
       key={recipe.id}
-      recipe={{
-        ...recipe,
-        nutrition: recipe.nutrition
-          ? {
-            calories: (recipe.nutrition as { calories?: number }).calories ?? 0,
-            protein: (recipe.nutrition as { protein?: number }).protein ?? 0,
-            carbs: (recipe.nutrition as { carbs?: number }).carbs ?? 0,
-            fat: (recipe.nutrition as { fat?: number }).fat ?? 0,
-          }
-          : undefined,
-      }}
+      recipe={recipe}
       onFavoriteToggle={handleToggleFavorite}
       isFavorite={isFavorite(recipe.id)}
     />

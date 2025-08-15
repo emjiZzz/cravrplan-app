@@ -2,7 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { PlanContext, type PlanContextType, type MealPlanTemplate, type PlanEvent } from './PlanContextTypes';
+// REFACTORED: Import filter service for instant local filtering
+// To switch back to full API: replace with direct API service import
 import { searchRecipes } from '../services/apiService';
+import { filterRecipes as localFilterRecipes } from '../services/filterService';
 import { useAuth } from './AuthContext';
 import { useGuest } from './GuestContext';
 import { firestoreService } from '../services/firestoreService';
@@ -439,6 +442,33 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
     setEvents([]);
   };
 
+  const clearAllToTrash: PlanContextType['clearAllToTrash'] = async () => {
+    if (events.length === 0) return;
+
+    // Move all events to trash at once
+    const eventsToMove = [...events];
+
+    if (isAuthenticated && user) {
+      // Update in Firestore for authenticated users
+      try {
+        const existingPlans = await firestoreService.getMealPlans(user.id);
+        if (existingPlans.length > 0) {
+          const mealPlan = {
+            ...existingPlans[0],
+            events: []
+          };
+          await firestoreService.saveMealPlan(mealPlan);
+        }
+      } catch (error) {
+        console.error('Error updating meal plan in Firestore:', error);
+      }
+    }
+
+    // Clear events and add all to trash
+    setEvents([]);
+    setTrashedEvents(prev => [...prev, ...eventsToMove]);
+  };
+
   const getEventsForDate: PlanContextType['getEventsForDate'] = (date) => {
     return events.filter(event => event.date === date);
   };
@@ -490,6 +520,8 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
     }));
   };
 
+  // REFACTORED: Get quick suggestions using instant local filtering
+  // To switch back to full API: replace with searchRecipes API call
   const getQuickSuggestions: PlanContextType['getQuickSuggestions'] = async (mealType, maxTime = 30) => {
     try {
       // Search for quick recipes based on meal type and time constraint
@@ -499,8 +531,9 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
         number: 5
       };
 
-      const response = await searchRecipes(searchParams);
-      const recipes = response.results || [];
+      // REFACTORED: Use local filter service for instant results
+      const response = localFilterRecipes(searchParams);
+      const recipes = response.recipes || [];
 
       return recipes.map(recipe => ({
         id: `suggestion-${Date.now()}-${recipe.id}`,
@@ -542,6 +575,7 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
       updateEvent,
       moveEvent,
       clearAll,
+      clearAllToTrash,
       getEventsForDate,
       applyTemplate,
       getNutritionalStats,

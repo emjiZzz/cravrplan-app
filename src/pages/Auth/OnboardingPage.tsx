@@ -246,7 +246,7 @@ const OnboardingPage: React.FC = () => {
             <h3>Cuisine Preferences</h3>
             <p>What types of cuisine do you enjoy most?</p>
             <div className={styles.optionsGrid}>
-              {['Italian', 'Asian', 'Mexican', 'Mediterranean', 'American', 'Indian', 'French', 'Thai', 'Japanese', 'Greek', 'Spanish', 'Middle Eastern'].map(option => (
+              {['Italian', 'Asian', 'Mexican', 'Mediterranean', 'American', 'Indian', 'French', 'Thai', 'Japanese', 'Greek', 'Middle Eastern'].map(option => (
                 <button
                   key={option}
                   type="button"
@@ -300,7 +300,7 @@ const OnboardingPage: React.FC = () => {
             <h3>Time Preferences</h3>
             <p>How much time do you typically have for cooking?</p>
             <div className={styles.optionsGrid}>
-              {['Quick (15-30 min)', 'Medium (30-60 min)', 'Long (60+ min)', 'Meal Prep', 'Weekend Cooking'].map(option => (
+              {['Quick (15-30 min)', 'Medium (30-60 min)', 'Long (60+ min)'].map(option => (
                 <button
                   key={option}
                   type="button"

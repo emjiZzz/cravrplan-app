@@ -33,6 +33,8 @@ const AppContent: React.FC = () => {
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       {!isLoginPage && !isSignUpPage && !isOnboardingPage && <Header />}
 
+
+
       <main style={{ flex: 1, overflow: 'auto' }}>
         <Routes>
           <Route path="/" element={<RecipesPage />} />
