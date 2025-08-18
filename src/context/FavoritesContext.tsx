@@ -90,9 +90,9 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
 
   // Add error handling for useGuest
   let isGuestMode = false;
-  let addGuestFavorite = (recipe: any) => { };
+  let addGuestFavorite = (recipeData: { id: number; recipeId: string; recipe: FavoriteRecipe }) => { };
   let removeGuestFavorite = (recipeId: string) => { };
-  let guestData = { favoriteRecipes: [] as any[] };
+  let guestData = { favoriteRecipes: [] as Array<{ id: number; recipeId: string; recipe: FavoriteRecipe }> };
 
   try {
     const guestContext = useGuest();
@@ -124,10 +124,10 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
         }
       } else if (isGuestMode) {
         // Load from guest context for guest users
-        const guestFavoriteIds = guestData.favoriteRecipes.map(fav => parseInt(fav.recipeId || fav.id));
+        const guestFavoriteIds = guestData.favoriteRecipes.map(fav => fav.recipe.id);
         const guestFavoriteRecipes = guestData.favoriteRecipes.map(fav => ({
           ...fav.recipe,
-          addedAt: fav.addedAt || Date.now()
+          addedAt: Date.now()
         }));
 
         setFavorites(guestFavoriteIds);
@@ -194,7 +194,7 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
         // Add to guest favorites
         if (recipe) {
           addGuestFavorite({
-            id: recipeId.toString(),
+            id: recipeId,
             recipeId: recipeId.toString(),
             recipe: recipe
           });

@@ -2,9 +2,60 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 
+// Enhanced favorites storage interface
+interface FavoriteRecipe {
+  id: number;
+  title: string;
+  image: string;
+  imageType: string;
+  readyInMinutes: number;
+  servings: number;
+  nutrition?: {
+    nutrients: Array<{
+      name: string;
+      amount: number;
+      unit: string;
+    }>;
+  };
+  cuisines: string[];
+  dishTypes: string[];
+  diets: string[];
+  aggregateLikes: number;
+  healthScore: number;
+  spoonacularScore: number;
+  pricePerServing: number;
+  cheap: boolean;
+  dairyFree: boolean;
+  glutenFree: boolean;
+  ketogenic: boolean;
+  lowFodmap: boolean;
+  sustainable: boolean;
+  vegan: boolean;
+  vegetarian: boolean;
+  veryHealthy: boolean;
+  veryPopular: boolean;
+  whole30: boolean;
+  weightWatcherSmartPoints: number;
+  occasions: string[];
+  extendedIngredients: Array<{
+    id: number;
+    name: string;
+    amount: number;
+    unit: string;
+    original: string;
+  }>;
+  summary?: string;
+  // Store timestamp for potential cleanup
+  addedAt: number;
+}
+
 interface GuestData {
   mealPlans: any[];
-  favoriteRecipes: any[];
+  favoriteRecipes: Array<{
+    id: number;
+    recipeId: string;
+    recipe: FavoriteRecipe;
+  }>;
   fridgeIngredients: any[];
 }
 
@@ -13,7 +64,7 @@ interface GuestContextType {
   guestData: GuestData;
   saveGuestMealPlan: (plan: any) => void;
   deleteGuestMealPlan: (planId: string) => void;
-  addGuestFavorite: (recipe: any) => void;
+  addGuestFavorite: (recipeData: { id: number; recipeId: string; recipe: FavoriteRecipe }) => void;
   removeGuestFavorite: (recipeId: string) => void;
   addGuestFridgeIngredient: (ingredient: any) => void;
   removeGuestFridgeIngredient: (ingredientId: string) => void;
@@ -136,10 +187,10 @@ export const GuestProvider: React.FC<GuestProviderProps> = ({ children }) => {
     }));
   };
 
-  const addGuestFavorite = (recipe: any) => {
+  const addGuestFavorite = (recipeData: { id: number; recipeId: string; recipe: FavoriteRecipe }) => {
     setGuestData(prev => ({
       ...prev,
-      favoriteRecipes: [...prev.favoriteRecipes, { ...recipe, id: `guest-fav-${Date.now()}` }]
+      favoriteRecipes: [...prev.favoriteRecipes, recipeData]
     }));
   };
 

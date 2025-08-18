@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 // REFACTORED: Import filter service for instant local filtering
 // To switch back to full API: replace with direct API service import
-import { searchRecipes } from '../services/apiService';
+// import { searchRecipes } from '../services/apiService';
 import { filterRecipes as localFilterRecipes } from '../services/filterService';
 import styles from './RecipeSearch.module.css';
 

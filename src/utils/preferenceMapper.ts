@@ -5,7 +5,6 @@ export interface UserPreferences {
   cuisinePreferences: string[];
   cookingLevel: string;
   timePreferences: string[];
-  allergies: string[];
   spiceLevel: string;
   servingSize: string;
 }
@@ -44,10 +43,7 @@ export function mapPreferencesToSearchParams(preferences: UserPreferences): Part
     // Note: Time preferences are mapped to maxReadyTime for API compatibility
   }
 
-  // Map allergies to intolerances parameter
-  if (preferences.allergies.length > 0) {
-    searchParams.intolerances = preferences.allergies;
-  }
+
 
   // Note: cookingLevel, spiceLevel, and servingSize don't have direct Spoonacular API mappings
   // These could be used for additional filtering logic if needed
@@ -91,20 +87,4 @@ export function mapDietaryRestrictionsToDiet(dietaryRestrictions: string[]): str
   return dietMapping[primaryDiet] || primaryDiet;
 }
 
-/**
- * Maps allergies to Spoonacular intolerances
- */
-export function mapAllergiesToIntolerances(allergies: string[]): string[] {
-  const intoleranceMapping: Record<string, string> = {
-    'Nuts': 'tree nut',
-    'Dairy': 'dairy',
-    'Shellfish': 'shellfish',
-    'Eggs': 'egg',
-    'Soy': 'soy',
-    'Wheat': 'wheat',
-    'Fish': 'fish',
-    'Sesame': 'sesame'
-  };
 
-  return allergies.map(allergy => intoleranceMapping[allergy] || allergy);
-}

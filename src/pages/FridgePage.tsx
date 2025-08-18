@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import styles from './FridgePage.module.css';
 // REFACTORED: Import filter service for instant local filtering
 // To switch back to full API: replace with direct API service import
-import { searchRecipesByIngredients } from '../services/apiService';
+// import { searchRecipesByIngredients } from '../services/apiService';
 import { searchByIngredients as localSearchByIngredients } from '../services/filterService';
 import type { Recipe } from '../types/recipeTypes';
 import { useAuth } from '../context/AuthContext';

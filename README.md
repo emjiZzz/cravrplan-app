@@ -66,18 +66,35 @@ cd cravrplan-app
 npm install
 ```
 
-3. Set up Firebase:
+3. Set up environment variables:
+   - Create a `.env` file in the root directory
+   - Add your Spoonacular API key: `VITE_SPOONACULAR_API_KEY=your-api-key-here`
+   - Get a free API key from: https://spoonacular.com/food-api
+   - The app will use mock data if no valid API key is provided
+
+4. Set up Firebase (optional for full features):
    - Create a Firebase project
    - Enable Authentication and Firestore
    - Update `src/services/firebase.ts` with your Firebase config
    - See `FIREBASE_SETUP.md` for detailed instructions
 
-4. Start the development server:
+5. Start the development server:
 ```bash
 npm run dev
 ```
 
-5. Open your browser and navigate to `http://localhost:5173`
+6. Open your browser and navigate to `http://localhost:5173`
+
+### API Configuration
+
+The app uses the Spoonacular API for recipe data. To use real API data:
+
+1. Sign up for a free account at [Spoonacular](https://spoonacular.com/food-api)
+2. Get your API key from your account dashboard
+3. Add it to your `.env` file: `VITE_SPOONACULAR_API_KEY=your-actual-api-key`
+4. Restart the development server
+
+**Note**: The app includes comprehensive mock data and will work perfectly without an API key. The mock data includes a variety of recipes with full details, ingredients, and nutritional information.
 
 ### Firebase Setup
 

@@ -2,8 +2,8 @@
 // This service provides instant filtering on mock data while maintaining API compatibility
 // To switch back to full API: replace filterService calls with direct API calls
 
-import type { Recipe, RecipeSearchParams, RecipeSearchResponse } from '../types/recipeTypes';
-import { mockRecipes } from './apiService'; // Import mock data from API service
+import type { Recipe, RecipeSearchParams } from '../types/recipeTypes';
+import { mockRecipes } from './mockData'; // Import mock data from separate file
 
 export interface FilterResult {
   recipes: Recipe[];
@@ -145,8 +145,8 @@ export class RecipeFilterService {
    */
   public searchByIngredients(ingredients: string[], maxMissingIngredients: number = 3): Recipe[] {
     return this.allRecipes.filter(recipe => {
-      const recipeIngredients = recipe.extendedIngredients.map(ing => ing.name.toLowerCase());
-      const missingCount = ingredients.filter(ing => !recipeIngredients.includes(ing.toLowerCase())).length;
+      const recipeIngredients = recipe.extendedIngredients.map((ing: any) => ing.name.toLowerCase());
+      const missingCount = ingredients.filter((ing: string) => !recipeIngredients.includes(ing.toLowerCase())).length;
       return missingCount <= maxMissingIngredients;
     });
   }

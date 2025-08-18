@@ -5,8 +5,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import type { Recipe, RecipeSearchParams, FilterOptionsResponse } from '../types/recipeTypes';
 // REFACTORED: Import filter service for instant local filtering
 // To switch back to full API: replace with direct API service imports
-import { searchRecipes, getFilterOptions, getRecipeDetails } from '../services/apiService';
-import { filterRecipes as localFilterRecipes, getFilterOptions as localGetFilterOptions } from '../services/filterService';
+// import { searchRecipes, getFilterOptions, getRecipeDetails } from '../services/apiService';
+import { filterRecipes as localFilterRecipes, getFilterOptions as localGetFilterOptions, getRecipeDetails as localGetRecipeDetails } from '../services/filterService';
 import { useFavorites } from '../context/FavoritesContext';
 import { useAuth } from '../context/AuthContext';
 import { firestoreService } from '../services/firestoreService';
@@ -162,35 +162,10 @@ const RecipesPage: React.FC = () => {
         setSelectedMealType('All Meal Types');
         setSelectedTimePreference('All Time Ranges');
 
-        // Check for pending preferences from onboarding
-        const pendingPreferences = localStorage.getItem('pending_preferences');
-        if (pendingPreferences) {
-          try {
-            const preferences = JSON.parse(pendingPreferences);
-            setUserPreferences(preferences);
-            console.log('Loaded pending preferences:', preferences);
-
-            // Set initial filter values based on pending preferences
-            if (preferences.cuisinePreferences.length > 0) {
-              setSelectedMenu(preferences.cuisinePreferences[0]);
-            }
-            if (preferences.dietaryRestrictions.length > 0) {
-              setSelectedDiet(preferences.dietaryRestrictions[0]);
-            }
-            if (preferences.timePreferences.length > 0) {
-              const timePref = preferences.timePreferences[0];
-              if (timePref.includes('15-30')) {
-                setSelectedTimePreference('15-30');
-              } else if (timePref.includes('30-60')) {
-                setSelectedTimePreference('30-60');
-              } else if (timePref.includes('60+')) {
-                setSelectedTimePreference('60+');
-              }
-            }
-          } catch (error) {
-            console.error('Error parsing pending preferences:', error);
-          }
-        }
+        // For guest mode, don't apply pending preferences to avoid filtering issues
+        // Clear any pending preferences to ensure full recipe access
+        localStorage.removeItem('pending_preferences');
+        console.log('Cleared pending preferences for guest mode to show all recipes');
       }
     };
 
@@ -280,8 +255,10 @@ const RecipesPage: React.FC = () => {
         }
 
         // If not in stored data, try to fetch from API
-        const recipeDetail = await getRecipeDetails(favoriteId);
-        loadedRecipes.push(recipeDetail);
+        const recipeDetail = await localGetRecipeDetails(favoriteId);
+        if (recipeDetail) {
+          loadedRecipes.push(recipeDetail);
+        }
       } catch (err) {
         console.error(`❌ Error loading favorite recipe ${favoriteId}:`, err);
         // Continue loading other recipes even if one fails
@@ -364,7 +341,9 @@ const RecipesPage: React.FC = () => {
           }
 
           // REFACTORED: Use local filter service for instant results
+          console.log('Search params being applied:', searchParams);
           const response = localFilterRecipes(searchParams);
+          console.log('Filter response:', response);
           setRecipes(response.recipes);
           setTotalResults(response.totalResults);
           setHasNextPage(response.offset + response.number < response.totalResults);
@@ -416,6 +395,18 @@ const RecipesPage: React.FC = () => {
     setSelectedDiet(e.target.value);
     setCurrentPage(0);
     // Don't trigger loading state for filter changes - let the useEffect handle it
+  };
+
+  const clearAllFilters = () => {
+    setSelectedMenu('All Menus');
+    setSelectedDiet('No Diet Restrictions');
+    setSelectedMealType('All Meal Types');
+    setSelectedTimePreference('All Time Ranges');
+    setSearchQuery('');
+    setCurrentPage(0);
+    setUserPreferences(null);
+    localStorage.removeItem('pending_preferences');
+    console.log('Cleared all filters to show all recipes');
   };
 
   const handleMealTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -687,6 +678,14 @@ const RecipesPage: React.FC = () => {
                 className={`${styles.favoritesButton} ${showFavoritesOnly ? styles.active : ''}`}
               >
                 My Favorites ({favorites.length})
+              </button>
+
+              <button
+                onClick={clearAllFilters}
+                className={styles.clearFiltersButton}
+                title="Clear all filters and show all recipes"
+              >
+                🗑️ Clear Filters
               </button>
             </div>
           </div>

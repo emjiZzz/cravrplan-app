@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { PlanContext, type PlanContextType, type MealPlanTemplate, type PlanEvent } from './PlanContextTypes';
 // REFACTORED: Import filter service for instant local filtering
 // To switch back to full API: replace with direct API service import
-import { searchRecipes } from '../services/apiService';
+// import { searchRecipes } from '../services/apiService';
 import { filterRecipes as localFilterRecipes } from '../services/filterService';
 import { useAuth } from './AuthContext';
 import { useGuest } from './GuestContext';

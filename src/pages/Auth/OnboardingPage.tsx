@@ -10,7 +10,6 @@ interface UserPreferences {
   cuisinePreferences: string[];
   cookingLevel: string;
   timePreferences: string[];
-  allergies: string[];
   spiceLevel: string;
   servingSize: string;
 }
@@ -26,7 +25,6 @@ const OnboardingPage: React.FC = () => {
     cuisinePreferences: [],
     cookingLevel: 'beginner',
     timePreferences: [],
-    allergies: [],
     spiceLevel: 'medium',
     servingSize: '2-4'
   });
@@ -40,7 +38,7 @@ const OnboardingPage: React.FC = () => {
   const [isSignupLoading, setIsSignupLoading] = useState(false);
   const [isSignupSuccess, setIsSignupSuccess] = useState(false);
 
-  const totalSteps = 7; // Back to 7 steps since we removed case 9
+  const totalSteps = 6; // Reduced to 6 steps since we removed allergies step
 
   // Handle signup success state
   useEffect(() => {
@@ -322,32 +320,6 @@ const OnboardingPage: React.FC = () => {
       case 6:
         return (
           <div className={styles.stepContent}>
-            <div className={styles.stepIcon}>⚠️</div>
-            <h3>Allergies & Restrictions</h3>
-            <p>Do you have any food allergies or intolerances?</p>
-            <div className={styles.optionsGrid}>
-              {['Nuts', 'Dairy', 'Shellfish', 'Eggs', 'Soy', 'Wheat', 'Fish', 'Sesame'].map(option => (
-                <button
-                  key={option}
-                  type="button"
-                  className={`${styles.optionButton} ${preferences.allergies.includes(option) ? styles.selected : ''}`}
-                  onClick={() => {
-                    const updated = preferences.allergies.includes(option)
-                      ? preferences.allergies.filter(item => item !== option)
-                      : [...preferences.allergies, option];
-                    handlePreferenceChange('allergies', updated);
-                  }}
-                >
-                  {option}
-                </button>
-              ))}
-            </div>
-          </div>
-        );
-
-      case 7:
-        return (
-          <div className={styles.stepContent}>
             <div className={styles.stepIcon}>📝</div>
             <h3>Create Your Account</h3>
             <p>Almost done! Create your account to save your preferences.</p>
@@ -462,7 +434,7 @@ const OnboardingPage: React.FC = () => {
 
         {/* Navigation buttons */}
         <div className={styles.navigationButtons}>
-          {currentStep > 1 && currentStep < 7 && !signupCompletedRef.current && (
+          {currentStep > 1 && currentStep < 6 && !signupCompletedRef.current && (
             <button
               type="button"
               className={styles.backButton}
@@ -472,7 +444,7 @@ const OnboardingPage: React.FC = () => {
             </button>
           )}
 
-          {currentStep < 6 && !signupCompletedRef.current && (
+          {currentStep < 5 && !signupCompletedRef.current && (
             <button
               type="button"
               className={styles.nextButton}
@@ -482,7 +454,7 @@ const OnboardingPage: React.FC = () => {
             </button>
           )}
 
-          {currentStep === 6 && !signupCompletedRef.current && (
+          {currentStep === 5 && !signupCompletedRef.current && (
             <button
               type="button"
               className={styles.nextButton}
@@ -494,7 +466,7 @@ const OnboardingPage: React.FC = () => {
         </div>
 
         {/* Skip option for early steps */}
-        {currentStep <= 6 && !signupCompletedRef.current && (
+        {currentStep <= 5 && !signupCompletedRef.current && (
           <button
             type="button"
             className={styles.skipButton}

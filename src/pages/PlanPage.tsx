@@ -15,10 +15,9 @@ interface AddMealModalProps {
   onAddCustomRecipe: (recipeData: { title: string; mealType: string; date: string }) => void;
   onBrowseRecipes: () => void;
   selectedDate: string;
-  isGuestMode?: boolean;
 }
 
-const AddMealModal: React.FC<AddMealModalProps> = ({ isOpen, onClose, onAddCustomRecipe, onBrowseRecipes, selectedDate, isGuestMode = false }) => {
+const AddMealModal: React.FC<AddMealModalProps> = ({ isOpen, onClose, onAddCustomRecipe, onBrowseRecipes, selectedDate }) => {
   const [recipeTitle, setRecipeTitle] = useState('');
   const [mealType, setMealType] = useState('breakfast');
   const [isCustomRecipe, setIsCustomRecipe] = useState(false);
@@ -156,7 +155,8 @@ const GridCalendar: React.FC<{
   onEventDrop: (eventId: string, newDate: string) => void;
   view: 'month' | 'week';
   isGuestMode?: boolean;
-}> = ({ events, onEventClick, onImageClick, onDayClick, onEventDrop, view, isGuestMode = false }) => {
+  onImageError: (e: React.SyntheticEvent<HTMLImageElement, Event>) => void;
+}> = ({ events, onEventClick, onImageClick, onDayClick, onEventDrop, view, isGuestMode = false, onImageError }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [draggedEvent, setDraggedEvent] = useState<PlanEvent | null>(null);
   const [dragOverDate, setDragOverDate] = useState<string | null>(null);
@@ -212,17 +212,18 @@ const GridCalendar: React.FC<{
     }
   };
 
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    const target = e.target as HTMLImageElement;
-    target.src = 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop';
-  };
-
   const handleImageClick = (event: PlanEvent, e: React.MouseEvent) => {
     e.stopPropagation();
     onImageClick(event);
   };
 
   const handleDragStart = (e: React.DragEvent, event: PlanEvent) => {
+    // Disable drag and drop for guest users
+    if (isGuestMode) {
+      e.preventDefault();
+      return;
+    }
+
     e.dataTransfer.setData('text/plain', event.id);
     e.dataTransfer.effectAllowed = 'move';
     setDraggedEvent(event);
@@ -323,10 +324,10 @@ const GridCalendar: React.FC<{
                       if (draggedEvent) return;
                       onImageClick(event);
                     }}
-                    draggable={true}
+                    draggable={!isGuestMode}
                     onDragStart={(e) => handleDragStart(e, event)}
                     onDragEnd={handleDragEnd}
-                    title="Drag to reschedule"
+                    title={isGuestMode ? "Guest mode - drag disabled" : "Drag to reschedule"}
                   >
                     {event.image && (
                       <div className={styles.calendarEventImageContainer}>
@@ -335,6 +336,7 @@ const GridCalendar: React.FC<{
                           alt={event.title}
                           className={styles.calendarEventImage}
                           onClick={(e) => handleImageClick(event, e)}
+                          onError={onImageError}
                         />
                         <div className={styles.calendarEventMealType}>
                           <span className={styles.mealTypeIndicator} title={event.mealType}>
@@ -444,10 +446,10 @@ const GridCalendar: React.FC<{
                       if (draggedEvent) return;
                       onImageClick(event);
                     }}
-                    draggable={true}
+                    draggable={!isGuestMode}
                     onDragStart={(e) => handleDragStart(e, event)}
                     onDragEnd={handleDragEnd}
-                    title="Drag to reschedule"
+                    title={isGuestMode ? "Guest mode - drag disabled" : "Drag to reschedule"}
                   >
                     {event.image && (
                       <div className={styles.calendarEventImageContainer}>
@@ -456,6 +458,7 @@ const GridCalendar: React.FC<{
                           alt={event.title}
                           className={styles.calendarEventImage}
                           onClick={(e) => handleImageClick(event, e)}
+                          onError={onImageError}
                         />
                         <div className={styles.calendarEventMealType}>
                           <span className={styles.mealTypeIndicator} title={event.mealType}>
@@ -586,7 +589,6 @@ const PlanPage: React.FC = () => {
     addToPlan,
     moveEvent,
     ensureNutritionData,
-    isFeatureRestricted,
     updateEvent,
     clearAllToTrash
   } = usePlan();
@@ -915,7 +917,9 @@ const PlanPage: React.FC = () => {
               <div className={styles.sectionTitleContainer}>
                 <h2 className={styles.sectionTitle}>
                   Smart Calendar
-                  <span className={styles.dragHint}>💡 Drag meals to reschedule</span>
+                  <span className={styles.dragHint}>
+                    {isGuestMode ? "💡 Guest mode - drag disabled" : "💡 Drag meals to reschedule"}
+                  </span>
                 </h2>
                 <div className={styles.calendarActions}>
                   <button
@@ -970,6 +974,7 @@ const PlanPage: React.FC = () => {
                     onEventDrop={handleEventDrop}
                     view={calendarView}
                     isGuestMode={isGuestMode}
+                    onImageError={handleImageError}
                   />
                 )}
               </div>
@@ -1095,7 +1100,6 @@ const PlanPage: React.FC = () => {
         onAddCustomRecipe={handleAddCustomRecipe}
         onBrowseRecipes={handleBrowseRecipes}
         selectedDate={selectedDate}
-        isGuestMode={isGuestMode}
       />
 
       {showClearConfirm && (
