@@ -172,6 +172,8 @@ const RecipesPage: React.FC = () => {
     loadUserPreferences();
   }, [isAuthenticated, user]);
 
+
+
   // Debounce search query to avoid too many API calls
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -271,6 +273,9 @@ const RecipesPage: React.FC = () => {
   // REFACTORED: Instant recipe filtering with local data
   // To switch back to full API: replace localFilterRecipes with searchRecipes API call
   useEffect(() => {
+    // Only search if filter options are loaded
+    if (!filterOptions) return;
+
     const searchRecipesWithFilters = async () => {
       setError(null);
 
@@ -328,7 +333,7 @@ const RecipesPage: React.FC = () => {
             searchParams.type = selectedMealType;
           }
 
-          // Add time preference filter if selected
+          // Add time preference filter if selected (overrides preferences)
           if (selectedTimePreference !== 'All Time Ranges') {
             const timeValue = selectedTimePreference;
             if (timeValue === '15-30') {
@@ -373,7 +378,7 @@ const RecipesPage: React.FC = () => {
     };
 
     searchRecipesWithFilters();
-  }, [debouncedSearchQuery, selectedMenu, selectedDiet, selectedMealType, selectedTimePreference, showFavoritesOnly, currentPage, favorites, userPreferences]);
+  }, [debouncedSearchQuery, selectedMenu, selectedDiet, selectedMealType, selectedTimePreference, showFavoritesOnly, currentPage, favorites, userPreferences, filterOptions]);
 
 
 

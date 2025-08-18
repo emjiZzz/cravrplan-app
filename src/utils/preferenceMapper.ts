@@ -17,17 +17,21 @@ export function mapPreferencesToSearchParams(preferences: UserPreferences): Part
 
   // Map dietary restrictions to diet parameter
   if (preferences.dietaryRestrictions.length > 0) {
-    // Spoonacular only supports one diet at a time, so we'll use the first one
-    // or combine them if possible
-    const primaryDiet = preferences.dietaryRestrictions[0];
-    searchParams.diet = primaryDiet;
+    // Use the existing mapping function to convert to API format
+    const mappedDiet = mapDietaryRestrictionsToDiet(preferences.dietaryRestrictions);
+    if (mappedDiet) {
+      searchParams.diet = mappedDiet;
+    }
   }
 
   // Map cuisine preferences to cuisine parameter
   if (preferences.cuisinePreferences.length > 0) {
-    // Spoonacular only supports one cuisine at a time, so we'll use the first one
+    // Use the first cuisine preference and map it to API format
     const primaryCuisine = preferences.cuisinePreferences[0];
-    searchParams.cuisine = primaryCuisine;
+    const mappedCuisine = mapCuisinePreferenceToCuisine(primaryCuisine);
+    if (mappedCuisine) {
+      searchParams.cuisine = mappedCuisine;
+    }
   }
 
   // Map time preferences to maxReadyTime parameter
@@ -71,20 +75,21 @@ export function convertTimePreferenceToMaxTime(timePreference: string): number |
 export function mapDietaryRestrictionsToDiet(dietaryRestrictions: string[]): string | undefined {
   if (dietaryRestrictions.length === 0) return undefined;
 
-  // Spoonacular diet values
-  const dietMapping: Record<string, string> = {
-    'Vegetarian': 'vegetarian',
-    'Vegan': 'vegan',
-    'Gluten-Free': 'gluten-free',
-    'Dairy-Free': 'dairy-free',
-    'Keto': 'ketogenic',
-    'Paleo': 'paleo',
-    'Low-Carb': 'low-carb',
-    'High-Protein': 'high-protein'
-  };
-
+  // For local filter service, return the original value since mock data uses exact matches
+  // For API calls, this would map to lowercase values
   const primaryDiet = dietaryRestrictions[0];
-  return dietMapping[primaryDiet] || primaryDiet;
+  return primaryDiet;
+}
+
+/**
+ * Maps cuisine preferences to Spoonacular cuisine parameter
+ */
+export function mapCuisinePreferenceToCuisine(cuisinePreference: string): string | undefined {
+  if (!cuisinePreference) return undefined;
+
+  // For local filter service, return the original value since mock data uses exact matches
+  // For API calls, this would map to lowercase values
+  return cuisinePreference;
 }
 
 
