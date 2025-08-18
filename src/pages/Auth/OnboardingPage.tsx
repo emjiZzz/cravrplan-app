@@ -3,16 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import styles from './OnboardingPage.module.css';
 import CravrPlanLogo from '../../assets/logo.png';
 import { useAuth } from '../../context/AuthContext';
-
-
-interface UserPreferences {
-  dietaryRestrictions: string[];
-  cuisinePreferences: string[];
-  cookingLevel: string;
-  timePreferences: string[];
-  spiceLevel: string;
-  servingSize: string;
-}
+import type { UserPreferences } from '../../utils/preferenceMapper';
 
 const OnboardingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -24,9 +15,7 @@ const OnboardingPage: React.FC = () => {
     dietaryRestrictions: [],
     cuisinePreferences: [],
     cookingLevel: 'beginner',
-    timePreferences: [],
-    spiceLevel: 'medium',
-    servingSize: '2-4'
+    timePreferences: []
   });
   const [signupData, setSignupData] = useState({
     fullName: '',

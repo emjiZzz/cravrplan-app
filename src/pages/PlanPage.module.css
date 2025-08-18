@@ -494,17 +494,17 @@
 }
 
 .confirmButton {
-  background: linear-gradient(135deg, rgba(220, 53, 69, 0.9) 0%, rgba(220, 53, 69, 0.8) 100%) !important;
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.9) 0%, rgba(76, 175, 80, 0.8) 100%) !important;
   color: #F8F7E5 !important;
-  border: 2px solid rgba(220, 53, 69, 0.4) !important;
-  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.2) !important;
+  border: 2px solid rgba(76, 175, 80, 0.4) !important;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2) !important;
 }
 
 .confirmButton:hover {
-  background: linear-gradient(135deg, rgba(220, 53, 69, 1) 0%, rgba(220, 53, 69, 0.9) 100%) !important;
-  border-color: rgba(220, 53, 69, 0.6) !important;
+  background: linear-gradient(135deg, rgba(76, 175, 80, 1) 0%, rgba(76, 175, 80, 0.9) 100%) !important;
+  border-color: rgba(76, 175, 80, 0.6) !important;
   transform: translateY(-2px) !important;
-  box-shadow: 0 8px 25px rgba(220, 53, 69, 0.3) !important;
+  box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3) !important;
 }
 
 /* Trash Modal Styles */
@@ -1145,6 +1145,90 @@
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(84, 106, 4, 0.2);
   border-color: rgba(84, 106, 4, 0.5);
+}
+
+/* Button container for multiple buttons in empty state */
+.emptyStateButtons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+/* Custom recipe button styling - similar to addFirstMealButton but with different color */
+.addCustomRecipeButton {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, rgba(46, 125, 50, 0.8) 0%, rgba(46, 125, 50, 0.6) 100%);
+  color: #FFFFFF;
+  border: 2px solid rgba(46, 125, 50, 0.3);
+}
+
+.addCustomRecipeButton:hover {
+  background: linear-gradient(135deg, rgba(46, 125, 50, 0.9) 0%, rgba(46, 125, 50, 0.7) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(46, 125, 50, 0.2);
+  border-color: rgba(46, 125, 50, 0.5);
+}
+
+/* Modal description styling */
+.modalDescription {
+  color: #546A04;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Modal actions container */
+.modalActions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.modalActions button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modalActions .cancelButton {
+  background: rgba(84, 106, 4, 0.1);
+  color: #546A04;
+  border: 1px solid rgba(84, 106, 4, 0.3);
+}
+
+.modalActions .cancelButton:hover {
+  background: rgba(84, 106, 4, 0.2);
+  border-color: rgba(84, 106, 4, 0.5);
+}
+
+.modalActions .confirmButton {
+  background: #4CAF50;
+  color: white;
+}
+
+.modalActions .confirmButton:hover {
+  background: rgba(76, 175, 80, 0.8);
+  transform: translateY(-1px);
+}
+
+.modalActions .confirmButton:disabled {
+  background: rgba(76, 175, 80, 0.3);
+  cursor: not-allowed;
+  transform: none;
 }
 
 .emptyTodayState {
@@ -1834,7 +1918,9 @@
 }
 
 .formTextarea {
-  width: 100%;
+  width: 95%;
+  max-width: 100%;
+  min-height: 100px;
   padding: 12px;
   border: 1px solid rgba(84, 106, 4, 0.3);
   border-radius: 8px;

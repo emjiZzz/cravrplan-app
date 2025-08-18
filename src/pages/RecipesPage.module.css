@@ -211,6 +211,9 @@
   flex-wrap: wrap;
   padding: 12px 0;
   margin-bottom: 40px;
+  /* Ensure all elements are properly aligned */
+  align-items: stretch;
+  /* Make all elements the same height */
 }
 
 .advancedFilters {
@@ -296,8 +299,18 @@
   background: rgba(84, 106, 4, 0.8);
   cursor: pointer;
   transition: all 0.3s ease;
-  min-width: 200px;
+  width: 200px;
+  /* Fixed width for consistency */
+  height: 48px;
+  /* Fixed height for consistency */
   backdrop-filter: blur(10px);
+  box-sizing: border-box;
+  /* Ensure padding is included in width/height */
+  display: flex;
+  align-items: center;
+  /* Center text vertically */
+  justify-content: center;
+  /* Center text horizontally */
 }
 
 .filterDropdown:hover {
@@ -993,6 +1006,17 @@
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
   margin-left: 0;
+  width: 200px;
+  /* Fixed width for consistency */
+  height: 48px;
+  /* Fixed height for consistency */
+  box-sizing: border-box;
+  /* Ensure padding is included in width/height */
+  display: flex;
+  align-items: center;
+  /* Center text vertically */
+  justify-content: center;
+  /* Center text horizontally */
 }
 
 .favoritesButton:hover {
@@ -1023,6 +1047,17 @@
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
   margin-left: 8px;
+  width: 200px;
+  /* Fixed width for consistency */
+  height: 48px;
+  /* Fixed height for consistency */
+  box-sizing: border-box;
+  /* Ensure padding is included in width/height */
+  display: flex;
+  align-items: center;
+  /* Center text vertically */
+  justify-content: center;
+  /* Center text horizontally */
 }
 
 .clearFiltersButton:hover {

@@ -27,8 +27,6 @@ export interface UserPreferences {
   cuisinePreferences: string[];
   cookingLevel: string;
   timePreferences: string[];
-  spiceLevel: string;
-  servingSize: string;
 }
 
 export interface MealPlan {

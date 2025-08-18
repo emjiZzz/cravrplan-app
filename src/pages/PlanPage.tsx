@@ -147,6 +147,109 @@ const AddMealModal: React.FC<AddMealModalProps> = ({ isOpen, onClose, onAddCusto
   );
 };
 
+// Custom Recipe Modal Component - allows users to create custom recipes directly
+const CustomRecipeModal: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  onAddCustomRecipe: (recipeData: { title: string; mealType: string; date: string }) => void;
+  selectedDate: string;
+}> = ({ isOpen, onClose, onAddCustomRecipe, selectedDate }) => {
+  const [recipeTitle, setRecipeTitle] = useState('');
+  const [mealType, setMealType] = useState('main course');
+
+  // Handle form submission for custom recipe creation
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (recipeTitle.trim()) {
+      onAddCustomRecipe({
+        title: recipeTitle.trim(),
+        mealType,
+        date: selectedDate
+      });
+      setRecipeTitle('');
+      setMealType('main course');
+      onClose();
+    }
+  };
+
+  if (!isOpen) return null;
+
+  // Format the selected date for display
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  return (
+    <div className={styles.addMealModalBackdrop} onClick={onClose}>
+      <div className={styles.addMealModal} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.addMealModalHeader}>
+          <h3>✏️ Create Custom Recipe for {formatDate(selectedDate)}</h3>
+        </div>
+
+        <div className={styles.addMealModalContent}>
+          <p className={styles.modalDescription}>
+            Create your own recipe entry. You can add details like cooking time, servings, and notes later.
+          </p>
+
+          <form onSubmit={handleSubmit} className={styles.customRecipeForm}>
+            <div className={styles.formGroup}>
+              <label htmlFor="customRecipeTitle">Recipe Title *</label>
+              <input
+                id="customRecipeTitle"
+                type="text"
+                value={recipeTitle}
+                onChange={(e) => setRecipeTitle(e.target.value)}
+                placeholder="Enter your recipe name..."
+                required
+                className={styles.formInput}
+              />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label htmlFor="customMealType">Meal Type</label>
+              <select
+                id="customMealType"
+                value={mealType}
+                onChange={(e) => setMealType(e.target.value)}
+                className={styles.formSelect}
+              >
+                <option value="breakfast">🌅 Breakfast</option>
+                <option value="main course">🍽️ Main Course</option>
+                <option value="side dish">🥗 Side Dish</option>
+                <option value="dessert">🍰 Dessert</option>
+                <option value="snack">🍎 Snack</option>
+              </select>
+            </div>
+
+            <div className={styles.modalActions}>
+              <button
+                type="button"
+                onClick={onClose}
+                className={styles.cancelButton}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className={styles.confirmButton}
+                disabled={!recipeTitle.trim()}
+              >
+                Create Recipe
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const GridCalendar: React.FC<{
   events: PlanEvent[];
   onEventClick: (event: PlanEvent) => void;
@@ -604,6 +707,7 @@ const PlanPage: React.FC = () => {
   const [showRecipeModal, setShowRecipeModal] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState<PlanEvent | null>(null);
   const [showAddMealModal, setShowAddMealModal] = useState(false);
+  const [showCustomRecipeModal, setShowCustomRecipeModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState('');
   const [calendarView, setCalendarView] = useState<'month' | 'week'>('month');
   const [showAllMeals, setShowAllMeals] = useState(false);
@@ -758,6 +862,12 @@ const PlanPage: React.FC = () => {
   const handleBrowseRecipes = () => {
     // Pass the selected date to the recipes page so it can be used when adding meals
     navigate(`/recipes?selectedDate=${selectedDate}`);
+  };
+
+  // Handler for opening custom recipe modal directly from empty state
+  const handleOpenCustomRecipeModal = () => {
+    setSelectedDate(todayString); // Use today's date as default
+    setShowCustomRecipeModal(true);
   };
 
   const handleEditCustomRecipe = (recipe: PlanEvent) => {
@@ -957,13 +1067,21 @@ const PlanPage: React.FC = () => {
                   <div className={styles.emptyCalendarState}>
                     <div className={styles.emptyCalendarIcon}></div>
                     <h3>No Meals Planned</h3>
-                    <p>Your meal plan is empty. Browse recipes to add meals to your plan.</p>
-                    <button
-                      className={styles.addFirstMealButton}
-                      onClick={() => navigate('/recipes')}
-                    >
-                      Browse Recipes
-                    </button>
+                    <p>Your meal plan is empty. Get started by browsing recipes or creating your own custom recipe.</p>
+                    <div className={styles.emptyStateButtons}>
+                      <button
+                        className={styles.addFirstMealButton}
+                        onClick={() => navigate('/recipes')}
+                      >
+                        Browse Recipes
+                      </button>
+                      <button
+                        className={styles.addCustomRecipeButton}
+                        onClick={handleOpenCustomRecipeModal}
+                      >
+                        Add Custom Recipe
+                      </button>
+                    </div>
                   </div>
                 ) : (
                   <GridCalendar
@@ -1099,6 +1217,14 @@ const PlanPage: React.FC = () => {
         onClose={() => setShowAddMealModal(false)}
         onAddCustomRecipe={handleAddCustomRecipe}
         onBrowseRecipes={handleBrowseRecipes}
+        selectedDate={selectedDate}
+      />
+
+      {/* Custom Recipe Modal - allows users to create custom recipes directly */}
+      <CustomRecipeModal
+        isOpen={showCustomRecipeModal}
+        onClose={() => setShowCustomRecipeModal(false)}
+        onAddCustomRecipe={handleAddCustomRecipe}
         selectedDate={selectedDate}
       />
 

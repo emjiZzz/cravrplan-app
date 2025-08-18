@@ -5,20 +5,24 @@ import CravrPlanBowlLogo from '../assets/salad.png';
 import { useAuth } from '../context/AuthContext';
 import { useGuest } from '../context/GuestContext';
 
+// Header component that shows navigation and user info
 const Header: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAuthenticated, logout } = useAuth();
   const { isGuestMode, clearGuestData } = useGuest();
 
+  // Handle logo click to go to home page
   const handleLogoClick = () => {
     navigate('/');
   };
 
+  // Handle navigation button clicks
   const handleNavClick = (path: string) => {
     navigate(path);
   };
 
+  // Handle logout - different for guest mode vs regular users
   const handleLogout = () => {
     if (isGuestMode) {
       clearGuestData();
@@ -29,15 +33,18 @@ const Header: React.FC = () => {
     }
   };
 
+  // Handle login button click
   const handleLogin = () => {
     navigate('/login');
   };
 
+  // Check if we're on the plan page for special styling
   const isPlanPage = location.pathname === '/plan';
 
   return (
     <div className={styles.headerWrapper}>
       <header className={styles.headerContainer}>
+        {/* Logo section */}
         <div
           className={styles.logo}
           onClick={handleLogoClick}
@@ -51,6 +58,7 @@ const Header: React.FC = () => {
           <h1>CravrPlan</h1>
         </div>
 
+        {/* Navigation menu */}
         <nav className={`${styles.navigation} ${isPlanPage ? styles.planPage : ''}`}>
           <button
             onClick={() => handleNavClick('/recipes')}
@@ -72,6 +80,7 @@ const Header: React.FC = () => {
           </button>
         </nav>
 
+        {/* User profile section */}
         <div className={styles.userSection}>
           <div className={styles.userProfile}>
             {isAuthenticated && user ? (
@@ -82,6 +91,7 @@ const Header: React.FC = () => {
           </div>
         </div>
 
+        {/* Login/Logout buttons */}
         <div className={styles.authLinks}>
           {isAuthenticated ? (
             <button

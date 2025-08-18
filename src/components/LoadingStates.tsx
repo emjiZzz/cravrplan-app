@@ -1,12 +1,14 @@
 import React from 'react';
 import styles from './LoadingStates.module.css';
 
+// Props for the loading spinner component
 interface LoadingSpinnerProps {
   size?: 'small' | 'medium' | 'large';
   message?: string;
   variant?: 'default' | 'pulse' | 'dots' | 'bars';
 }
 
+// Loading spinner component with different styles
 export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   size = 'medium',
   message = 'Loading...',
@@ -14,6 +16,7 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
 }) => {
   return (
     <div className={styles.loadingContainer}>
+      {/* Show different spinner styles based on variant */}
       {variant === 'dots' ? (
         <div className={`${styles.dotsSpinner} ${styles[size]}`}>
           <div className={styles.dot}></div>
@@ -39,6 +42,7 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   );
 };
 
+// Props for error message component
 interface ErrorMessageProps {
   title?: string;
   message: string;
@@ -48,6 +52,7 @@ interface ErrorMessageProps {
   details?: string;
 }
 
+// Error message component with retry button
 export const ErrorMessage: React.FC<ErrorMessageProps> = ({
   title = 'Something went wrong',
   message,
@@ -56,6 +61,7 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
   variant = 'error',
   details
 }) => {
+  // Get the right icon for the error type
   const getIcon = () => {
     switch (variant) {
       case 'warning': return '⚠️';
@@ -64,6 +70,7 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
     }
   };
 
+  // Get the right CSS class for the error type
   const getContainerClass = () => {
     switch (variant) {
       case 'warning': return styles.warningContainer;
@@ -77,12 +84,14 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
       <div className={styles.errorIcon}>{getIcon()}</div>
       <h3 className={styles.errorTitle}>{title}</h3>
       <p className={styles.errorMessage}>{message}</p>
+      {/* Show technical details if provided */}
       {details && (
         <details className={styles.errorDetails}>
           <summary>Technical Details</summary>
           <pre>{details}</pre>
         </details>
       )}
+      {/* Show retry button if needed */}
       {showRetry && onRetry && (
         <button onClick={onRetry} className={styles.retryButton}>
           Try Again
@@ -92,6 +101,7 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
   );
 };
 
+// Props for empty state component
 interface EmptyStateProps {
   icon?: string;
   title: string;
@@ -101,6 +111,7 @@ interface EmptyStateProps {
   variant?: 'default' | 'search' | 'favorites' | 'plan';
 }
 
+// Empty state component for when there's no data
 export const EmptyState: React.FC<EmptyStateProps> = ({
   icon = '🍽️',
   title,
@@ -109,6 +120,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   onAction,
   variant = 'default'
 }) => {
+  // Get the right CSS class based on variant
   const getContainerClass = () => {
     switch (variant) {
       case 'search': return styles.searchEmptyContainer;
@@ -123,6 +135,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
       <div className={styles.emptyIcon}>{icon}</div>
       <h3 className={styles.emptyTitle}>{title}</h3>
       <p className={styles.emptyMessage}>{message}</p>
+      {/* Show action button if provided */}
       {actionText && onAction && (
         <button onClick={onAction} className={styles.actionButton}>
           {actionText}
@@ -132,15 +145,18 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   );
 };
 
+// Props for skeleton card component
 interface SkeletonCardProps {
   count?: number;
   variant?: 'recipe' | 'plan' | 'list';
 }
 
+// Skeleton loading cards that look like the real content
 export const SkeletonCard: React.FC<SkeletonCardProps> = ({
   count = 1,
   variant = 'recipe'
 }) => {
+  // Get the right skeleton style based on variant
   const getSkeletonClass = () => {
     switch (variant) {
       case 'plan': return styles.skeletonPlanCard;
@@ -151,6 +167,7 @@ export const SkeletonCard: React.FC<SkeletonCardProps> = ({
 
   return (
     <>
+      {/* Create multiple skeleton cards */}
       {Array.from({ length: count }).map((_, index) => (
         <div key={index} className={getSkeletonClass()}>
           <div className={styles.skeletonImage}></div>
@@ -170,10 +187,12 @@ export const SkeletonCard: React.FC<SkeletonCardProps> = ({
   );
 };
 
+// Props for search loading component
 interface SearchLoadingProps {
   query?: string;
 }
 
+// Loading component specifically for search results
 export const SearchLoading: React.FC<SearchLoadingProps> = ({ query }) => {
   return (
     <div className={styles.searchLoadingContainer}>
@@ -186,7 +205,7 @@ export const SearchLoading: React.FC<SearchLoadingProps> = ({ query }) => {
   );
 };
 
-// New: Progressive loading component
+// Props for progressive loading component
 interface ProgressiveLoadingProps<T = unknown> {
   items: T[];
   renderItem: (item: T, index: number) => React.ReactNode;
@@ -197,6 +216,7 @@ interface ProgressiveLoadingProps<T = unknown> {
   skeletonVariant?: 'recipe' | 'plan' | 'list';
 }
 
+// Progressive loading component that shows content as it loads
 export const ProgressiveLoading = <T,>({
   items,
   renderItem,
@@ -206,10 +226,9 @@ export const ProgressiveLoading = <T,>({
   skeletonCount = 6,
   skeletonVariant = 'recipe'
 }: ProgressiveLoadingProps<T>) => {
-  // Always render the container immediately
   return (
     <div className={styles.progressiveContainer}>
-      {/* Show error state if there's an error */}
+      {/* Show error if something went wrong */}
       {error && (
         <div className={styles.errorState}>
           <ErrorMessage
@@ -225,10 +244,10 @@ export const ProgressiveLoading = <T,>({
         <SkeletonCard count={skeletonCount} variant={skeletonVariant} />
       )}
 
-      {/* Render actual items */}
+      {/* Show the actual items */}
       {items.map((item, index) => renderItem(item, index))}
 
-      {/* Show additional loading skeletons at the bottom when loading and we have items */}
+      {/* Show more loading skeletons at bottom when loading and we have items */}
       {loading && items.length > 0 && (
         <SkeletonCard count={Math.min(3, skeletonCount)} variant={skeletonVariant} />
       )}
@@ -236,12 +255,13 @@ export const ProgressiveLoading = <T,>({
   );
 };
 
-// New: Inline loading component for buttons and small areas
+// Props for inline loading component
 interface InlineLoadingProps {
   size?: 'small' | 'medium';
   text?: string;
 }
 
+// Small loading component for buttons and small areas
 export const InlineLoading: React.FC<InlineLoadingProps> = ({
   size = 'small',
   text
@@ -254,7 +274,7 @@ export const InlineLoading: React.FC<InlineLoadingProps> = ({
   );
 };
 
-// New: Toast notification component
+// Props for toast notification component
 interface ToastProps {
   message: string;
   type: 'success' | 'error' | 'warning' | 'info';
@@ -262,17 +282,20 @@ interface ToastProps {
   duration?: number;
 }
 
+// Toast notification that appears and disappears automatically
 export const Toast: React.FC<ToastProps> = ({
   message,
   type,
   onClose,
   duration = 5000
 }) => {
+  // Auto-close the toast after the duration
   React.useEffect(() => {
     const timer = setTimeout(onClose, duration);
     return () => clearTimeout(timer);
   }, [duration, onClose]);
 
+  // Get the right icon for the toast type
   const getIcon = () => {
     switch (type) {
       case 'success': return '✅';
@@ -291,11 +314,12 @@ export const Toast: React.FC<ToastProps> = ({
   );
 };
 
-// New: Page loading component
+// Props for page loading component
 interface PageLoadingProps {
   message?: string;
 }
 
+// Full page loading component
 export const PageLoading: React.FC<PageLoadingProps> = ({
   message = "Loading page..."
 }) => {
@@ -306,13 +330,14 @@ export const PageLoading: React.FC<PageLoadingProps> = ({
   );
 };
 
-// New: Shimmer loading effect
+// Props for shimmer loading effect
 interface ShimmerProps {
   width?: string;
   height?: string;
   className?: string;
 }
 
+// Shimmer loading effect for text and images
 export const Shimmer: React.FC<ShimmerProps> = ({
   width = '100%',
   height = '20px',

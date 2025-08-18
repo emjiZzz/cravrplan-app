@@ -5,8 +5,6 @@ export interface UserPreferences {
   cuisinePreferences: string[];
   cookingLevel: string;
   timePreferences: string[];
-  spiceLevel: string;
-  servingSize: string;
 }
 
 /**
@@ -49,8 +47,8 @@ export function mapPreferencesToSearchParams(preferences: UserPreferences): Part
 
 
 
-  // Note: cookingLevel, spiceLevel, and servingSize don't have direct Spoonacular API mappings
-  // These could be used for additional filtering logic if needed
+  // Note: cookingLevel doesn't have direct Spoonacular API mappings
+  // This could be used for additional filtering logic if needed
 
   return searchParams;
 }

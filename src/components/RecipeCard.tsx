@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-
 import styles from './RecipeCard.module.css';
 
+// Types for nutrition data
 interface NutritionNutrient {
   name: string;
   amount: number;
@@ -13,11 +13,13 @@ interface NutritionData {
   nutrients: NutritionNutrient[];
 }
 
+// Type for location state (used for recipe swapping)
 interface LocationState {
   swapFor?: string;
   [key: string]: unknown;
 }
 
+// Props for the RecipeCard component
 interface RecipeCardProps {
   recipe: {
     id: number;
@@ -43,6 +45,7 @@ interface RecipeCardProps {
   isFavorite?: boolean;
 }
 
+// Recipe card component that displays recipe information
 const RecipeCard: React.FC<RecipeCardProps> = ({
   recipe,
   onFavoriteToggle,
@@ -50,18 +53,18 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
-
   const [isHovered, setIsHovered] = useState(false);
 
+  // Handle clicking on the recipe card to go to detail page
   const handleCardClick = () => {
-    // Preserve swap state if present when moving into detail
+    // Keep any swap state if we're coming from meal plan
     const state = (location.state as LocationState) || undefined;
 
-    // Preserve selectedDate from URL if present
+    // Keep selected date from URL if it exists
     const urlParams = new URLSearchParams(location.search);
     const selectedDate = urlParams.get('selectedDate');
 
-    // Build the navigation URL with selectedDate if it exists
+    // Build the URL to navigate to
     let navigateUrl = `/recipes/${recipe.id}`;
     if (selectedDate) {
       navigateUrl += `?selectedDate=${selectedDate}`;
@@ -70,11 +73,12 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
     navigate(navigateUrl, { state });
   };
 
+  // Handle clicking the favorite button
   const handleFavoriteClick = async (e: React.MouseEvent) => {
-    e.stopPropagation();
+    e.stopPropagation(); // Don't trigger card click
 
     try {
-      // Simulate API call
+      // Small delay to make it feel responsive
       await new Promise(resolve => setTimeout(resolve, 300));
       onFavoriteToggle?.(recipe.id, isFavorite);
     } catch (error) {
@@ -82,6 +86,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
     }
   };
 
+  // Get the first cuisine badge to display
   const getCuisineBadge = () => {
     if (recipe.cuisines.length > 0) {
       return recipe.cuisines[0];
@@ -89,6 +94,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
     return null;
   };
 
+  // Get the first diet badge to display
   const getDietBadge = () => {
     if (recipe.diets.length > 0) {
       return recipe.diets[0];
@@ -96,6 +102,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
     return null;
   };
 
+  // Get emoji for different meal types
   const getMealTypeIcon = (dishType: string) => {
     switch (dishType.toLowerCase()) {
       case 'breakfast': return '🌅';
@@ -112,6 +119,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
     }
   };
 
+  // Get the first meal type badge to display
   const getMealTypeBadge = () => {
     if (recipe.dishTypes && recipe.dishTypes.length > 0) {
       return recipe.dishTypes[0];
@@ -119,8 +127,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
     return null;
   };
 
-
-
+  // Get nutrition value for a specific nutrient
   const getNutritionValue = (nutrition: NutritionData | undefined, nutrientName: string): number => {
     if (!nutrition || !nutrition.nutrients) return 0;
     const nutrient = nutrition.nutrients.find((n: NutritionNutrient) =>
@@ -129,10 +136,11 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
     return nutrient ? nutrient.amount : 0;
   };
 
+  // Get color and opacity for nutrition indicators
   const getNutritionColor = (nutrition: NutritionData | undefined, type: 'calories' | 'protein' | 'carbs' | 'fat') => {
     if (!nutrition) return { backgroundColor: '#ccc', opacity: 0.5, percentage: 0 };
 
-    // Match the color scheme from PlanPage
+    // Colors for different nutrition types
     const colors = {
       calories: '#9C27B0', // Purple
       protein: '#4CAF50',  // Green
@@ -140,11 +148,12 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
       fat: '#FF5722'       // Orange/Red
     };
 
+    // Daily recommended values
     const maxValues = {
-      calories: 2000, // Daily recommended calories
-      protein: 50,    // Daily recommended protein (g)
-      carbs: 300,     // Daily recommended carbs (g)
-      fat: 65         // Daily recommended fat (g)
+      calories: 2000,
+      protein: 50,
+      carbs: 300,
+      fat: 65
     };
 
     const value = getNutritionValue(nutrition, type);
@@ -165,7 +174,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
       onMouseLeave={() => setIsHovered(false)}
       onClick={handleCardClick}
     >
-      {/* Image Container */}
+      {/* Recipe image */}
       <div className={styles.imageContainer}>
         <img
           src={recipe.image}
@@ -174,11 +183,11 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
           loading="lazy"
         />
 
-        {/* Overlay with special indicators only */}
+        {/* Image overlay for special indicators */}
         <div className={styles.imageOverlay}>
         </div>
 
-        {/* Favorite Button */}
+        {/* Favorite button */}
         <button
           className={`${styles.favoriteButton} ${isFavorite ? styles.favorited : ''}`}
           onClick={handleFavoriteClick}
@@ -190,11 +199,11 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
         </button>
       </div>
 
-      {/* Content */}
+      {/* Recipe content */}
       <div className={styles.content}>
         <h2 className={styles.recipeTitle}>{recipe.title}</h2>
 
-        {/* Recipe Description */}
+        {/* Recipe description */}
         {recipe.summary && (
           <div className={styles.recipeDescription}>
             <p className={styles.descriptionText}>
@@ -204,7 +213,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
           </div>
         )}
 
-        {/* Recipe Badges */}
+        {/* Recipe badges (cuisine, diet, meal type, time) */}
         <div className={styles.recipeBadges}>
           {getCuisineBadge() && (
             <span className={styles.cuisineBadge}>
@@ -226,7 +235,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
           </span>
         </div>
 
-        {/* Nutritional Information */}
+        {/* Nutrition information */}
         {recipe.nutrition && (
           <div className={styles.nutritionSection}>
             <h4 className={styles.nutritionTitle}>Nutrition (per serving)</h4>
@@ -283,7 +292,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
           </div>
         )}
 
-        {/* Recipe Tags */}
+        {/* Recipe tags */}
         {recipe.tags && recipe.tags.length > 0 && (
           <div className={styles.tagsSection}>
             <div className={styles.tagsContainer}>

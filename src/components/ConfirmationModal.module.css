@@ -90,19 +90,19 @@
 }
 
 .confirmButton {
-  background: linear-gradient(135deg, #546A04, #17371A);
+  background: linear-gradient(135deg, #4CAF50, #388E3C);
   color: #F8F7E5;
-  border: 2px solid #546A04;
+  border: 2px solid #4CAF50;
 }
 
 .confirmButton:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(84, 106, 4, 0.3);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
 }
 
 /* Type-specific styles */
 .info .confirmButton {
-  background: linear-gradient(135deg, #546A04, #17371A);
+  background: linear-gradient(135deg, #4CAF50, #388E3C);
 }
 
 .warning .confirmButton {
