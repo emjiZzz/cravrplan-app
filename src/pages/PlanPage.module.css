@@ -1,5 +1,7 @@
-/* Enhanced Plan Page Styles */
+/* ===== PLAN PAGE CONTAINER ===== */
+/* Main container and background styling for the entire plan page */
 
+/* Main container for the entire plan page */
 .planPageContainer {
   min-height: 100vh;
   background: linear-gradient(135deg, #17371A 0%, #1a3f1e 50%, #17371A 100%);
@@ -8,6 +10,7 @@
   overflow-x: hidden;
 }
 
+/* Background decorative elements */
 .planPageContainer::before {
   content: '';
   position: absolute;
@@ -20,6 +23,10 @@
   pointer-events: none;
 }
 
+/* ===== PAGE HEADER ===== */
+/* Header section with title and subtitle styling */
+
+/* Page header container */
 .pageHeader {
   text-align: center;
   margin-bottom: 30px;
@@ -27,11 +34,13 @@
   z-index: 1;
 }
 
+/* Header content wrapper */
 .headerContent {
   max-width: 800px;
   margin: 0 auto;
 }
 
+/* Page title styling */
 .pageTitle {
   font-size: 2.5rem;
   font-weight: 600;
@@ -44,6 +53,7 @@
   background-clip: text;
 }
 
+/* Page subtitle styling */
 .pageSubtitle {
   font-size: 1rem;
   color: #F8F7E5;
@@ -52,22 +62,17 @@
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-.headerActions {
-  display: flex;
-  gap: 15px;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  padding: 12px 0;
-  margin-bottom: 40px;
+/* ===== NUTRITIONAL STATISTICS SECTION ===== */
+/* Styling for the nutritional statistics component */
+
+.nutritionalStatsSection {
+  margin-bottom: 20px;
 }
 
-.actionGroup {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
+/* ===== BUTTON STYLES ===== */
+/* Button styling for various actions throughout the page */
 
+/* Clear all button styling */
 .clearAllButton {
   padding: 10px 18px;
   border: none;
@@ -130,12 +135,17 @@
   border-color: rgba(158, 158, 158, 0.2);
 }
 
+/* Trash button disabled hover state */
 .trashButton:disabled:hover {
   background: rgba(158, 158, 158, 0.3);
   transform: none;
   box-shadow: none;
 }
 
+/* ===== MAIN CONTENT ===== */
+/* Main content layout and grid structure */
+
+/* Main content container */
 .mainContent {
   max-width: 1400px;
   margin: 0 auto;
@@ -143,6 +153,7 @@
   z-index: 1;
 }
 
+/* Content wrapper with grid layout */
 .contentWrapper {
   display: grid;
   grid-template-columns: 2fr 1fr;
@@ -150,16 +161,22 @@
   align-items: start;
 }
 
+/* Left column for calendar */
 .leftColumn {
   display: flex;
   flex-direction: column;
 }
 
+/* Right column for meal list */
 .rightColumn {
   display: flex;
   flex-direction: column;
 }
 
+/* ===== SECTION CARDS ===== */
+/* Card-based layout for main content sections */
+
+/* Base styling for section cards */
 .sectionCard {
   background: linear-gradient(135deg, #F8F7E5 0%, #f5f5f0 50%, #F8F7E5 100%);
   border-radius: 20px;
@@ -170,6 +187,7 @@
   overflow: hidden;
 }
 
+/* Decorative top border for section cards */
 .sectionCard::before {
   content: '';
   position: absolute;
@@ -180,8 +198,10 @@
   background: linear-gradient(90deg, #546A04 0%, #17371A 50%, #546A04 100%);
 }
 
-/* Removed hover effect since section cards are not clickable */
+/* ===== SECTION HEADERS ===== */
+/* Header styling for content sections with titles and actions */
 
+/* Section title container layout */
 .sectionTitleContainer {
   display: flex;
   justify-content: space-between;
@@ -238,6 +258,7 @@
   transform: translateY(-1px);
 }
 
+/* Active state for view toggle buttons */
 .viewToggleButton.active {
   background: rgba(84, 106, 4, 0.8);
   border-color: #546A04;
@@ -245,10 +266,15 @@
   box-shadow: 0 2px 8px rgba(84, 106, 4, 0.3);
 }
 
+/* ===== CALENDAR STYLES ===== */
+/* Calendar container and basic calendar styling */
+
+/* Title icon styling */
 .titleIcon {
   font-size: 1.8rem;
 }
 
+/* Calendar container styling */
 .calendarContainer {
   background: rgba(255, 255, 255, 0.9);
   border-radius: 15px;
@@ -257,6 +283,10 @@
   border: 1px solid rgba(84, 106, 4, 0.1);
 }
 
+/* ===== EVENT STYLES ===== */
+/* Styling for meal plan events and event lists */
+
+/* Today's events container */
 .todayEvents {
   background: rgba(84, 106, 4, 0.05);
   border-radius: 15px;
@@ -272,12 +302,14 @@
   text-align: center;
 }
 
+/* Events list container */
 .eventsList {
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
 
+/* Individual event item */
 .eventItem {
   background: rgba(255, 255, 255, 0.9);
   border-radius: 12px;
@@ -339,11 +371,13 @@
   font-weight: 500;
 }
 
+/* Event action buttons container */
 .eventActions {
   display: flex;
   gap: 10px;
 }
 
+/* Swap and remove button base styles */
 .swapButton,
 .removeButton {
   padding: 8px 16px;
@@ -372,17 +406,19 @@
   border: 1px solid rgba(220, 53, 69, 0.2);
 }
 
+/* Remove button hover effect */
 .removeButton:hover {
   background: rgba(220, 53, 69, 0.2);
   transform: translateY(-1px);
 }
 
-/* Enhanced Modals */
+/* ===== MODAL STYLES ===== */
+/* Modal styling for various dialogs and overlays */
 
+/* ===== CONFIRMATION MODALS ===== */
+/* Confirmation dialog styling for user actions */
 
-
-
-/* Confirmation Modals */
+/* Confirmation modal backdrop */
 .confirmModalBackdrop {
   position: fixed;
   top: 0;
@@ -634,7 +670,10 @@
   box-shadow: none;
 }
 
-/* Grid Calendar Styles */
+/* ===== GRID CALENDAR STYLES ===== */
+/* Interactive calendar grid with drag-and-drop functionality */
+
+/* Grid calendar container */
 .gridCalendar {
   background: rgba(255, 255, 255, 0.05);
   border-radius: 16px;
@@ -643,6 +682,7 @@
   border: 1px solid rgba(248, 247, 229, 0.1);
 }
 
+/* Calendar header with navigation */
 .calendarHeader {
   display: flex;
   justify-content: space-between;
@@ -651,6 +691,7 @@
   padding: 0 10px;
 }
 
+/* Calendar title styling */
 .calendarTitle {
   font-size: 1.5rem;
   font-weight: 600;
@@ -674,6 +715,7 @@
   transform: translateY(-1px);
 }
 
+/* Calendar grid layout */
 .calendarGrid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -683,6 +725,7 @@
   padding: 2px;
 }
 
+/* Calendar day header styling */
 .calendarDayHeader {
   background: rgba(84, 106, 4, 0.3);
   color: #333333;
@@ -734,6 +777,7 @@
   margin-top: 30px;
 }
 
+/* Calendar event card styling */
 .calendarEventCard {
   background: rgba(255, 255, 255, 0.15);
   border-radius: 8px;
@@ -746,13 +790,17 @@
   margin-bottom: 6px;
 }
 
+/* Calendar event card hover effect */
 .calendarEventCard:hover {
   background: rgba(255, 255, 255, 0.25);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
 }
 
-/* Drag and Drop Styles */
+/* ===== DRAG AND DROP STYLES ===== */
+/* Drag-and-drop interaction styling and visual feedback */
+
+/* Draggable event styling */
 .draggableEvent {
   user-select: none;
   cursor: grab;
@@ -821,7 +869,31 @@
   transition: all 0.2s ease;
 }
 
+.calendarEventImageContainer {
+  position: relative;
+  margin-bottom: 8px;
+}
 
+.calendarEventMealType {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 2;
+}
+
+.mealTypeIndicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: rgba(84, 106, 4, 0.9);
+  border-radius: 50%;
+  font-size: 0.9rem;
+  color: #F8F7E5;
+  border: 1px solid rgba(84, 106, 4, 0.2);
+  backdrop-filter: blur(4px);
+}
 
 .calendarEventInfo {
   display: flex;
@@ -910,7 +982,10 @@
   font-weight: 500;
 }
 
-/* Recipe Details Modal */
+/* ===== RECIPE MODAL STYLES ===== */
+/* Recipe details modal styling and layout */
+
+/* Recipe modal backdrop */
 .recipeModalBackdrop {
   position: fixed;
   top: 0;
@@ -1091,7 +1166,10 @@
   border-color: rgba(84, 106, 4, 0.5);
 }
 
-/* Empty Calendar State */
+/* ===== EMPTY STATE STYLES ===== */
+/* Empty state styling for when no meals are planned */
+
+/* Empty calendar state styling */
 .emptyCalendarState {
   display: flex;
   flex-direction: column;
@@ -1299,7 +1377,10 @@
   text-align: center;
 }
 
-/* Responsive Design */
+/* ===== RESPONSIVE DESIGN ===== */
+/* Responsive design adjustments for different screen sizes */
+
+/* Tablet and mobile adjustments */
 @media (max-width: 768px) {
   .planPageContainer {
     padding: 15px;
@@ -1311,17 +1392,6 @@
 
   .pageSubtitle {
     font-size: 1rem;
-  }
-
-  .headerActions {
-    gap: 10px;
-    padding: 8px 0;
-    margin-bottom: 30px;
-  }
-
-  .actionGroup {
-    flex-direction: column;
-    width: 100%;
   }
 
   .contentWrapper {
@@ -1354,8 +1424,6 @@
   .eventActions {
     flex-direction: column;
   }
-
-
 
   .confirmModal {
     padding: 30px 25px;
@@ -1493,7 +1561,10 @@
   }
 }
 
-/* Add Meal Modal Styles */
+/* ===== ADD MEAL MODAL STYLES ===== */
+/* Add meal modal styling for meal creation and browsing */
+
+/* Add meal modal backdrop */
 .addMealModalBackdrop {
   position: fixed;
   top: 0;
@@ -1776,6 +1847,7 @@
   }
 }
 
+/* Small mobile adjustments */
 @media (max-width: 480px) {
   .addMealModalHeader h3 {
     font-size: 1.3rem;
@@ -1790,7 +1862,10 @@
   }
 }
 
-/* Image Upload Styles */
+/* ===== IMAGE UPLOAD STYLES ===== */
+/* Image upload functionality and preview styling */
+
+/* Image upload area styling */
 .imageUploadArea {
   border: 2px dashed #546A04;
   border-radius: 12px;

@@ -1,0 +1,9 @@
+// Firestore Indexes Configuration
+// This file defines database indexes for better query performance
+// Indexes help Firestore execute queries faster by pre-sorting data
+{
+  // Database indexes - currently empty, can be added as needed
+  "indexes": [],
+  // Field overrides - currently empty, can be used to customize field behavior
+  "fieldOverrides": []
+}

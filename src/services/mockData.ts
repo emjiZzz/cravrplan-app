@@ -1,6 +1,11 @@
+// Mock Recipe Data - Sample recipes for testing and fallback when API is unavailable
+// This file contains a comprehensive collection of recipe data that can be used
+// when the external API is not available or for development purposes
+
 import type { Recipe } from '../types/recipeTypes';
 
 // Mock recipe data - separated from API service to avoid circular dependencies
+// Contains recipes for different meal types: breakfast, lunch, dinner, desserts, and snacks
 export const mockRecipes: Recipe[] = [
   // Breakfast Recipes (15 recipes)
   {

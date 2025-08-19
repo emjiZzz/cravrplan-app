@@ -1,5 +1,6 @@
-/* FridgePage.module.css - Modern Card-Based Design */
+/* ===== FRIDGE PAGE CONTAINER ===== */
 
+/* Main container for the entire fridge page */
 .fridgePageContainer {
   min-height: calc(100vh - 80px);
   background: linear-gradient(135deg, #17371A 0%, #1a3f1e 50%, #17371A 100%);
@@ -8,6 +9,7 @@
   overflow-x: hidden;
 }
 
+/* Background decorative elements */
 .fridgePageContainer::before {
   content: '';
   position: fixed;
@@ -22,6 +24,9 @@
   z-index: -1;
 }
 
+/* ===== PAGE HEADER ===== */
+
+/* Page header container */
 .pageHeader {
   text-align: center;
   margin-bottom: 0px;
@@ -29,11 +34,13 @@
   z-index: 1;
 }
 
+/* Header content wrapper */
 .headerContent {
   max-width: 800px;
   margin: 0 auto;
 }
 
+/* Page title styling */
 .pageTitle {
   font-size: 2.5rem;
   font-weight: 600;
@@ -46,6 +53,7 @@
   background-clip: text;
 }
 
+/* Page subtitle styling */
 .pageSubtitle {
   font-size: 1rem;
   color: #F8F7E5;
@@ -54,46 +62,9 @@
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-.headerActions {
-  display: flex;
-  gap: 20px;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 40px;
-  flex-wrap: wrap;
-  padding: 20px;
-}
+/* ===== MAIN CONTENT ===== */
 
-.actionGroup {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.backButton {
-  position: absolute;
-  left: 20px;
-  background: rgba(84, 106, 4, 0.2);
-  color: #F8F7E5;
-  border: 2px solid rgba(84, 106, 4, 0.4);
-  width: 50px;
-  height: 50px;
-  font-size: 24px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-  border-radius: 12px;
-}
-
-.backButton:hover {
-  background: rgba(84, 106, 4, 0.3);
-  border-color: #546A04;
-  transform: translateX(-3px);
-}
-
-/* Main Content */
+/* Main content grid layout */
 .mainContent {
   max-width: 1400px;
   margin: 0 auto;
@@ -105,7 +76,9 @@
   z-index: 10;
 }
 
-/* Section Cards */
+/* ===== SECTION CARDS ===== */
+
+/* Base styling for section cards */
 .sectionCard {
   background: linear-gradient(135deg, #F8F7E5 0%, #f5f5f0 50%, #F8F7E5 100%);
   border-radius: 20px;
@@ -119,6 +92,7 @@
   overflow: hidden;
 }
 
+/* Decorative top border for section cards */
 .sectionCard::before {
   content: '';
   position: absolute;
@@ -130,17 +104,19 @@
   border-radius: 20px 20px 0 0;
 }
 
-/* Removed hover effect since section cards are not clickable */
-
+/* Section title icon styling */
 .titleIcon {
   font-size: 24px;
 }
 
-/* Search Bar */
+/* ===== SEARCH BAR ===== */
+
+/* Search bar container */
 .searchBar {
   margin-bottom: 25px;
 }
 
+/* Search input styling */
 .searchInput {
   width: 92%;
   padding: 16px 20px;
@@ -153,6 +129,7 @@
   box-shadow: 0 2px 8px rgba(84, 106, 4, 0.05);
 }
 
+/* Focus state for search input */
 .searchInput:focus {
   outline: none;
   border-color: #546A04;
@@ -160,16 +137,20 @@
   box-shadow: 0 0 0 3px rgba(84, 106, 4, 0.1), 0 4px 12px rgba(84, 106, 4, 0.1);
 }
 
-/* Custom Input Section */
+/* ===== CUSTOM INPUT SECTION ===== */
+
+/* Custom input section container */
 .customInputSection {
   margin-bottom: 30px;
 }
 
+/* Input group layout */
 .inputGroup {
   display: flex;
   gap: 12px;
 }
 
+/* Custom input field styling */
 .customInput {
   flex: 1;
   padding: 14px 18px;
@@ -181,6 +162,7 @@
   transition: all 0.3s ease;
 }
 
+/* Focus state for custom input */
 .customInput:focus {
   outline: none;
   border-color: #546A04;
@@ -188,6 +170,7 @@
   box-shadow: 0 0 0 3px rgba(84, 106, 4, 0.1);
 }
 
+/* Add button styling */
 .addButton {
   padding: 14px 20px;
   background: linear-gradient(135deg, #546A04, #17371A);
@@ -201,12 +184,15 @@
   white-space: nowrap;
 }
 
+/* Hover effect for add button */
 .addButton:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(84, 106, 4, 0.3);
 }
 
-/* Categories Container */
+/* ===== CATEGORIES CONTAINER ===== */
+
+/* Categories container with scroll */
 .categoriesContainer {
   display: flex;
   flex-direction: column;
@@ -216,6 +202,7 @@
   padding-right: 10px;
 }
 
+/* Individual category card */
 .categoryCard {
   background: rgba(255, 255, 255, 0.6);
   border-radius: 16px;
@@ -224,11 +211,13 @@
   transition: all 0.3s ease;
 }
 
+/* Hover effect for category cards */
 .categoryCard:hover {
   background: rgba(255, 255, 255, 0.8);
   border-color: rgba(84, 106, 4, 0.2);
 }
 
+/* Category title styling */
 .categoryTitle {
   font-size: 18px;
   font-weight: 600;
@@ -238,12 +227,14 @@
   border-bottom: 2px solid rgba(84, 106, 4, 0.2);
 }
 
+/* Ingredients grid layout */
 .ingredientsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
   gap: 8px;
 }
 
+/* Ingredient chip styling */
 .ingredientChip {
   padding: 10px 14px;
   background: rgba(255, 255, 255, 0.8);
@@ -258,12 +249,14 @@
   text-align: center;
 }
 
+/* Hover effect for ingredient chips */
 .ingredientChip:hover {
   border-color: #546A04;
   background: rgba(84, 106, 4, 0.1);
   transform: translateY(-1px);
 }
 
+/* Selected state for ingredient chips */
 .ingredientChip.selected {
   background: linear-gradient(135deg, #546A04, #17371A);
   color: #F8F7E5;
@@ -271,14 +264,18 @@
   box-shadow: 0 4px 12px rgba(84, 106, 4, 0.3);
 }
 
-/* Results Section */
+/* ===== RESULTS SECTION ===== */
+
+/* Results section layout */
 .resultsSection {
   display: flex;
   flex-direction: column;
   gap: 25px;
 }
 
-/* Section Header */
+/* ===== SECTION HEADER ===== */
+
+/* Section header layout */
 .sectionHeader {
   display: flex;
   justify-content: space-between;
@@ -286,6 +283,7 @@
   margin-bottom: 25px;
 }
 
+/* Section title styling */
 .sectionTitle {
   font-size: 22px;
   font-weight: 700;
@@ -296,6 +294,7 @@
   gap: 12px;
 }
 
+/* Clear all button styling */
 .clearAllButton {
   padding: 8px 16px;
   background: linear-gradient(135deg, #dc3545, #c82333);
@@ -308,12 +307,15 @@
   transition: all 0.3s ease;
 }
 
+/* Hover effect for clear all button */
 .clearAllButton:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
 }
 
-/* Selected Ingredients */
+/* ===== SELECTED INGREDIENTS ===== */
+
+/* Selected ingredients list */
 .selectedIngredientsList {
   display: flex;
   flex-direction: column;
@@ -321,6 +323,7 @@
   margin-bottom: 25px;
 }
 
+/* Individual selected ingredient item */
 .selectedIngredientItem {
   display: flex;
   align-items: center;
@@ -332,11 +335,13 @@
   transition: all 0.3s ease;
 }
 
+/* Hover effect for selected ingredient items */
 .selectedIngredientItem:hover {
   background: rgba(255, 255, 255, 0.9);
   border-color: rgba(84, 106, 4, 0.2);
 }
 
+/* Ingredient details layout */
 .ingredientDetails {
   display: flex;
   align-items: center;
@@ -344,6 +349,7 @@
   flex: 1;
 }
 
+/* Ingredient name styling */
 .ingredientName {
   font-weight: 600;
   color: #17371A;
@@ -351,6 +357,7 @@
   text-transform: capitalize;
 }
 
+/* Remove button styling */
 .removeButton {
   background: linear-gradient(135deg, #dc3545, #c82333);
   color: white;
@@ -366,12 +373,15 @@
   transition: all 0.3s ease;
 }
 
+/* Hover effect for remove button */
 .removeButton:hover {
   transform: scale(1.1);
   box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
 }
 
-/* Search Controls */
+/* ===== SEARCH CONTROLS ===== */
+
+/* Search controls layout */
 .searchControls {
   display: flex;
   align-items: center;
@@ -380,12 +390,14 @@
   border-top: 2px solid rgba(84, 106, 4, 0.1);
 }
 
+/* Control group layout */
 .controlGroup {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
+/* Control label styling */
 .controlLabel {
   font-weight: 600;
   color: #17371A;
@@ -393,6 +405,7 @@
   white-space: nowrap;
 }
 
+/* Control select styling */
 .controlSelect {
   padding: 10px 14px;
   border: 2px solid rgba(84, 106, 4, 0.2);
@@ -404,12 +417,14 @@
   transition: all 0.3s ease;
 }
 
+/* Focus state for control select */
 .controlSelect:focus {
   outline: none;
   border-color: #546A04;
   box-shadow: 0 0 0 3px rgba(84, 106, 4, 0.1);
 }
 
+/* Search button styling */
 .searchButton {
   padding: 14px 24px;
   background: linear-gradient(135deg, #546A04, #17371A);
@@ -426,17 +441,22 @@
   margin-left: auto;
 }
 
+/* Hover effect for search button */
 .searchButton:hover:not(:disabled) {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(84, 106, 4, 0.3);
 }
 
+/* Disabled state for search button */
 .searchButton:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
 }
 
+/* ===== LOADING SPINNER ===== */
+
+/* Loading spinner styling */
 .loadingSpinner {
   width: 16px;
   height: 16px;
@@ -446,6 +466,7 @@
   animation: spin 1s linear infinite;
 }
 
+/* Spinner rotation animation */
 @keyframes spin {
   0% {
     transform: rotate(0deg);
@@ -456,42 +477,51 @@
   }
 }
 
+/* Search icon styling */
 .searchIcon {
   font-size: 16px;
 }
 
-/* Empty State */
+/* ===== EMPTY STATE ===== */
+
+/* Empty state styling */
 .emptyState {
   text-align: center;
   padding: 60px 20px;
   color: #546A04;
 }
 
+/* Empty state icon */
 .emptyIcon {
   font-size: 48px;
   margin-bottom: 20px;
   opacity: 0.7;
 }
 
+/* Empty state text */
 .emptyState p {
   font-size: 18px;
   font-weight: 500;
   margin: 0 0 8px 0;
 }
 
+/* Empty state subtext */
 .emptySubtext {
   font-size: 14px;
   opacity: 0.7;
   font-weight: 400;
 }
 
-/* Recipe Cards */
+/* ===== RECIPE CARDS ===== */
+
+/* Recipe grid layout */
 .recipesGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 20px;
 }
 
+/* Individual recipe card */
 .recipeCard {
   background: white;
   border-radius: 16px;
@@ -502,18 +532,21 @@
   border: 1px solid rgba(84, 106, 4, 0.1);
 }
 
+/* Hover effect for recipe cards */
 .recipeCard:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
   border-color: #546A04;
 }
 
+/* Recipe image container */
 .recipeImageContainer {
   position: relative;
   height: 180px;
   overflow: hidden;
 }
 
+/* Recipe image styling */
 .recipeImage {
   width: 100%;
   height: 100%;
@@ -521,10 +554,12 @@
   transition: transform 0.3s ease;
 }
 
+/* Hover effect for recipe image */
 .recipeCard:hover .recipeImage {
   transform: scale(1.05);
 }
 
+/* Recipe overlay for ingredient stats */
 .recipeOverlay {
   position: absolute;
   top: 0;
@@ -539,16 +574,19 @@
   transition: opacity 0.3s ease;
 }
 
+/* Show overlay on hover */
 .recipeCard:hover .recipeOverlay {
   opacity: 1;
 }
 
+/* Recipe stats layout */
 .recipeStats {
   display: flex;
   gap: 15px;
   width: 100%;
 }
 
+/* Used ingredients count styling */
 .usedCount {
   color: #28a745;
   font-weight: 600;
@@ -561,12 +599,14 @@
   transition: all 0.3s ease;
 }
 
+/* Hover effect for used count */
 .usedCount:hover {
   background: rgba(255, 255, 255, 1);
   transform: scale(1.05);
   box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
 }
 
+/* Missing ingredients count styling */
 .missedCount {
   color: #dc3545;
   font-weight: 600;
@@ -579,16 +619,19 @@
   transition: all 0.3s ease;
 }
 
+/* Hover effect for missed count */
 .missedCount:hover {
   background: rgba(255, 255, 255, 1);
   transform: scale(1.05);
   box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
 }
 
+/* Recipe content area */
 .recipeContent {
   padding: 20px;
 }
 
+/* Recipe title styling */
 .recipeTitle {
   font-size: 16px;
   font-weight: 600;
@@ -601,6 +644,7 @@
   overflow: hidden;
 }
 
+/* Recipe time styling */
 .recipeTime {
   font-size: 13px;
   color: #546A04;
@@ -611,6 +655,7 @@
   font-weight: 500;
 }
 
+/* View recipe button styling */
 .viewRecipeButton {
   width: 100%;
   padding: 12px;
@@ -626,18 +671,24 @@
   letter-spacing: 0.5px;
 }
 
+/* Hover effect for view recipe button */
 .viewRecipeButton:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(84, 106, 4, 0.3);
 }
 
-/* Responsive Design */
+/* ===== RESPONSIVE DESIGN ===== */
+
+/* Large screen adjustments */
 @media (max-width: 1200px) {
+
+  /* Switch to single column layout */
   .mainContent {
     grid-template-columns: 1fr;
     gap: 25px;
   }
 
+  /* Reorder sections for better mobile experience */
   .ingredientSection {
     order: 2;
   }
@@ -647,7 +698,10 @@
   }
 }
 
+/* Tablet and mobile adjustments */
 @media (max-width: 768px) {
+
+  /* Page title adjustments for mobile */
   .pageTitle {
     font-size: 2.5rem;
   }
@@ -656,21 +710,18 @@
     font-size: 1rem;
   }
 
-  .headerActions {
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-  }
-
+  /* Main content adjustments for mobile */
   .mainContent {
     padding: 20px;
     gap: 20px;
   }
 
+  /* Section card adjustments for mobile */
   .sectionCard {
     padding: 25px;
   }
 
+  /* Section header adjustments for mobile */
   .sectionHeader {
     flex-direction: column;
     align-items: flex-start;
@@ -681,6 +732,7 @@
     align-self: flex-end;
   }
 
+  /* Search controls adjustments for mobile */
   .searchControls {
     flex-direction: column;
     align-items: stretch;
@@ -695,24 +747,28 @@
     margin-left: 0;
   }
 
+  /* Recipe grid adjustments for mobile */
   .recipesGrid {
     grid-template-columns: 1fr;
   }
 
+  /* Ingredients grid adjustments for mobile */
   .ingredientsGrid {
     grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
   }
 
+  /* Ingredient details adjustments for mobile */
   .ingredientDetails {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
-
-
 }
 
+/* Small mobile adjustments */
 @media (max-width: 480px) {
+
+  /* Page title adjustments for small mobile */
   .pageTitle {
     font-size: 2rem;
   }
@@ -721,14 +777,17 @@
     font-size: 0.9rem;
   }
 
+  /* Main content adjustments for small mobile */
   .mainContent {
     padding: 15px;
   }
 
+  /* Section card adjustments for small mobile */
   .sectionCard {
     padding: 20px;
   }
 
+  /* Input group adjustments for small mobile */
   .inputGroup {
     flex-direction: column;
   }
@@ -737,6 +796,7 @@
     width: 100%;
   }
 
+  /* Ingredient chip adjustments for small mobile */
   .ingredientChip {
     font-size: 12px;
     padding: 8px 12px;

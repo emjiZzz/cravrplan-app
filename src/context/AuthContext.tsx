@@ -10,30 +10,44 @@ import {
 import { auth } from '../services/firebase';
 import { firestoreService } from '../services/firestoreService';
 
-// User data structure
+// ===== TYPE DEFINITIONS =====
+
+/**
+ * User interface - defines the structure of user data
+ */
 interface User {
-  id: string;
-  email: string;
-  fullName: string;
+  id: string;           // Unique user ID from Firebase
+  email: string;        // User's email address
+  fullName: string;     // User's full name
 }
 
-// What the auth context provides to other components
+/**
+ * AuthContext interface - defines what the context provides to components
+ */
 interface AuthContextType {
-  user: User | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  signup: (fullName: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  logout: () => void;
-  continueAsGuest: () => void;
-  authError: string | null;
-  clearAuthError: () => void;
+  user: User | null;                                    // Current user data (null if not logged in)
+  isAuthenticated: boolean;                             // Whether user is logged in
+  isLoading: boolean;                                   // Loading state for auth operations
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;  // Login function
+  signup: (fullName: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>;  // Signup function
+  logout: () => void;                                   // Logout function
+  continueAsGuest: () => void;                          // Continue without authentication
+  authError: string | null;                             // Current authentication error message
+  clearAuthError: () => void;                           // Clear error message
 }
 
-// Create the context
+// ===== CONTEXT CREATION =====
+
+/**
+ * Create the authentication context
+ * This will hold all authentication-related state and functions
+ */
 const AuthContext = createContext<AuthContextType | null>(null);
 
-// Hook to use the auth context
+/**
+ * Custom hook to use the authentication context
+ * Provides easy access to auth functions and state from any component
+ */
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
@@ -42,18 +56,37 @@ export const useAuth = () => {
   return context;
 };
 
-// Props for the AuthProvider component
+// ===== PROVIDER PROPS =====
+
+/**
+ * Props for the AuthProvider component
+ */
 interface AuthProviderProps {
-  children: ReactNode;
+  children: ReactNode;  // React components that will have access to auth context
 }
 
-// Main auth provider component that manages user authentication
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [authError, setAuthError] = useState<string | null>(null);
+// ===== AUTH PROVIDER COMPONENT =====
 
-  // Listen for changes in Firebase authentication state
+/**
+ * AuthProvider Component
+ * 
+ * Provides authentication functionality to the entire app.
+ * Manages user login, signup, logout, and authentication state.
+ * Uses Firebase Authentication and Firestore for user data storage.
+ */
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  // ===== STATE MANAGEMENT =====
+
+  const [user, setUser] = useState<User | null>(null);           // Current user data
+  const [isLoading, setIsLoading] = useState(true);             // Loading state
+  const [authError, setAuthError] = useState<string | null>(null); // Error messages
+
+  // ===== FIREBASE AUTH STATE LISTENER =====
+
+  /**
+   * Listen for changes in Firebase authentication state
+   * This runs when the component mounts and whenever auth state changes
+   */
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: any) => {
       if (firebaseUser) {
@@ -62,6 +95,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const userData = await firestoreService.getUser(firebaseUser.uid);
 
           if (userData) {
+            // Create user object with data from Firestore
             const user: User = {
               id: userData.id,
               email: userData.email,
@@ -104,10 +138,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsLoading(false);
     });
 
+    // Cleanup function - unsubscribe when component unmounts
     return () => unsubscribe();
   }, []);
 
-  // Handle user login - this function catches Firebase authentication errors and returns user-friendly messages
+  // ===== AUTHENTICATION FUNCTIONS =====
+
+  /**
+   * Handle user login
+   * Attempts to sign in with Firebase and returns success/error status
+   */
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     // Only show loading for actual login attempts, not for initial auth check
     const isInitialLoad = !user && isLoading;
@@ -117,7 +157,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     try {
       // Attempt to sign in with Firebase Authentication
-      // This will throw an error if credentials are wrong
       await signInWithEmailAndPassword(auth, email, password);
       console.log('Login successful - user authenticated with Firebase');
       setAuthError(null);
@@ -128,7 +167,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       let errorMessage = 'Invalid email or password, please try again.';
 
       // Map Firebase error codes to user-friendly messages
-      // This helps users understand exactly what went wrong
       if (error.code === 'auth/user-not-found') {
         errorMessage = 'No account found with this email address.';
       } else if (error.code === 'auth/wrong-password') {
@@ -151,7 +189,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  // Handle user signup
+  /**
+   * Handle user signup
+   * Creates a new user account in both Firebase Auth and Firestore
+   */
   const signup = async (fullName: string, email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     setIsLoading(true);
     console.log('AuthContext: Starting signup process...');
@@ -197,7 +238,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  // Handle user logout
+  /**
+   * Handle user logout
+   * Signs out the user from Firebase Authentication
+   */
   const logout = async () => {
     try {
       await signOut(auth);
@@ -207,7 +251,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  // Handle continuing as guest (no authentication)
+  /**
+   * Handle continuing as guest (no authentication)
+   * Allows users to use the app without creating an account
+   */
   const continueAsGuest = () => {
     // Clear any existing user data
     setUser(null);
@@ -216,10 +263,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setAuthError(null);
   };
 
-  // What we provide to other components
+  // ===== CONTEXT VALUE =====
+
+  /**
+   * What we provide to other components through the context
+   */
   const value: AuthContextType = {
     user,
-    isAuthenticated: !!user,
+    isAuthenticated: !!user,  // Convert user to boolean (true if user exists, false if null)
     isLoading,
     login,
     signup,

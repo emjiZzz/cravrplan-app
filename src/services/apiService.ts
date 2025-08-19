@@ -1,3 +1,8 @@
+// API Service - Handles all communication with the Spoonacular recipe API
+// This service manages recipe searches, details, and API error handling
+// It includes rate limiting, retry logic, and fallback to mock data when API fails
+
+// Import types for recipe data and API responses
 import type {
   Recipe,
   RecipeSearchParams,
@@ -7,32 +12,29 @@ import type {
 } from '../types/recipeTypes';
 import { mockRecipes } from './mockData';
 
-// API Configuration
+// API Configuration - Base URL and API key from environment variables
+// These values tell the service where to find the recipe API and how to authenticate
 const API_BASE_URL = 'https://api.spoonacular.com/recipes';
 const API_KEY = import.meta.env.VITE_SPOONACULAR_API_KEY || 'your-api-key-here';
 
-// Configuration options
+// Configuration settings for the API service
+// These control how the service behaves when making API calls
 const CONFIG = {
-  LOG_API_ERRORS: import.meta.env.DEV, // Only log errors in development
-  USE_MOCK_DATA_FALLBACK: true, // Always fallback to mock data on API errors
-  RATE_LIMIT_DELAY: 1000, // 1 second between requests
-  MAX_RETRIES: 3, // Maximum retry attempts for failed requests
-  REQUEST_TIMEOUT: 10000, // 10 seconds timeout
-  FORCE_MOCK_DATA: !import.meta.env.VITE_SPOONACULAR_API_KEY || import.meta.env.VITE_SPOONACULAR_API_KEY === 'your-api-key-here', // Use mock data if no valid API key
+  LOG_API_ERRORS: import.meta.env.DEV, // Only log errors in development mode
+  USE_MOCK_DATA_FALLBACK: true, // Always use mock data when API fails
+  RATE_LIMIT_DELAY: 1000, // Wait 1 second between requests to be respectful to the API
+  MAX_RETRIES: 3, // Maximum number of retry attempts for failed requests
+  REQUEST_TIMEOUT: 10000, // 10 seconds timeout for requests
 };
 
-// Enhanced error types
-export interface ApiError {
-  code: string;
-  message: string;
-  details?: unknown;
-  retryable: boolean;
-}
-
+/**
+ * Custom error class for API-related errors
+ * This helps distinguish between different types of errors and provides useful information
+ */
 export class RecipeApiError extends Error {
-  public code: string;
-  public retryable: boolean;
-  public details?: unknown;
+  public code: string;        // Error code (e.g., 'AUTH_ERROR', 'RATE_LIMIT_ERROR')
+  public retryable: boolean;  // Whether this error can be retried
+  public details?: unknown;   // Additional error details
 
   constructor(message: string, code: string, retryable: boolean = false, details?: unknown) {
     super(message);
@@ -43,15 +45,25 @@ export class RecipeApiError extends Error {
   }
 }
 
-// Helper function to build query parameters
+/**
+ * Helper function to convert parameters object to URL query string
+ * @param params - Object containing search parameters
+ * @returns URL-encoded query string
+ * 
+ * This function takes an object of search parameters and converts it into
+ * a query string that can be added to a URL for API requests.
+ */
 const buildQueryParams = (params: Record<string, string | number | boolean | string[]>): string => {
   const searchParams = new URLSearchParams();
 
+  // Loop through each parameter and add it to the query string
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== '') {
       if (Array.isArray(value)) {
+        // If the value is an array, join it with commas
         searchParams.append(key, value.join(','));
       } else {
+        // If the value is a single item, convert it to string
         searchParams.append(key, value.toString());
       }
     }
@@ -60,10 +72,11 @@ const buildQueryParams = (params: Record<string, string | number | boolean | str
   return searchParams.toString();
 };
 
-// API Service Class - Simplified version with mock data fallback
+// Main API Service Class - Handles all recipe-related API calls
+// This class manages the communication with the Spoonacular API
 class RecipeApiService {
-  private requestCount: number = 0;
-  private lastRequestTime: number = 0;
+  private requestCount: number = 0;      // Track number of requests made
+  private lastRequestTime: number = 0;   // Track when the last request was made
 
   constructor() {
     if (CONFIG.LOG_API_ERRORS) {
@@ -71,11 +84,16 @@ class RecipeApiService {
     }
   }
 
-  // Rate limiting helper
+  /**
+   * Rate limiting function to prevent too many API calls
+   * This ensures we don't exceed the API's rate limits
+   */
   private async checkRateLimit(): Promise<void> {
     const now = Date.now();
     const timeSinceLastRequest = now - this.lastRequestTime;
 
+    // If we've made 10 requests in the last minute, wait
+    // This prevents hitting the API's rate limits
     if (this.requestCount >= 10 && timeSinceLastRequest < 60000) {
       const waitTime = 60000 - timeSinceLastRequest;
       console.warn(`Rate limit exceeded. Please wait ${Math.ceil(waitTime / 1000)} seconds.`);
@@ -84,6 +102,7 @@ class RecipeApiService {
       this.lastRequestTime = Date.now();
     }
 
+    // Reset counter if more than a minute has passed
     if (timeSinceLastRequest > 60000) {
       this.requestCount = 0;
     }
@@ -92,9 +111,22 @@ class RecipeApiService {
     this.lastRequestTime = now;
   }
 
-  // Enhanced error handling with retry logic
+  /**
+   * Main function to make HTTP requests with error handling and retry logic
+   * @param url - The URL to make the request to
+   * @param options - Request options (method, headers, body, etc.)
+   * @param retryCount - Current retry attempt number
+   * @returns The response data
+   * 
+   * This function handles all HTTP requests to the API. It includes:
+   * - Rate limiting to prevent too many requests
+   * - Timeout handling to prevent hanging requests
+   * - Error handling for different HTTP status codes
+   * - Retry logic for certain types of errors
+   */
   private async makeRequest<T>(url: string, options: RequestInit = {}, retryCount: number = 0): Promise<T> {
     try {
+      // Add delay between requests to respect rate limits
       if (this.lastRequestTime > 0) {
         const timeSinceLastRequest = Date.now() - this.lastRequestTime;
         if (timeSinceLastRequest < CONFIG.RATE_LIMIT_DELAY) {
@@ -102,9 +134,12 @@ class RecipeApiService {
         }
       }
 
+      // Set up timeout for the request
+      // This prevents requests from hanging indefinitely
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), CONFIG.REQUEST_TIMEOUT);
 
+      // Make the actual HTTP request
       const response = await fetch(url, {
         ...options,
         signal: controller.signal,
@@ -116,6 +151,8 @@ class RecipeApiService {
 
       clearTimeout(timeoutId);
 
+      // Handle different HTTP error status codes
+      // Each status code gets a specific error message and handling
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
 
@@ -156,6 +193,7 @@ class RecipeApiService {
         throw error;
       }
 
+      // Handle timeout errors
       if (error instanceof Error && error.name === 'AbortError') {
         throw new RecipeApiError(
           'Request timeout. Please try again.',
@@ -164,8 +202,10 @@ class RecipeApiService {
         );
       }
 
+      // Retry logic for certain types of errors
+      // This automatically retries requests that might succeed on a second attempt
       if (retryCount < CONFIG.MAX_RETRIES && this.isRetryableError(error as { code?: string; name?: string })) {
-        const delay = Math.pow(2, retryCount) * 1000;
+        const delay = Math.pow(2, retryCount) * 1000; // Exponential backoff
         await new Promise(resolve => setTimeout(resolve, delay));
         return this.makeRequest<T>(url, options, retryCount + 1);
       }
@@ -179,6 +219,15 @@ class RecipeApiService {
     }
   }
 
+  /**
+   * Check if an error is retryable
+   * @param error - The error to check
+   * @returns True if the error can be retried, false otherwise
+   * 
+   * This function determines whether a failed request should be retried.
+   * Some errors (like rate limits or server errors) can be retried,
+   * while others (like authentication errors) cannot.
+   */
   private isRetryableError(error: { code?: string; name?: string }): boolean {
     return error.code === 'RATE_LIMIT_ERROR' ||
       error.code === 'SERVER_ERROR' ||
@@ -186,26 +235,21 @@ class RecipeApiService {
       error.name === 'AbortError';
   }
 
-  // Search recipes with mock data fallback
+  /**
+   * Search for recipes using the API with fallback to mock data
+   * @param params - Search parameters (query, cuisine, diet, etc.)
+   * @returns Search results with recipes and metadata
+   * 
+   * This is the main function for searching recipes. It tries the API first,
+   * and if that fails, it falls back to mock data to ensure the app always works.
+   */
   async searchRecipes(params: RecipeSearchParams): Promise<RecipeSearchResponse> {
-    const result = this.getMockSearchResults(params);
-
-    // Skip API call if no valid API key is configured
-    if (CONFIG.FORCE_MOCK_DATA) {
-      if (CONFIG.LOG_API_ERRORS) {
-        console.log('No valid API key configured, using mock data');
-      }
-      return {
-        results: result.results,
-        offset: result.offset,
-        number: result.number,
-        totalResults: result.totalResults
-      };
-    }
+    const mockResult = this.getMockSearchResults(params);
 
     try {
       await this.checkRateLimit();
 
+      // Build query parameters for the API request
       const queryParams = buildQueryParams({
         ...params,
         apiKey: API_KEY,
@@ -214,34 +258,39 @@ class RecipeApiService {
         number: params.number || 20
       });
 
+      // Make API request
       const apiResult = await this.makeRequest<RecipeSearchResponse>(`${API_BASE_URL}/complexSearch?${queryParams}`);
       return apiResult;
     } catch (error) {
-      console.log('API call failed, using mock data:', error);
+      // If API fails, use mock data
+      if (CONFIG.LOG_API_ERRORS) {
+        console.log('API call failed, using mock data:', error);
+      }
       return {
-        results: result.results,
-        offset: result.offset,
-        number: result.number,
-        totalResults: result.totalResults
+        results: mockResult.results,
+        offset: mockResult.offset,
+        number: mockResult.number,
+        totalResults: mockResult.totalResults
       };
     }
   }
 
-  // Search recipes by ingredients with mock data fallback
+  /**
+   * Search for recipes by ingredients with API fallback
+   * @param ingredients - Array of ingredient names to search for
+   * @param maxMissingIngredients - Maximum number of missing ingredients allowed
+   * @returns Array of recipes that can be made with the given ingredients
+   * 
+   * This function finds recipes that can be made with the ingredients the user has.
+   * It allows for some missing ingredients to be flexible in recipe suggestions.
+   */
   async searchRecipesByIngredients(ingredients: string[], maxMissingIngredients: number = 3): Promise<Recipe[]> {
     const mockResults = this.getMockRecipesByIngredients(ingredients, maxMissingIngredients);
-
-    // Skip API call if no valid API key is configured
-    if (CONFIG.FORCE_MOCK_DATA) {
-      if (CONFIG.LOG_API_ERRORS) {
-        console.log('No valid API key configured, using mock data for ingredient search');
-      }
-      return mockResults;
-    }
 
     try {
       await this.checkRateLimit();
 
+      // Build query parameters for ingredient search
       const ingredientParams = buildQueryParams({
         ingredients: ingredients.join(','),
         ranking: 2,
@@ -255,27 +304,23 @@ class RecipeApiService {
       const result = await this.makeRequest<{ results: Recipe[] }>(`${API_BASE_URL}/findByIngredients?${ingredientParams}`);
       return result.results || [];
     } catch (error) {
-      console.log('API call failed, using mock data:', error);
+      // If API fails, use mock data
+      if (CONFIG.LOG_API_ERRORS) {
+        console.log('API call failed, using mock data:', error);
+      }
       return mockResults;
     }
   }
 
-  // Get detailed recipe information with mock data fallback
+  /**
+   * Get detailed information about a specific recipe
+   * @param recipeId - The unique ID of the recipe
+   * @returns Detailed recipe information including nutrition and instructions
+   * 
+   * This function gets comprehensive information about a specific recipe,
+   * including ingredients, instructions, nutrition facts, and more.
+   */
   async getRecipeDetails(recipeId: number): Promise<RecipeDetailResponse> {
-    const mockRecipe = mockRecipes.find(recipe => recipe.id === recipeId);
-
-    if (!mockRecipe) {
-      throw new Error(`Recipe with id ${recipeId} not found`);
-    }
-
-    // Skip API call if no valid API key is configured
-    if (CONFIG.FORCE_MOCK_DATA) {
-      if (CONFIG.LOG_API_ERRORS) {
-        console.log('No valid API key configured, using mock data for recipe details');
-      }
-      return this.getMockRecipeDetails(recipeId);
-    }
-
     try {
       await this.checkRateLimit();
 
@@ -283,20 +328,39 @@ class RecipeApiService {
       const result = await this.makeRequest<RecipeDetailResponse>(`${API_BASE_URL}/${recipeId}/information?${detailParams}`);
       return result;
     } catch (error) {
-      console.log('API call failed, using mock data:', error);
+      // If API fails, use mock data
+      if (CONFIG.LOG_API_ERRORS) {
+        console.log('API call failed, using mock data:', error);
+      }
       return this.getMockRecipeDetails(recipeId);
     }
   }
 
-  // Get available filter options
+  /**
+   * Get available filter options (uses mock data since API doesn't provide this)
+   * @returns Object containing all available filter options
+   * 
+   * This function returns all the available options for filtering recipes.
+   * Since the API doesn't provide this data, we use predefined mock options.
+   */
   async getFilterOptions(): Promise<FilterOptionsResponse> {
     return this.getMockFilterOptions();
   }
 
-  // Mock data methods
+  // ===== MOCK DATA METHODS FOR FALLBACK =====
+
+  /**
+   * Filter mock recipes based on search parameters
+   * @param params - Search parameters to filter by
+   * @returns Filtered recipe results using mock data
+   * 
+   * This function filters the local mock recipes based on the search parameters.
+   * It's used as a fallback when the API is unavailable.
+   */
   private getMockSearchResults(params: RecipeSearchParams): RecipeSearchResponse {
     let filteredRecipes = [...mockRecipes];
 
+    // Filter by search query
     if (params.query) {
       const query = params.query.toLowerCase();
       filteredRecipes = filteredRecipes.filter((recipe: any) =>
@@ -308,18 +372,21 @@ class RecipeApiService {
       );
     }
 
+    // Filter by diet
     if (params.diet) {
       filteredRecipes = filteredRecipes.filter((recipe: any) =>
         recipe.diets.includes(params.diet!)
       );
     }
 
+    // Filter by cuisine
     if (params.cuisine) {
       filteredRecipes = filteredRecipes.filter((recipe: any) =>
         recipe.cuisines.includes(params.cuisine!)
       );
     }
 
+    // Filter by meal type
     if (params.type) {
       const mealType = params.type.toLowerCase();
       filteredRecipes = filteredRecipes.filter((recipe: any) => {
@@ -347,12 +414,14 @@ class RecipeApiService {
       });
     }
 
+    // Filter by cooking time
     if (params.maxReadyTime) {
       filteredRecipes = filteredRecipes.filter(recipe =>
         recipe.readyInMinutes <= params.maxReadyTime!
       );
     }
 
+    // Filter by food intolerances
     if (params.intolerances && params.intolerances.length > 0) {
       filteredRecipes = filteredRecipes.filter(recipe => {
         const intolerances = params.intolerances!;
@@ -368,6 +437,7 @@ class RecipeApiService {
       });
     }
 
+    // Apply pagination
     const offset = params.offset || 0;
     const number = params.number || 20;
     const paginatedRecipes = filteredRecipes.slice(offset, offset + number);
@@ -380,6 +450,14 @@ class RecipeApiService {
     };
   }
 
+  /**
+   * Get mock recipe details with nutrition information
+   * @param recipeId - The unique ID of the recipe
+   * @returns Detailed recipe information with mock nutrition data
+   * 
+   * This function provides detailed recipe information when the API is unavailable.
+   * It includes mock nutrition data to make the recipe details look complete.
+   */
   private getMockRecipeDetails(recipeId: number): RecipeDetailResponse {
     const recipe = mockRecipes.find(r => r.id === recipeId);
     if (!recipe) {
@@ -449,6 +527,13 @@ class RecipeApiService {
     };
   }
 
+  /**
+   * Get mock filter options for the recipe search
+   * @returns Object containing all available filter options
+   * 
+   * This function returns predefined filter options that users can choose from
+   * when searching for recipes. These options cover common dietary and cuisine preferences.
+   */
   private getMockFilterOptions(): FilterOptionsResponse {
     return {
       cuisines: [
@@ -500,6 +585,16 @@ class RecipeApiService {
     };
   }
 
+  /**
+   * Filter mock recipes by ingredients
+   * @param ingredients - Array of ingredient names to search for
+   * @param maxMissingIngredients - Maximum number of missing ingredients allowed
+   * @returns Array of recipes that can be made with the given ingredients
+   * 
+   * This function finds recipes that can be made with the ingredients the user has.
+   * It counts how many ingredients are missing and only returns recipes that
+   * are missing fewer than maxMissingIngredients.
+   */
   private getMockRecipesByIngredients(ingredients: string[], maxMissingIngredients: number = 3): Recipe[] {
     return mockRecipes.filter(recipe => {
       const recipeIngredients = recipe.extendedIngredients.map((ing: any) => ing.name.toLowerCase());
@@ -509,10 +604,12 @@ class RecipeApiService {
   }
 }
 
-// Export singleton instance
+// Create and export a single instance of the API service
+// This ensures we only have one API service throughout the app
 export const recipeApiService = new RecipeApiService();
 
-// Export individual functions for convenience
+// Export individual functions for easy use in other parts of the app
+// These functions provide a simple interface to the API service
 export const searchRecipes = (params: RecipeSearchParams) => recipeApiService.searchRecipes(params);
 export const getRecipeDetails = (recipeId: number) => recipeApiService.getRecipeDetails(recipeId);
 export const getFilterOptions = () => recipeApiService.getFilterOptions();

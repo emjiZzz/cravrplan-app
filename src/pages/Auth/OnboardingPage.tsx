@@ -5,37 +5,68 @@ import CravrPlanLogo from '../../assets/logo.png';
 import { useAuth } from '../../context/AuthContext';
 import type { UserPreferences } from '../../utils/preferenceMapper';
 
+/**
+ * OnboardingPage Component
+ * 
+ * Multi-step onboarding process for new users.
+ * Collects user preferences (dietary restrictions, cuisine preferences, cooking level, time preferences)
+ * and creates a new user account. Guides users through a 6-step process to personalize their experience.
+ */
 const OnboardingPage: React.FC = () => {
-  const navigate = useNavigate();
-  const { signup } = useAuth();
-  const [currentStep, setCurrentStep] = useState(1);
+  // ===== HOOKS AND CONTEXT =====
 
-  const signupCompletedRef = useRef(false);
+  const navigate = useNavigate();                    // Hook for programmatic navigation
+  const { signup } = useAuth();                     // Authentication context for user signup
+
+  // ===== STATE MANAGEMENT =====
+
+  const [currentStep, setCurrentStep] = useState(1);  // Current step in the onboarding process
+  const signupCompletedRef = useRef(false);          // Ref to track if signup is completed (prevents step changes)
+
+  // User preferences state
   const [preferences, setPreferences] = useState<UserPreferences>({
     dietaryRestrictions: [],
     cuisinePreferences: [],
     cookingLevel: 'beginner',
     timePreferences: []
   });
+
+  // Signup form data state
   const [signupData, setSignupData] = useState({
     fullName: '',
     email: '',
     password: '',
     confirmPassword: ''
   });
-  const [error, setError] = useState('');
-  const [isSignupLoading, setIsSignupLoading] = useState(false);
-  const [isSignupSuccess, setIsSignupSuccess] = useState(false);
 
-  const totalSteps = 6; // Reduced to 6 steps since we removed allergies step
+  // UI state
+  const [error, setError] = useState('');              // Error message display
+  const [isSignupLoading, setIsSignupLoading] = useState(false);  // Loading state during signup
+  const [isSignupSuccess, setIsSignupSuccess] = useState(false);  // Success state after signup
 
-  // Handle signup success state
+  // ===== CONSTANTS =====
+
+  const totalSteps = 6;  // Total number of onboarding steps
+
+  // ===== EFFECTS =====
+
+  /**
+   * Handle signup success state
+   * Monitors when signup is successful and logs the event
+   */
   useEffect(() => {
     if (isSignupSuccess) {
       console.log('Signup success detected, user should be redirected to login');
     }
   }, [isSignupSuccess]);
 
+  // ===== EVENT HANDLERS =====
+
+  /**
+   * Handle preference changes for any category
+   * @param category - The preference category to update
+   * @param value - The new value(s) for the category
+   */
   const handlePreferenceChange = (category: keyof UserPreferences, value: string | string[]) => {
     setPreferences(prev => ({
       ...prev,
@@ -43,6 +74,11 @@ const OnboardingPage: React.FC = () => {
     }));
   };
 
+  /**
+   * Handle signup form data changes
+   * @param field - The form field to update
+   * @param value - The new value for the field
+   */
   const handleSignupDataChange = (field: string, value: string) => {
     setSignupData(prev => ({
       ...prev,
@@ -50,6 +86,10 @@ const OnboardingPage: React.FC = () => {
     }));
   };
 
+  /**
+   * Navigate to the next step in the onboarding process
+   * Prevents navigation after signup completion
+   */
   const nextStep = () => {
     // Prevent step changes after signup is complete
     if (signupCompletedRef.current) {
@@ -65,6 +105,10 @@ const OnboardingPage: React.FC = () => {
     }
   };
 
+  /**
+   * Navigate to the previous step in the onboarding process
+   * Prevents navigation after signup completion
+   */
   const prevStep = () => {
     // Prevent step changes after signup is complete
     if (signupCompletedRef.current) {
@@ -78,6 +122,10 @@ const OnboardingPage: React.FC = () => {
     }
   };
 
+  /**
+   * Handle signup form submission
+   * Validates form data and creates a new user account
+   */
   const handleSignup = async (event: React.FormEvent) => {
     event.preventDefault();
     console.log('=== SIGNUP PROCESS START ===');
@@ -85,27 +133,31 @@ const OnboardingPage: React.FC = () => {
     console.log('Form data:', signupData);
     setError('');
 
-    // Validation
+    // Step 1: Validate full name
     if (!signupData.fullName.trim()) {
       setError('Please enter your full name');
       return;
     }
 
+    // Step 2: Validate email
     if (!signupData.email.trim()) {
       setError('Please enter your email address');
       return;
     }
 
+    // Step 3: Validate password
     if (!signupData.password.trim()) {
       setError('Please enter a password');
       return;
     }
 
+    // Step 4: Validate password confirmation
     if (signupData.password !== signupData.confirmPassword) {
       setError('Passwords do not match');
       return;
     }
 
+    // Step 5: Validate password length
     if (signupData.password.length < 6) {
       setError('Password must be at least 6 characters long');
       return;
@@ -118,6 +170,7 @@ const OnboardingPage: React.FC = () => {
     setIsSignupLoading(true);
 
     try {
+      // Attempt to create user account
       const result = await signup(signupData.fullName.trim(), signupData.email.trim(), signupData.password);
       console.log('Signup result:', result);
 
@@ -148,7 +201,7 @@ const OnboardingPage: React.FC = () => {
         console.log('=== SIGNUP FAILED ===');
         console.log('Signup failed:', result.error);
         setError(result.error || 'Signup failed. Please try again.');
-        // Stay on signup form (case 7) and show error
+        // Stay on signup form (case 6) and show error
       }
     } catch (error) {
       console.error('Unexpected error during signup:', error);
@@ -159,10 +212,22 @@ const OnboardingPage: React.FC = () => {
     }
   };
 
+  /**
+   * Navigate to login page
+   */
+  const handleSkipToLogin = () => {
+    navigate('/login');
+  };
+
+  // ===== STEP RENDERING =====
+
+  /**
+   * Render the appropriate step content based on current step
+   */
   const renderStep = () => {
     console.log('Rendering step:', currentStep, 'Signup completed:', signupCompletedRef.current, 'Signup success:', isSignupSuccess);
 
-    // If signup was successful, don't render any steps - user should be redirected
+    // If signup was successful, show success message
     if (isSignupSuccess) {
       return (
         <div className={styles.stepContent}>
@@ -176,6 +241,7 @@ const OnboardingPage: React.FC = () => {
       );
     }
 
+    // Render different content based on current step
     switch (currentStep) {
       case 1:
         return (
@@ -313,12 +379,14 @@ const OnboardingPage: React.FC = () => {
             <h3>Create Your Account</h3>
             <p>Almost done! Create your account to save your preferences.</p>
 
+            {/* Error Message Display */}
             {error && (
               <div className={styles.errorMessage}>
                 {error}
               </div>
             )}
 
+            {/* Signup Form */}
             <form onSubmit={handleSignup} className={styles.signupForm}>
               <div className={styles.inputGroup}>
                 <label htmlFor="fullName" className={styles.label}>Full Name</label>
@@ -379,7 +447,7 @@ const OnboardingPage: React.FC = () => {
                 <button
                   type="button"
                   className={styles.cancelButton}
-                  onClick={() => navigate('/login')}
+                  onClick={handleSkipToLogin}
                 >
                   Cancel
                 </button>
@@ -388,22 +456,23 @@ const OnboardingPage: React.FC = () => {
           </div>
         );
 
-
-
       default:
         return null;
     }
   };
 
+  // ===== RENDER =====
+
   return (
     <div className={styles.onboardingPageContainer}>
-      {/* Logo section */}
+      {/* Logo Section */}
       <div className={styles.logoSection}>
         <img src={CravrPlanLogo} alt="CravrPlan Logo" className={styles.logo} />
       </div>
 
+      {/* Main Onboarding Container */}
       <div className={styles.onboardingBox}>
-        {/* Progress indicator */}
+        {/* Progress Indicator */}
         <div className={styles.progressSection}>
           <div className={styles.progressBar}>
             <div
@@ -416,13 +485,14 @@ const OnboardingPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Step content */}
+        {/* Step Content */}
         <div className={styles.stepContainer}>
           {renderStep()}
         </div>
 
-        {/* Navigation buttons */}
+        {/* Navigation Buttons */}
         <div className={styles.navigationButtons}>
+          {/* Back Button - Show on steps 2-5 */}
           {currentStep > 1 && currentStep < 6 && !signupCompletedRef.current && (
             <button
               type="button"
@@ -433,6 +503,7 @@ const OnboardingPage: React.FC = () => {
             </button>
           )}
 
+          {/* Next Button - Show on steps 1-5 */}
           {currentStep < 5 && !signupCompletedRef.current && (
             <button
               type="button"
@@ -443,6 +514,7 @@ const OnboardingPage: React.FC = () => {
             </button>
           )}
 
+          {/* Next Button for step 5 */}
           {currentStep === 5 && !signupCompletedRef.current && (
             <button
               type="button"
@@ -454,12 +526,12 @@ const OnboardingPage: React.FC = () => {
           )}
         </div>
 
-        {/* Skip option for early steps */}
+        {/* Skip Option - Show on steps 1-5 */}
         {currentStep <= 5 && !signupCompletedRef.current && (
           <button
             type="button"
             className={styles.skipButton}
-            onClick={() => navigate('/login')}
+            onClick={handleSkipToLogin}
           >
             Skip for now
           </button>

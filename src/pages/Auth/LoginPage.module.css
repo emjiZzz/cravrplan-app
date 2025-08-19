@@ -1,5 +1,6 @@
-/* LoginPage.module.css - Soft & Comfortable Design */
+/* ===== LOGIN PAGE CONTAINER ===== */
 
+/* Main container for the entire login page */
 .loginPageContainer {
   min-height: 100vh;
   background: linear-gradient(135deg, #f5f5f0 0%, #e8e8e0 50%, #f0f0e8 100%);
@@ -11,6 +12,7 @@
   position: relative;
 }
 
+/* Background decorative elements */
 .loginPageContainer::before {
   content: '';
   position: absolute;
@@ -24,6 +26,9 @@
   pointer-events: none;
 }
 
+/* ===== LOGO SECTION ===== */
+
+/* Container for the logo */
 .logoSection {
   margin-bottom: 35px;
   text-align: center;
@@ -31,6 +36,7 @@
   z-index: 2;
 }
 
+/* Logo image styling */
 .logo {
   height: 90px;
   width: auto;
@@ -38,6 +44,9 @@
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
 }
 
+/* ===== LOGIN BOX ===== */
+
+/* Main login form container */
 .loginBox {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
@@ -54,6 +63,9 @@
   border: 1px solid rgba(84, 106, 4, 0.1);
 }
 
+/* ===== TITLE AND SUBTITLE ===== */
+
+/* Main page title */
 .title {
   font-size: 32px;
   font-weight: 600;
@@ -62,6 +74,7 @@
   letter-spacing: -0.5px;
 }
 
+/* Subtitle text */
 .subtitle {
   font-size: 16px;
   color: #546A04;
@@ -69,8 +82,9 @@
   font-weight: 400;
 }
 
+/* ===== LOGIN FORM ===== */
 
-
+/* Form container with flexbox layout */
 .loginForm {
   display: flex;
   flex-direction: column;
@@ -78,11 +92,15 @@
   margin-bottom: 25px;
 }
 
+/* ===== INPUT FIELDS ===== */
+
+/* Container for each input field group */
 .inputGroup {
   text-align: left;
   position: relative;
 }
 
+/* Input field labels */
 .label {
   display: block;
   font-size: 13px;
@@ -93,6 +111,7 @@
   letter-spacing: 0.8px;
 }
 
+/* Input field styling */
 .inputField {
   width: 100%;
   padding: 14px 16px;
@@ -105,6 +124,7 @@
   box-sizing: border-box;
 }
 
+/* Focus state for input fields */
 .inputField:focus {
   outline: none;
   border-color: #546A04;
@@ -112,6 +132,9 @@
   background: rgba(255, 255, 255, 1);
 }
 
+/* ===== LOGIN BUTTON ===== */
+
+/* Main login button styling */
 .loginButton {
   background: linear-gradient(135deg, #546A04 0%, #4a5d03 100%);
   color: white;
@@ -128,12 +151,14 @@
   margin: 6px auto 6px auto;
 }
 
+/* Hover effect for login button */
 .loginButton:hover:not(:disabled) {
   background: linear-gradient(135deg, #4a5d03 0%, #3f4f02 100%);
   transform: translateY(-1px);
   box-shadow: 0 8px 25px rgba(84, 106, 4, 0.3);
 }
 
+/* Disabled state for login button */
 .loginButton:disabled {
   background: #cccccc;
   cursor: not-allowed;
@@ -141,25 +166,37 @@
   box-shadow: none;
 }
 
+/* ===== SIGNUP SECTION ===== */
 
+/* Text for signup link */
 .signupText {
   font-size: 14px;
   color: #546A04;
   margin: 20px 0 0 0;
 }
 
+/* Signup link button styling */
 .signupLink {
   color: #546A04;
   text-decoration: none;
   font-weight: 600;
   transition: color 0.2s ease;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-size: inherit;
 }
 
+/* Hover effect for signup link */
 .signupLink:hover {
   color: #2c3e2a;
   text-decoration: underline;
 }
 
+/* ===== ERROR MESSAGE ===== */
+
+/* Error message container styling */
 .errorMessage {
   background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
   color: #856404;
@@ -174,6 +211,8 @@
   animation: warningPulse 2s ease-in-out infinite;
 }
 
+/* ===== ANIMATIONS ===== */
+
 /* Gentle pulse animation to draw attention to the warning */
 @keyframes warningPulse {
 
@@ -187,16 +226,19 @@
   }
 }
 
-/* Responsive adjustments */
+/* ===== RESPONSIVE DESIGN ===== */
+
+/* Mobile and tablet adjustments */
 @media (max-width: 480px) {
+
+  /* Login box adjustments for mobile */
   .loginBox {
     padding: 40px 30px;
     width: 95vw;
   }
 
+  /* Title size adjustment for mobile */
   .title {
     font-size: 28px;
   }
-
-
 }

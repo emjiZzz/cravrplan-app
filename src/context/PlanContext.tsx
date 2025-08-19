@@ -1,16 +1,21 @@
 
 import React, { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import { PlanContext, type PlanContextType, type MealPlanTemplate, type PlanEvent } from './PlanContextTypes';
-// Using local filter service for instant results
+import { PlanContext, type PlanContextType, type PlanEvent } from './PlanContextTypes';
+// API-First filter service with seamless mock data fallback
 import { filterRecipes as localFilterRecipes } from '../services/filterService';
 import { useAuth } from './AuthContext';
 import { useGuest } from './GuestContext';
 import { firestoreService } from '../services/firestoreService';
 
-// Function to automatically generate nutrition data based on recipe characteristics
+// ===== NUTRITION DATA GENERATION =====
+
+/**
+ * Generate nutrition data based on recipe characteristics
+ * Creates realistic nutrition values when actual data is not available
+ */
 const generateNutritionData = (recipe: { title?: string; vegetarian?: boolean; readyInMinutes?: number; servings?: number }, mealType: string) => {
-  // Base nutrition values based on meal type
+  // Base nutrition values for different meal types
   const baseNutrition = {
     breakfast: { calories: 350, protein: 15, carbs: 45, fat: 12 },
     'main course': { calories: 500, protein: 22, carbs: 55, fat: 20 },
@@ -22,7 +27,7 @@ const generateNutritionData = (recipe: { title?: string; vegetarian?: boolean; r
   // Get base values for the meal type
   const base = baseNutrition[mealType as keyof typeof baseNutrition] || baseNutrition['main course'];
 
-  // Adjust based on recipe characteristics
+  // Start with base values
   let calories = base.calories;
   let protein = base.protein;
   let carbs = base.carbs;
@@ -80,6 +85,7 @@ const generateNutritionData = (recipe: { title?: string; vegetarian?: boolean; r
     fat = Math.round(fat / servingFactor);
   }
 
+  // Return nutrition data with minimum values
   return {
     calories: Math.max(150, Math.round(calories)),
     protein: Math.max(5, Math.round(protein)),
@@ -88,7 +94,12 @@ const generateNutritionData = (recipe: { title?: string; vegetarian?: boolean; r
   };
 };
 
-// Hook to use the plan context
+// ===== CONTEXT HOOK =====
+
+/**
+ * Custom hook to use the plan context
+ * Provides easy access to plan functions and state from any component
+ */
 export const usePlan = () => {
   const context = React.useContext(PlanContext);
   if (!context) {
@@ -97,129 +108,38 @@ export const usePlan = () => {
   return context;
 };
 
+// ===== PROVIDER PROPS =====
+
+/**
+ * Props for the PlanProvider component
+ */
 interface PlanProviderProps {
-  children: ReactNode;
+  children: ReactNode;  // React components that will have access to plan context
 }
 
-// Predefined meal plan templates
-const defaultTemplates: MealPlanTemplate[] = [
-  {
-    id: 'quick-week',
-    name: 'Quick & Easy Week',
-    description: 'Simple meals that can be prepared in 30 minutes or less',
-    icon: '⚡',
-    category: 'weekly',
-    events: [
-      {
-        title: 'Quick Breakfast Bowl',
-        recipeId: 1,
-        mealType: 'breakfast',
-        difficulty: 'easy',
-        prepTime: 10,
-        cookTime: 5,
-        servings: 2,
-        nutrition: { calories: 350, protein: 15, carbs: 45, fat: 12 }
-      },
-      {
-        title: 'Simple Lunch Wrap',
-        recipeId: 2,
-        mealType: 'main course',
-        difficulty: 'easy',
-        prepTime: 15,
-        cookTime: 0,
-        servings: 1,
-        nutrition: { calories: 420, protein: 18, carbs: 38, fat: 22 }
-      },
-      {
-        title: 'One-Pan Dinner',
-        recipeId: 3,
-        mealType: 'main course',
-        difficulty: 'easy',
-        prepTime: 15,
-        cookTime: 25,
-        servings: 4,
-        nutrition: { calories: 480, protein: 28, carbs: 35, fat: 18 }
-      }
-    ]
-  },
-  {
-    id: 'healthy-week',
-    name: 'Healthy & Balanced',
-    description: 'Nutritious meals focused on whole foods and balanced nutrition',
-    icon: '🥗',
-    category: 'diet',
-    events: [
-      {
-        title: 'Overnight Oats',
-        recipeId: 4,
-        mealType: 'breakfast',
-        difficulty: 'easy',
-        prepTime: 5,
-        cookTime: 0,
-        servings: 2,
-        nutrition: { calories: 280, protein: 12, carbs: 42, fat: 8 }
-      },
-      {
-        title: 'Quinoa Salad Bowl',
-        recipeId: 5,
-        mealType: 'main course',
-        difficulty: 'medium',
-        prepTime: 20,
-        cookTime: 15,
-        servings: 2,
-        nutrition: { calories: 380, protein: 16, carbs: 48, fat: 14 }
-      },
-      {
-        title: 'Grilled Salmon with Vegetables',
-        recipeId: 6,
-        mealType: 'main course',
-        difficulty: 'medium',
-        prepTime: 20,
-        cookTime: 20,
-        servings: 2,
-        nutrition: { calories: 520, protein: 42, carbs: 18, fat: 28 }
-      }
-    ]
-  },
-  {
-    id: 'weekend-special',
-    name: 'Weekend Special',
-    description: 'More elaborate meals perfect for relaxed weekend cooking',
-    icon: '🍳',
-    category: 'occasion',
-    events: [
-      {
-        title: 'Brunch Frittata',
-        recipeId: 7,
-        mealType: 'breakfast',
-        difficulty: 'medium',
-        prepTime: 20,
-        cookTime: 25,
-        servings: 4,
-        nutrition: { calories: 380, protein: 22, carbs: 8, fat: 28 }
-      },
-      {
-        title: 'Homemade Pizza',
-        recipeId: 8,
-        mealType: 'main course',
-        difficulty: 'hard',
-        prepTime: 30,
-        cookTime: 20,
-        servings: 4,
-        nutrition: { calories: 650, protein: 24, carbs: 68, fat: 32 }
-      }
-    ]
-  }
-];
+// ===== PLAN PROVIDER COMPONENT =====
 
+/**
+ * PlanProvider Component
+ * 
+ * Provides meal planning functionality to the entire app.
+ * Manages meal plans for both authenticated users (Firestore) and guest users (local storage).
+ * Handles adding, removing, moving, and organizing meal events.
+ */
 export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
-  const [events, setEvents] = useState<PlanContextType['events']>([]);
-  const [trashedEvents, setTrashedEvents] = useState<PlanEvent[]>([]);
-  const [templates] = useState<MealPlanTemplate[]>(defaultTemplates);
-  const { user, isAuthenticated } = useAuth();
-  const { isGuestMode, saveGuestMealPlan, deleteGuestMealPlan, guestData } = useGuest();
+  // ===== STATE MANAGEMENT =====
 
-  // Load meal plans based on user mode
+  const [events, setEvents] = useState<PlanContextType['events']>([]);           // Active meal events
+  const [trashedEvents, setTrashedEvents] = useState<PlanEvent[]>([]);          // Deleted events (trash)
+  const { user, isAuthenticated } = useAuth();                                  // Authentication state
+  const { isGuestMode, saveGuestMealPlan, deleteGuestMealPlan, guestData } = useGuest();  // Guest mode state
+
+  // ===== LOAD MEAL PLANS =====
+
+  /**
+   * Load meal plans based on user mode (authenticated or guest)
+   * This runs when the component mounts and when user/guest state changes
+   */
   useEffect(() => {
     const loadMealPlans = async () => {
       if (isAuthenticated && user) {
@@ -256,6 +176,12 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
     loadMealPlans();
   }, [user, isAuthenticated, isGuestMode]);
 
+  // ===== MEAL PLAN FUNCTIONS =====
+
+  /**
+   * Add a meal event to the plan
+   * Automatically generates nutrition data if missing
+   */
   const addToPlan: PlanContextType['addToPlan'] = async (event) => {
     // Automatically add nutrition data if missing
     const nutrition = event.nutrition || generateNutritionData(event, event.mealType);
@@ -301,6 +227,10 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
     }
   };
 
+  /**
+   * Remove a meal event from the plan
+   * Permanently deletes the event (doesn't move to trash)
+   */
   const removeFromPlan: PlanContextType['removeFromPlan'] = async (id) => {
     if (isAuthenticated && user) {
       // Remove from Firestore for authenticated users
@@ -325,6 +255,10 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
     }
   };
 
+  /**
+   * Move a meal event to trash
+   * Removes from active events and adds to trash for potential restoration
+   */
   const moveToTrash: PlanContextType['moveToTrash'] = async (id) => {
     const eventToTrash = events.find(event => event.id === id);
     if (eventToTrash) {
@@ -358,6 +292,10 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
     }
   };
 
+  /**
+   * Restore a meal event from trash
+   * Moves event back to active events
+   */
   const restoreFromTrash: PlanContextType['restoreFromTrash'] = async (id) => {
     const eventToRestore = trashedEvents.find(event => event.id === id);
     if (eventToRestore) {
@@ -384,10 +322,18 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
     }
   };
 
+  /**
+   * Permanently delete a meal event from trash
+   * Cannot be restored after this operation
+   */
   const deleteFromTrash: PlanContextType['deleteFromTrash'] = async (id) => {
     setTrashedEvents(prev => prev.filter(event => event.id !== id));
   };
 
+  /**
+   * Clear all events from trash
+   * Permanently deletes all trashed events
+   */
   const clearTrash: PlanContextType['clearTrash'] = async () => {
     if (isAuthenticated && user) {
       // Clear trash from Firestore for authenticated users
@@ -408,10 +354,20 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
     }
   };
 
+  // ===== EVENT MANAGEMENT FUNCTIONS =====
+
+  /**
+   * Update an existing meal event
+   * Modifies event properties while keeping the same ID
+   */
   const updateEvent: PlanContextType['updateEvent'] = (id, updatedEvent) => {
     setEvents(prev => prev.map(event => event.id === id ? updatedEvent : event));
   };
 
+  /**
+   * Move a meal event to a different date
+   * Updates the event's date while keeping all other properties
+   */
   const moveEvent: PlanContextType['moveEvent'] = async (id, newDate) => {
     const updatedEvents = events.map(event =>
       event.id === id ? { ...event, date: newDate } : event
@@ -436,10 +392,18 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
     setEvents(updatedEvents);
   };
 
+  /**
+   * Clear all meal events from the plan
+   * Removes all events but doesn't move them to trash
+   */
   const clearAll: PlanContextType['clearAll'] = () => {
     setEvents([]);
   };
 
+  /**
+   * Clear all meal events and move them to trash
+   * Allows for potential restoration of all events
+   */
   const clearAllToTrash: PlanContextType['clearAllToTrash'] = async () => {
     if (events.length === 0) return;
 
@@ -467,30 +431,20 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
     setTrashedEvents(prev => [...prev, ...eventsToMove]);
   };
 
+  // ===== UTILITY FUNCTIONS =====
+
+  /**
+   * Get all meal events for a specific date
+   * Returns an array of events scheduled for the given date
+   */
   const getEventsForDate: PlanContextType['getEventsForDate'] = (date) => {
     return events.filter(event => event.date === date);
   };
 
-  const applyTemplate: PlanContextType['applyTemplate'] = (template, startDate) => {
-    const start = new Date(startDate);
-    const newEvents = template.events.map((event, index) => {
-      const eventDate = new Date(start);
-      eventDate.setDate(start.getDate() + index);
-
-      // Ensure nutrition data is included
-      const nutrition = event.nutrition || generateNutritionData(event, event.mealType);
-
-      return {
-        ...event,
-        id: Date.now().toString() + index,
-        date: eventDate.toISOString().split('T')[0],
-        nutrition
-      };
-    });
-
-    setEvents(prev => [...prev, ...newEvents]);
-  };
-
+  /**
+   * Calculate nutritional statistics for a specific date
+   * Sums up all nutrition data from events on the given date
+   */
   const getNutritionalStats: PlanContextType['getNutritionalStats'] = (date) => {
     const dayEvents = getEventsForDate(date);
 
@@ -505,7 +459,10 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
     }, { calories: 0, protein: 0, carbs: 0, fat: 0 });
   };
 
-  // Function to ensure all events have nutrition data
+  /**
+   * Ensure all events have nutrition data
+   * Generates nutrition data for events that don't have it
+   */
   const ensureNutritionData = () => {
     setEvents(prev => prev.map(event => {
       if (!event.nutrition) {
@@ -518,8 +475,10 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
     }));
   };
 
-  // REFACTORED: Get quick suggestions using instant local filtering
-  // To switch back to full API: replace with searchRecipes API call
+  /**
+   * Get quick meal suggestions based on meal type and time constraint
+   * Uses API-first approach with seamless mock data fallback
+   */
   const getQuickSuggestions: PlanContextType['getQuickSuggestions'] = async (mealType, maxTime = 30) => {
     try {
       // Search for quick recipes based on meal type and time constraint
@@ -529,11 +488,11 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
         number: 5
       };
 
-      // REFACTORED: Use local filter service for instant results
-      const response = localFilterRecipes(searchParams);
+      // API-first approach - tries API, falls back to mock data seamlessly
+      const response = await localFilterRecipes(searchParams);
       const recipes = response.recipes || [];
 
-      return recipes.map(recipe => ({
+      return recipes.map((recipe: any) => ({
         id: `suggestion-${Date.now()}-${recipe.id}`,
         title: recipe.title,
         date: new Date().toISOString().split('T')[0],
@@ -553,17 +512,24 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
     }
   };
 
-  // Check if a feature is restricted for guest users
+  /**
+   * Check if a feature is restricted for guest users
+   * Currently all features are enabled for both guest and member modes
+   */
   const isFeatureRestricted: PlanContextType['isFeatureRestricted'] = (feature) => {
     // All features are now enabled for both guest and member modes
     return false;
   };
 
+  // ===== CONTEXT VALUE =====
+
+  /**
+   * What we provide to other components through the context
+   */
   return (
     <PlanContext.Provider value={{
       events,
       trashedEvents,
-      templates,
       addToPlan,
       removeFromPlan,
       moveToTrash,
@@ -575,7 +541,6 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
       clearAll,
       clearAllToTrash,
       getEventsForDate,
-      applyTemplate,
       getNutritionalStats,
       getQuickSuggestions,
       ensureNutritionData,
