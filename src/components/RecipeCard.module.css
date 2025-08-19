@@ -1,5 +1,6 @@
-/* RecipeCard.module.css */
+/* ===== RECIPE CARD CONTAINER ===== */
 
+/* Main recipe card container with hover effects */
 .recipeCard {
   background: rgba(255, 255, 255, 0.95);
   border-radius: 16px;
@@ -11,18 +12,23 @@
   position: relative;
 }
 
-.recipeCard:hover {
+.recipeCard:hover,
+.recipeCard.hovered {
   transform: translateY(-4px);
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
   border-color: rgba(84, 106, 4, 0.2);
 }
 
+/* ===== IMAGE SECTION ===== */
+
+/* Container for recipe image */
 .imageContainer {
   position: relative;
   height: 200px;
   overflow: hidden;
 }
 
+/* Recipe image with zoom effect on hover */
 .recipeImage {
   width: 100%;
   height: 100%;
@@ -34,6 +40,7 @@
   transform: scale(1.05);
 }
 
+/* Image overlay for visual effects */
 .imageOverlay {
   position: absolute;
   top: 0;
@@ -51,65 +58,9 @@
   padding: 12px;
 }
 
-.badges {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
+/* ===== FAVORITE BUTTON ===== */
 
-.cuisineBadge,
-.dietBadge,
-.mealTypeBadge,
-.timeBadge {
-  background: rgba(84, 106, 4, 0.9);
-  color: white;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.dietBadge {
-  background: rgba(23, 55, 26, 0.9);
-}
-
-.mealTypeBadge {
-  background: rgba(255, 107, 107, 0.9);
-  display: flex;
-  align-items: center;
-  gap: 2px;
-}
-
-.timeBadge {
-  background: rgba(255, 193, 7, 0.9);
-  display: flex;
-  align-items: center;
-  gap: 2px;
-}
-
-.indicators {
-  display: flex;
-  gap: 8px;
-  justify-content: flex-start;
-}
-
-.healthyIndicator,
-.popularIndicator,
-.cheapIndicator,
-.sustainableIndicator {
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  backdrop-filter: blur(4px);
-}
-
+/* Favorite button positioned on top of image */
 .favoriteButton {
   position: absolute;
   top: 12px;
@@ -150,10 +101,14 @@
   transform: scale(1.2);
 }
 
+/* ===== CONTENT SECTION ===== */
+
+/* Main content area of the card */
 .content {
   padding: 16px;
 }
 
+/* Recipe title with text truncation */
 .recipeTitle {
   font-size: 16px;
   font-weight: 600;
@@ -167,6 +122,7 @@
   overflow: hidden;
 }
 
+/* Recipe description section */
 .recipeDescription {
   margin-bottom: 12px;
 }
@@ -184,6 +140,9 @@
   overflow: hidden;
 }
 
+/* ===== BADGES SECTION ===== */
+
+/* Container for recipe badges */
 .recipeBadges {
   display: flex;
   gap: 8px;
@@ -191,46 +150,45 @@
   margin-bottom: 16px;
 }
 
-.recipeBadge {
-  background: rgba(84, 106, 4, 0.1);
-  color: #546A04;
+/* Base badge styling */
+.cuisineBadge,
+.dietBadge,
+.mealTypeBadge,
+.timeBadge {
+  background: rgba(84, 106, 4, 0.9);
+  color: white;
   padding: 4px 8px;
   border-radius: 12px;
-  font-size: 11px;
-  font-weight: 500;
-  border: 1px solid rgba(84, 106, 4, 0.2);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Diet badge with different color */
+.dietBadge {
+  background: rgba(23, 55, 26, 0.9);
+}
+
+/* Meal type badge with icon */
+.mealTypeBadge {
+  background: rgba(255, 107, 107, 0.9);
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
 }
 
-.recipeBadge:hover {
-  background: rgba(84, 106, 4, 0.15);
-  border-color: rgba(84, 106, 4, 0.3);
+/* Time badge with clock icon */
+.timeBadge {
+  background: rgba(255, 193, 7, 0.9);
+  display: flex;
+  align-items: center;
+  gap: 2px;
 }
 
-.viewRecipeButton {
-  width: 100%;
-  background: linear-gradient(135deg, #546A04, #4a5a03);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 10px 16px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
+/* ===== NUTRITION SECTION ===== */
 
-.viewRecipeButton:hover {
-  background: linear-gradient(135deg, #17371A, #546A04);
-  transform: translateY(-1px);
-}
-
-.viewRecipeButton:active {
-  transform: translateY(0);
-}
-
+/* Nutrition information container */
 .nutritionSection {
   margin: 12px 0;
   padding: 12px;
@@ -245,12 +203,14 @@
   text-align: center;
 }
 
+/* Grid layout for nutrition items */
 .nutritionGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
 }
 
+/* Individual nutrition item */
 .nutritionItem {
   display: flex;
   align-items: center;
@@ -259,6 +219,7 @@
   border-radius: 6px;
 }
 
+/* Nutrition indicator with hover tooltip */
 .nutritionIndicator {
   width: 12px;
   height: 12px;
@@ -292,6 +253,7 @@
   opacity: 1;
 }
 
+/* Nutrition labels and values */
 .nutritionLabel {
   font-size: 0.75rem;
   color: #546A04;
@@ -305,6 +267,9 @@
   color: #17371A;
 }
 
+/* ===== TAGS SECTION ===== */
+
+/* Recipe tags container */
 .tagsSection {
   margin: 8px 0;
 }
@@ -315,6 +280,7 @@
   gap: 4px;
 }
 
+/* Individual recipe tag */
 .recipeTag {
   background: rgba(84, 106, 4, 0.1);
   color: #546A04;
@@ -331,7 +297,9 @@
   transform: translateY(-1px);
 }
 
-/* Responsive Design */
+/* ===== RESPONSIVE DESIGN ===== */
+
+/* Tablet and smaller screens */
 @media (max-width: 768px) {
   .imageContainer {
     height: 180px;
@@ -345,17 +313,16 @@
     gap: 6px;
   }
 
-  .recipeBadge {
+  .cuisineBadge,
+  .dietBadge,
+  .mealTypeBadge,
+  .timeBadge {
     font-size: 10px;
     padding: 3px 6px;
   }
-
-  .viewRecipeButton {
-    padding: 8px 14px;
-    font-size: 13px;
-  }
 }
 
+/* Mobile screens */
 @media (max-width: 480px) {
   .imageContainer {
     height: 160px;
@@ -375,33 +342,12 @@
     gap: 4px;
   }
 
-  .recipeBadge {
-    font-size: 9px;
-    padding: 2px 5px;
-  }
-
-  .badges {
-    gap: 6px;
-  }
-
   .cuisineBadge,
   .dietBadge,
-  .mealTypeBadge {
+  .mealTypeBadge,
+  .timeBadge {
     font-size: 9px;
-    padding: 3px 6px;
-  }
-
-  .indicators {
-    gap: 6px;
-  }
-
-  .healthyIndicator,
-  .popularIndicator,
-  .cheapIndicator,
-  .sustainableIndicator {
-    width: 20px;
-    height: 20px;
-    font-size: 10px;
+    padding: 2px 5px;
   }
 
   .favoriteButton {

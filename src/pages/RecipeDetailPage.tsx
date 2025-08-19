@@ -1,75 +1,77 @@
 
-/* src/pages/RecipeDetailPage.tsx */
+/* RecipeDetailPage.tsx - Displays detailed recipe information with ingredients, cookware, and cooking instructions */
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { getRecipeDetails, recipeApiService } from '../services/apiService';
+import { getRecipeDetails } from '../services/filterService';
 import type { Recipe } from '../types/recipeTypes';
 import styles from './RecipeDetailPage.module.css';
 import AddToPlanModal from '../components/AddToPlanModal';
+import { getIngredientImageUrl, handleImageError } from '../utils/imageUtils';
 
+// Main component for displaying recipe details
 const RecipeDetailPage: React.FC = () => {
+  // Get recipe ID from URL parameters
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const location = useLocation();
+
+  // State management for recipe data and UI
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'ingredients' | 'instructions' | 'cookware'>('ingredients');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Get selectedDate from URL parameters
+  // Extract selected date from URL parameters for meal planning
   const getSelectedDateFromURL = () => {
     const urlParams = new URLSearchParams(location.search);
-    const selectedDate = urlParams.get('selectedDate') || '';
-    return selectedDate;
+    return urlParams.get('selectedDate') || '';
   };
 
+  // Load recipe data when component mounts or recipe ID changes
   useEffect(() => {
     const fetchRecipe = async () => {
       setLoading(true);
       setError(null);
-      try {
-        if (id) {
-          const data = await getRecipeDetails(Number(id));
-          setRecipe(data);
 
-          // Mock data loaded for recipe details
-        } else {
+      try {
+        if (!id) {
           setError('No recipe ID provided.');
+          return;
         }
-      } catch {
-        setError('Failed to load recipe details.');
+
+        // Use recipe from route state if available (faster loading)
+        const state = location.state as { recipe?: Recipe } | null;
+        if (state?.recipe && state.recipe.id === Number(id)) {
+          setRecipe(state.recipe);
+          setLoading(false);
+          return;
+        }
+
+        // Load recipe from API service
+        const data = await getRecipeDetails(Number(id));
+        setRecipe(data);
+      } catch (error) {
+        console.error('Error loading recipe details:', error);
+        setError('Failed to load recipe details. Please try again.');
       } finally {
         setLoading(false);
       }
     };
+
     fetchRecipe();
-  }, [id]);
+  }, [id, location.state]);
 
-  // Show minimal loading for mock data, full loading for API calls
-  if (loading) {
-    const isUsingMockData = recipeApiService['useMockData'];
+  // Display loading spinner while fetching data
+  if (loading) return (
+    <div className={styles.loading}>
+      <div className={styles.loadingSpinner}></div>
+      <p>Loading recipe...</p>
+    </div>
+  );
 
-    if (isUsingMockData) {
-      // For mock data, show a very brief loading state or skip entirely
-      return (
-        <div className={styles.loading}>
-          <div className={styles.loadingSpinner}></div>
-          <p>Loading recipe...</p>
-        </div>
-      );
-    } else {
-      // For real API calls, show full loading state
-      return (
-        <div className={styles.loading}>
-          <div className={styles.loadingSpinner}></div>
-          <p>Loading recipe from API...</p>
-        </div>
-      );
-    }
-  }
-
+  // Display error message if loading failed
   if (error) return (
     <div className={styles.error}>
       <div className={styles.errorIcon}>⚠️</div>
@@ -77,6 +79,7 @@ const RecipeDetailPage: React.FC = () => {
     </div>
   );
 
+  // Display error if no recipe found
   if (!recipe) return (
     <div className={styles.error}>
       <div className={styles.errorIcon}>❌</div>
@@ -84,7 +87,7 @@ const RecipeDetailPage: React.FC = () => {
     </div>
   );
 
-  // Helper function to format time
+  // Convert minutes to readable time format (e.g., 90 minutes -> "1h 30m")
   const formatTime = (minutes: number) => {
     if (minutes < 60) return `${minutes}m`;
     const hours = Math.floor(minutes / 60);
@@ -92,7 +95,7 @@ const RecipeDetailPage: React.FC = () => {
     return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
   };
 
-  // Helper function to get cuisine type
+  // Get the primary cuisine type for display
   const getCuisineType = () => {
     if (recipe.cuisines && recipe.cuisines.length > 0) {
       return recipe.cuisines[0];
@@ -103,12 +106,12 @@ const RecipeDetailPage: React.FC = () => {
     return 'International';
   };
 
-  // Helper function to determine cookware based on recipe
+  // Determine required cookware based on recipe content analysis
   const getRequiredCookware = () => {
     const cookware = [];
     const recipeText = `${recipe.title} ${recipe.summary || ''} ${recipe.instructions || ''}`.toLowerCase();
 
-    // Basic cookware that's usually needed
+    // Essential cookware that's usually needed
     cookware.push({
       name: 'Chef\'s Knife',
       description: 'Sharp cutting knife for chopping ingredients',
@@ -123,7 +126,7 @@ const RecipeDetailPage: React.FC = () => {
       priority: 'essential'
     });
 
-    // Determine cookware based on recipe content
+    // Add cookware based on recipe content analysis
     if (recipeText.includes('fry') || recipeText.includes('pan') || recipeText.includes('sauté')) {
       cookware.push({
         name: 'Frying Pan',
@@ -205,7 +208,7 @@ const RecipeDetailPage: React.FC = () => {
       });
     }
 
-    // Remove duplicates based on name
+    // Remove duplicate cookware items
     return cookware.filter((item, index, self) =>
       index === self.findIndex(t => t.name === item.name)
     );
@@ -213,7 +216,7 @@ const RecipeDetailPage: React.FC = () => {
 
   return (
     <div className={styles.pageContainer}>
-      {/* Enhanced Header */}
+      {/* Page header with back button and title */}
       <div className={styles.pageHeader}>
         <button onClick={() => navigate(-1)} className={styles.backButton}>
           &larr;
@@ -225,10 +228,11 @@ const RecipeDetailPage: React.FC = () => {
       </div>
 
       <div className={styles.contentWrapper}>
+        {/* Recipe image section with overlay information */}
         <div className={styles.imageSection}>
           <img src={recipe.image} alt={recipe.title} className={styles.recipeImage} />
 
-          {/* Image Overlay with Stats */}
+          {/* Recipe stats overlay on image */}
           <div className={styles.imageOverlay}>
             <div className={styles.recipeStats}>
               {recipe.readyInMinutes && (
@@ -244,7 +248,7 @@ const RecipeDetailPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Add to Plan Hover Overlay */}
+          {/* Hover overlay to add recipe to meal plan */}
           <div
             className={styles.addToPlanOverlay}
             onClick={() => setIsModalOpen(true)}
@@ -256,8 +260,9 @@ const RecipeDetailPage: React.FC = () => {
           </div>
         </div>
 
+        {/* Recipe details section with tabs */}
         <div className={styles.detailsSection}>
-          {/* Recipe Info Header */}
+          {/* Recipe information header */}
           <div className={styles.recipeInfoHeader}>
             <div className={styles.recipeMeta}>
               {recipe.readyInMinutes && (
@@ -284,12 +289,14 @@ const RecipeDetailPage: React.FC = () => {
               )}
             </div>
 
+            {/* Recipe description */}
             {recipe.summary && (
               <div className={styles.recipeDescription}>
                 {recipe.summary.replace(/<[^>]*>/g, '').substring(0, 200)}...
               </div>
             )}
 
+            {/* Recipe tags */}
             <div className={styles.recipeTags}>
               {recipe.dishTypes && recipe.dishTypes.slice(0, 3).map((type, index) => (
                 <span key={index} className={styles.recipeTag}>{type}</span>
@@ -300,7 +307,7 @@ const RecipeDetailPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Modern Tab Design */}
+          {/* Tab navigation for different content sections */}
           <div className={styles.tabContainer}>
             <button
               className={`${styles.tabButton} ${activeTab === 'ingredients' ? styles.active : ''}`}
@@ -325,8 +332,10 @@ const RecipeDetailPage: React.FC = () => {
             </button>
           </div>
 
+          {/* Tab content area */}
           <div className={styles.tabContent}>
             {activeTab === 'ingredients' ? (
+              // Ingredients tab content
               <div className={styles.instructionsList}>
                 {recipe.extendedIngredients && recipe.extendedIngredients.length > 0 ? (
                   <div className={styles.ingredientsGrid}>
@@ -335,9 +344,10 @@ const RecipeDetailPage: React.FC = () => {
                         <div className={styles.ingredientImage}>
                           {ingredient.image ? (
                             <img
-                              src={`https://spoonacular.com/cdn/ingredients_100x100/${ingredient.image}`}
+                              src={getIngredientImageUrl(ingredient.image)}
                               alt={ingredient.name}
                               className={styles.ingredientImg}
+                              onError={(e) => handleImageError(e.nativeEvent)}
                             />
                           ) : (
                             <div className={styles.ingredientPlaceholder}>
@@ -357,6 +367,7 @@ const RecipeDetailPage: React.FC = () => {
                 )}
               </div>
             ) : activeTab === 'cookware' ? (
+              // Cookware tab content
               <div className={styles.instructionsList}>
                 <div className={styles.ingredientsGrid}>
                   {getRequiredCookware().map((item, index) => (
@@ -375,9 +386,10 @@ const RecipeDetailPage: React.FC = () => {
                 </div>
               </div>
             ) : (
+              // Instructions tab content
               <div className={styles.instructionsList}>
                 {(() => {
-                  // Try to use analyzed instructions first
+                  // Try to use structured instructions first (from API)
                   if (recipe.analyzedInstructions && recipe.analyzedInstructions.length > 0) {
                     return recipe.analyzedInstructions.map((instructionGroup, groupIndex) => (
                       <div key={groupIndex} className={styles.instructionGroup}>
@@ -391,10 +403,6 @@ const RecipeDetailPage: React.FC = () => {
                                 <span className={styles.stepNumber}>{step.number}</span>
                                 <span className={styles.stepText}>{step.step}</span>
                               </div>
-
-
-
-
                             </li>
                           ))}
                         </ol>
@@ -403,21 +411,37 @@ const RecipeDetailPage: React.FC = () => {
                   }
 
                   // Fallback: parse raw instructions string into steps
-                  if (recipe.instructions) {
+                  if (recipe.instructions && recipe.instructions.trim()) {
                     // Remove HTML tags and split by common step indicators
                     const cleanInstructions = recipe.instructions.replace(/<[^>]*>/g, '');
-                    const steps = cleanInstructions
-                      .split(/(?:\d+\.|step\s+\d+|^\d+\))/i)
+
+                    // Split by newlines first, then by numbered patterns
+                    let steps = cleanInstructions
+                      .split(/\n/)
                       .filter(step => step.trim().length > 0)
                       .map(step => step.trim());
+
+                    // If we got multiple steps from newlines, use them
+                    if (steps.length > 1) {
+                      // Remove the step numbers from the beginning of each step
+                      steps = steps.map(step => step.replace(/^\d+\.\s*/, ''));
+                    } else {
+                      // Fallback to regex splitting if newlines didn't work
+                      steps = cleanInstructions
+                        .split(/(?:\d+\.|step\s+\d+|^\d+\))/i)
+                        .filter(step => step.trim().length > 0)
+                        .map(step => step.trim());
+                    }
 
                     if (steps.length > 0) {
                       return (
                         <ol className={styles.instructionSteps}>
                           {steps.map((step, index) => (
                             <li key={`fallback-step-${index}`} className={styles.instructionStep}>
-                              <span className={styles.stepNumber}>{index + 1}</span>
-                              <span className={styles.stepText}>{step}</span>
+                              <div className={styles.stepHeader}>
+                                <span className={styles.stepNumber}>{index + 1}</span>
+                                <span className={styles.stepText}>{step}</span>
+                              </div>
                             </li>
                           ))}
                         </ol>
@@ -425,7 +449,7 @@ const RecipeDetailPage: React.FC = () => {
                     }
                   }
 
-                  // Final fallback
+                  // Final fallback if no instructions available
                   return (
                     <div className={styles.fallbackInstructions}>
                       <p>No cooking instructions available for this recipe.</p>
@@ -438,7 +462,7 @@ const RecipeDetailPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Add to Plan Modal */}
+      {/* Modal for adding recipe to meal plan */}
       {recipe && (
         <AddToPlanModal
           isOpen={isModalOpen}

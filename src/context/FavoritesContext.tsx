@@ -4,63 +4,80 @@ import { useAuth } from './AuthContext';
 import { useGuest } from './GuestContext';
 import { firestoreService } from '../services/firestoreService';
 
-// Favorites storage interface
+// ===== TYPE DEFINITIONS =====
+
+/**
+ * FavoriteRecipe interface - defines the structure of a favorite recipe
+ * Contains all the recipe data that gets stored when a user favorites a recipe
+ */
 interface FavoriteRecipe {
-  id: number;
-  title: string;
-  image: string;
-  imageType: string;
-  readyInMinutes: number;
-  servings: number;
-  nutrition?: {
+  id: number;                    // Unique recipe ID
+  title: string;                 // Recipe title
+  image: string;                 // Recipe image URL
+  imageType: string;             // Type of image (jpg, png, etc.)
+  readyInMinutes: number;        // Cooking time in minutes
+  servings: number;              // Number of servings
+  nutrition?: {                  // Optional nutrition information
     nutrients: Array<{
-      name: string;
-      amount: number;
-      unit: string;
+      name: string;              // Nutrient name (calories, protein, etc.)
+      amount: number;            // Amount of nutrient
+      unit: string;              // Unit of measurement (g, kcal, etc.)
     }>;
   };
-  cuisines: string[];
-  dishTypes: string[];
-  diets: string[];
-  aggregateLikes: number;
-  healthScore: number;
-  spoonacularScore: number;
-  pricePerServing: number;
-  cheap: boolean;
-  dairyFree: boolean;
-  glutenFree: boolean;
-  ketogenic: boolean;
-  lowFodmap: boolean;
-  sustainable: boolean;
-  vegan: boolean;
-  vegetarian: boolean;
-  veryHealthy: boolean;
-  veryPopular: boolean;
-  whole30: boolean;
-  weightWatcherSmartPoints: number;
-  occasions: string[];
-  extendedIngredients: Array<{
-    id: number;
-    name: string;
-    amount: number;
-    unit: string;
-    original: string;
+  cuisines: string[];            // List of cuisines (Italian, Mexican, etc.)
+  dishTypes: string[];           // List of dish types (main course, dessert, etc.)
+  diets: string[];               // List of dietary restrictions (vegetarian, vegan, etc.)
+  aggregateLikes: number;        // Number of likes from users
+  healthScore: number;           // Health score (0-100)
+  spoonacularScore: number;      // Spoonacular's rating score
+  pricePerServing: number;       // Cost per serving
+  cheap: boolean;                // Whether the recipe is considered cheap
+  dairyFree: boolean;            // Whether the recipe is dairy-free
+  glutenFree: boolean;           // Whether the recipe is gluten-free
+  ketogenic: boolean;            // Whether the recipe is ketogenic
+  lowFodmap: boolean;            // Whether the recipe is low FODMAP
+  sustainable: boolean;          // Whether the recipe is sustainable
+  vegan: boolean;                // Whether the recipe is vegan
+  vegetarian: boolean;           // Whether the recipe is vegetarian
+  veryHealthy: boolean;          // Whether the recipe is very healthy
+  veryPopular: boolean;          // Whether the recipe is very popular
+  whole30: boolean;              // Whether the recipe is Whole30 compliant
+  weightWatcherSmartPoints: number;  // Weight Watchers points
+  occasions: string[];           // List of occasions (Christmas, birthday, etc.)
+  extendedIngredients: Array<{   // List of ingredients with details
+    id: number;                  // Ingredient ID
+    name: string;                // Ingredient name
+    amount: number;              // Amount needed
+    unit: string;                // Unit of measurement
+    original: string;            // Original ingredient string
   }>;
-  summary?: string;
-  // Store timestamp for potential cleanup
-  addedAt: number;
+  summary?: string;              // Optional recipe summary
+  addedAt: number;               // Timestamp when recipe was favorited
 }
 
+/**
+ * FavoritesContext interface - defines what the context provides to components
+ */
 interface FavoritesContextType {
-  favorites: number[];
-  favoriteRecipes: FavoriteRecipe[];
-  toggleFavorite: (recipeId: number, recipe?: FavoriteRecipe) => void;
-  isFavorite: (recipeId: number) => boolean;
-  clearFavorites: () => void;
+  favorites: number[];                                    // Array of favorite recipe IDs
+  favoriteRecipes: FavoriteRecipe[];                     // Array of complete favorite recipe objects
+  toggleFavorite: (recipeId: number, recipe?: FavoriteRecipe) => void;  // Add/remove from favorites
+  isFavorite: (recipeId: number) => boolean;             // Check if recipe is favorited
+  clearFavorites: () => void;                            // Remove all favorites
 }
 
+// ===== CONTEXT CREATION =====
+
+/**
+ * Create the favorites context
+ * This will hold all favorites-related state and functions
+ */
 const FavoritesContext = createContext<FavoritesContextType | null>(null);
 
+/**
+ * Custom hook to use the favorites context
+ * Provides easy access to favorites functions and state from any component
+ */
 export const useFavorites = () => {
   const context = useContext(FavoritesContext);
   if (!context) {
@@ -69,15 +86,36 @@ export const useFavorites = () => {
   return context;
 };
 
+// ===== PROVIDER PROPS =====
+
+/**
+ * Props for the FavoritesProvider component
+ */
 interface FavoritesProviderProps {
-  children: ReactNode;
+  children: ReactNode;  // React components that will have access to favorites context
 }
 
-export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }) => {
-  const [favorites, setFavorites] = useState<number[]>([]);
-  const [favoriteRecipes, setFavoriteRecipes] = useState<FavoriteRecipe[]>([]);
+// ===== FAVORITES PROVIDER COMPONENT =====
 
-  // Add error handling for useAuth
+/**
+ * FavoritesProvider Component
+ * 
+ * Provides favorites functionality to the entire app.
+ * Manages favorite recipes for both authenticated users (Firestore) and guest users (local storage).
+ * Handles adding, removing, and checking favorite recipes.
+ */
+export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }) => {
+  // ===== STATE MANAGEMENT =====
+
+  const [favorites, setFavorites] = useState<number[]>([]);           // Array of favorite recipe IDs
+  const [favoriteRecipes, setFavoriteRecipes] = useState<FavoriteRecipe[]>([]);  // Complete recipe objects
+
+  // ===== CONTEXT INTEGRATION =====
+
+  /**
+   * Get authentication context with error handling
+   * This prevents errors if the auth context isn't available yet
+   */
   let user = null;
   let isAuthenticated = false;
   try {
@@ -85,14 +123,17 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
     user = authContext.user;
     isAuthenticated = authContext.isAuthenticated;
   } catch (error) {
-    // Auth context not available yet, using guest mode
+    console.log('Auth context not available yet, using guest mode');
   }
 
-  // Add error handling for useGuest
+  /**
+   * Get guest context with error handling
+   * This prevents errors if the guest context isn't available yet
+   */
   let isGuestMode = false;
-  let addGuestFavorite = (recipe: any) => { };
+  let addGuestFavorite = (recipeData: { id: number; recipeId: string; recipe: FavoriteRecipe }) => { };
   let removeGuestFavorite = (recipeId: string) => { };
-  let guestData = { favoriteRecipes: [] as any[] };
+  let guestData = { favoriteRecipes: [] as Array<{ id: number; recipeId: string; recipe: FavoriteRecipe }> };
 
   try {
     const guestContext = useGuest();
@@ -101,10 +142,15 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
     removeGuestFavorite = guestContext.removeGuestFavorite;
     guestData = guestContext.guestData;
   } catch (error) {
-    // Guest context not available yet
+    console.log('Guest context not available yet');
   }
 
-  // Load favorites based on user mode
+  // ===== LOAD FAVORITES =====
+
+  /**
+   * Load favorites based on user mode (authenticated or guest)
+   * This runs when the component mounts and when user/guest state changes
+   */
   useEffect(() => {
     const loadFavorites = async () => {
       if (isAuthenticated && user) {
@@ -124,10 +170,10 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
         }
       } else if (isGuestMode) {
         // Load from guest context for guest users
-        const guestFavoriteIds = guestData.favoriteRecipes.map(fav => parseInt(fav.recipeId || fav.id));
+        const guestFavoriteIds = guestData.favoriteRecipes.map(fav => fav.recipe.id);
         const guestFavoriteRecipes = guestData.favoriteRecipes.map(fav => ({
           ...fav.recipe,
-          addedAt: fav.addedAt || Date.now()
+          addedAt: Date.now()
         }));
 
         setFavorites(guestFavoriteIds);
@@ -142,15 +188,20 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
     loadFavorites();
   }, [user, isAuthenticated, isGuestMode]);
 
+  // ===== FAVORITES FUNCTIONS =====
+
+  /**
+   * Toggle favorite status of a recipe
+   * Adds recipe to favorites if not favorited, removes if already favorited
+   */
   const toggleFavorite = async (recipeId: number, recipe?: FavoriteRecipe) => {
     if (isAuthenticated && user) {
-      // Handle authenticated user favorites
+      // Handle authenticated user favorites (stored in Firestore)
       try {
         const isCurrentlyFavorite = favorites.includes(recipeId);
 
         if (isCurrentlyFavorite) {
           // Remove from favorites - find the Firestore document ID
-          // We need to find the actual Firestore document ID, not the recipe ID
           const firestoreFavorites = await firestoreService.getFavoriteRecipes(user.id);
           const firestoreFavorite = firestoreFavorites.find(fav => parseInt(fav.recipeId) === recipeId);
 
@@ -181,7 +232,7 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
         console.error('Error toggling favorite:', error);
       }
     } else if (isGuestMode) {
-      // Handle guest user favorites
+      // Handle guest user favorites (stored in guest context)
       const isCurrentlyFavorite = favorites.includes(recipeId);
 
       if (isCurrentlyFavorite) {
@@ -194,7 +245,7 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
         // Add to guest favorites
         if (recipe) {
           addGuestFavorite({
-            id: recipeId.toString(),
+            id: recipeId,
             recipeId: recipeId.toString(),
             recipe: recipe
           });
@@ -206,13 +257,21 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
     }
   };
 
+  /**
+   * Check if a recipe is in the user's favorites
+   * Returns true if the recipe ID is in the favorites array
+   */
   const isFavorite = (recipeId: number): boolean => {
     return favorites.includes(recipeId);
   };
 
+  /**
+   * Clear all favorites
+   * Removes all favorite recipes from both local state and storage
+   */
   const clearFavorites = async () => {
     if (isAuthenticated && user) {
-      // Clear from Firestore
+      // Clear from Firestore for authenticated users
       try {
         const firestoreFavorites = await firestoreService.getFavoriteRecipes(user.id);
         for (const favorite of firestoreFavorites) {
@@ -223,10 +282,16 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
       }
     }
 
+    // Clear local state
     setFavorites([]);
     setFavoriteRecipes([]);
   };
 
+  // ===== CONTEXT VALUE =====
+
+  /**
+   * What we provide to other components through the context
+   */
   const value: FavoritesContextType = {
     favorites,
     favoriteRecipes,

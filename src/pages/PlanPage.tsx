@@ -8,21 +8,60 @@ import { usePlan } from '../context/PlanContext';
 import type { PlanEvent } from '../context/PlanContextTypes';
 import ConfirmationModal from '../components/ConfirmationModal';
 import { useGuest } from '../context/GuestContext';
+import NutritionalStats from '../components/NutritionalStats';
 
+/**
+ * PlanPage Component
+ * 
+ * Main meal planning page that provides a comprehensive interface for managing meal plans.
+ * Features include calendar view, drag-and-drop rescheduling, recipe management, and nutrition tracking.
+ * 
+ * Key Features:
+ * - Interactive calendar with month/week views
+ * - Drag-and-drop meal rescheduling
+ * - Custom recipe creation and editing
+ * - Nutrition tracking and visualization
+ * - Trash management for deleted meals
+ * - Guest mode support
+ */
+
+/**
+ * Props interface for the AddMealModal component
+ * Handles the modal for adding meals to the meal plan
+ */
 interface AddMealModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onAddCustomRecipe: (recipeData: { title: string; mealType: string; date: string }) => void;
-  onBrowseRecipes: () => void;
-  selectedDate: string;
-  isGuestMode?: boolean;
+  isOpen: boolean;           // Controls whether the modal is visible
+  onClose: () => void;       // Function to close the modal
+  onAddCustomRecipe: (recipeData: { title: string; mealType: string; date: string }) => void;  // Function to add custom recipe
+  onBrowseRecipes: () => void;  // Function to navigate to recipe browser
+  selectedDate: string;      // The date for which the meal is being added
 }
 
+/**
+ * AddMealModal Component
+ * 
+ * A modal that allows users to add meals to their meal plan.
+ * Provides options to browse recipes or create custom recipes.
+ * 
+ * Features:
+ * - Toggle between browsing recipes and creating custom recipes
+ * - Form validation for custom recipe creation
+ * - Integration with recipe browser
+ * - Date-specific meal planning
+ */
 const AddMealModal: React.FC<AddMealModalProps> = ({ isOpen, onClose, onAddCustomRecipe, onBrowseRecipes, selectedDate }) => {
-  const [recipeTitle, setRecipeTitle] = useState('');
-  const [mealType, setMealType] = useState('breakfast');
-  const [isCustomRecipe, setIsCustomRecipe] = useState(false);
+  // ===== STATE MANAGEMENT =====
 
+  const [recipeTitle, setRecipeTitle] = useState('');        // Custom recipe title input
+  const [mealType, setMealType] = useState('breakfast');     // Selected meal type
+  const [isCustomRecipe, setIsCustomRecipe] = useState(false);  // Toggle between browse and custom modes
+
+  // ===== EVENT HANDLERS =====
+
+  /**
+   * Handle form submission for custom recipe creation
+   * Validates input and adds the custom recipe to the meal plan
+   */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (recipeTitle.trim()) {
@@ -38,17 +77,32 @@ const AddMealModal: React.FC<AddMealModalProps> = ({ isOpen, onClose, onAddCusto
     }
   };
 
+  /**
+   * Navigate to recipe browser
+   * Closes modal and opens recipe search page
+   */
   const handleBrowseRecipes = () => {
     onBrowseRecipes();
     onClose();
   };
 
+  /**
+   * Switch to custom recipe creation mode
+   * Shows the custom recipe form
+   */
   const handleCustomRecipeClick = () => {
     setIsCustomRecipe(true);
   };
 
+  // Don't render if modal is not open
   if (!isOpen) return null;
 
+  // ===== UTILITY FUNCTIONS =====
+
+  /**
+   * Format date for display in modal header
+   * Converts date string to readable format
+   */
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
@@ -58,6 +112,8 @@ const AddMealModal: React.FC<AddMealModalProps> = ({ isOpen, onClose, onAddCusto
       day: 'numeric'
     });
   };
+
+  // ===== RENDER =====
 
   return (
     <div className={styles.addMealModalBackdrop} onClick={onClose}>
@@ -148,19 +204,158 @@ const AddMealModal: React.FC<AddMealModalProps> = ({ isOpen, onClose, onAddCusto
   );
 };
 
-const GridCalendar: React.FC<{
-  events: PlanEvent[];
-  onEventClick: (event: PlanEvent) => void;
-  onImageClick: (event: PlanEvent) => void;
-  onDayClick: (date: string) => void;
-  onEventDrop: (eventId: string, newDate: string) => void;
-  view: 'month' | 'week';
-  isGuestMode?: boolean;
-}> = ({ events, onEventClick, onImageClick, onDayClick, onEventDrop, view }) => {
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [draggedEvent, setDraggedEvent] = useState<PlanEvent | null>(null);
-  const [dragOverDate, setDragOverDate] = useState<string | null>(null);
+/**
+ * CustomRecipeModal Component
+ * 
+ * A dedicated modal for creating custom recipes directly.
+ * Simplified interface focused on custom recipe creation.
+ * 
+ * Features:
+ * - Streamlined custom recipe creation
+ * - Meal type selection with emojis
+ * - Form validation and submission
+ * - Date-specific recipe creation
+ */
+const CustomRecipeModal: React.FC<{
+  isOpen: boolean;           // Controls whether the modal is visible
+  onClose: () => void;       // Function to close the modal
+  onAddCustomRecipe: (recipeData: { title: string; mealType: string; date: string }) => void;  // Function to add custom recipe
+  selectedDate: string;      // The date for which the recipe is being created
+}> = ({ isOpen, onClose, onAddCustomRecipe, selectedDate }) => {
+  // ===== STATE MANAGEMENT =====
 
+  const [recipeTitle, setRecipeTitle] = useState('');        // Custom recipe title input
+  const [mealType, setMealType] = useState('main course');   // Selected meal type
+
+  // Handle form submission for custom recipe creation
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (recipeTitle.trim()) {
+      onAddCustomRecipe({
+        title: recipeTitle.trim(),
+        mealType,
+        date: selectedDate
+      });
+      setRecipeTitle('');
+      setMealType('main course');
+      onClose();
+    }
+  };
+
+  if (!isOpen) return null;
+
+  // Format the selected date for display
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  return (
+    <div className={styles.addMealModalBackdrop} onClick={onClose}>
+      <div className={styles.addMealModal} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.addMealModalHeader}>
+          <h3>✏️ Create Custom Recipe for {formatDate(selectedDate)}</h3>
+        </div>
+
+        <div className={styles.addMealModalContent}>
+          <p className={styles.modalDescription}>
+            Create your own recipe entry. You can add details like cooking time, servings, and notes later.
+          </p>
+
+          <form onSubmit={handleSubmit} className={styles.customRecipeForm}>
+            <div className={styles.formGroup}>
+              <label htmlFor="customRecipeTitle">Recipe Title *</label>
+              <input
+                id="customRecipeTitle"
+                type="text"
+                value={recipeTitle}
+                onChange={(e) => setRecipeTitle(e.target.value)}
+                placeholder="Enter your recipe name..."
+                required
+                className={styles.formInput}
+              />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label htmlFor="customMealType">Meal Type</label>
+              <select
+                id="customMealType"
+                value={mealType}
+                onChange={(e) => setMealType(e.target.value)}
+                className={styles.formSelect}
+              >
+                <option value="breakfast">🌅 Breakfast</option>
+                <option value="main course">🍽️ Main Course</option>
+                <option value="side dish">🥗 Side Dish</option>
+                <option value="dessert">🍰 Dessert</option>
+                <option value="snack">🍎 Snack</option>
+              </select>
+            </div>
+
+            <div className={styles.modalActions}>
+              <button
+                type="button"
+                onClick={onClose}
+                className={styles.cancelButton}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className={styles.confirmButton}
+                disabled={!recipeTitle.trim()}
+              >
+                Create Recipe
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/**
+ * GridCalendar Component
+ * 
+ * A calendar component that displays meal plan events in a grid layout.
+ * Supports month and week views with drag-and-drop functionality for rescheduling meals.
+ * 
+ * Features:
+ * - Month and week view modes
+ * - Drag-and-drop meal rescheduling
+ * - Nutrition visualization with color-coded indicators
+ * - Meal type icons and visual feedback
+ * - Guest mode support (disables drag/drop)
+ * - Responsive calendar grid layout
+ */
+const GridCalendar: React.FC<{
+  events: PlanEvent[];       // Array of meal plan events to display
+  onEventClick: (event: PlanEvent) => void;  // Handler for clicking on an event
+  onImageClick: (event: PlanEvent) => void;  // Handler for clicking on event image
+  onDayClick: (date: string) => void;        // Handler for clicking on a calendar day
+  onEventDrop: (eventId: string, newDate: string) => void;  // Handler for dropping events
+  view: 'month' | 'week';    // Calendar view mode
+  isGuestMode?: boolean;     // Whether user is in guest mode (disables drag/drop)
+  onImageError: (e: React.SyntheticEvent<HTMLImageElement, Event>) => void;  // Image error handler
+}> = ({ events, onEventClick, onImageClick, onDayClick, onEventDrop, view, isGuestMode = false, onImageError }) => {
+  // ===== STATE MANAGEMENT =====
+
+  const [currentDate, setCurrentDate] = useState(new Date());        // Current displayed month/week
+  const [draggedEvent, setDraggedEvent] = useState<PlanEvent | null>(null);  // Currently dragged event
+  const [dragOverDate, setDragOverDate] = useState<string | null>(null);     // Date being dragged over
+
+  // ===== UTILITY FUNCTIONS =====
+
+  /**
+   * Calculate days in month and first day of week for calendar layout
+   * Used to determine calendar grid structure
+   */
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();
     const month = date.getMonth();
@@ -172,10 +367,18 @@ const GridCalendar: React.FC<{
     return { daysInMonth, firstDayOfWeek };
   };
 
+  /**
+   * Get all events for a specific date
+   * Filters events array by date string
+   */
   const getEventsForDate = (date: string) => {
     return events.filter(event => event.date === date);
   };
 
+  /**
+   * Calculate nutrition indicator color and opacity based on nutritional values
+   * Returns color, opacity, and percentage for visual nutrition indicators
+   */
   const getNutritionColor = (nutrition: { calories?: number; protein?: number; carbs?: number; fat?: number } | undefined, type: 'calories' | 'protein' | 'carbs' | 'fat') => {
     const colors = {
       calories: '#9C27B0',
@@ -201,6 +404,10 @@ const GridCalendar: React.FC<{
     };
   };
 
+  /**
+   * Get emoji icon for meal type
+   * Returns appropriate emoji based on meal type string
+   */
   const getMealTypeIcon = (mealType: string) => {
     switch (mealType) {
       case 'breakfast': return '🌅';
@@ -212,17 +419,29 @@ const GridCalendar: React.FC<{
     }
   };
 
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    const target = e.target as HTMLImageElement;
-    target.src = 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop';
-  };
+  // ===== EVENT HANDLERS =====
 
+  /**
+   * Handle clicking on event image
+   * Prevents event bubbling and calls image click handler
+   */
   const handleImageClick = (event: PlanEvent, e: React.MouseEvent) => {
     e.stopPropagation();
     onImageClick(event);
   };
 
+  /**
+   * Handle start of drag operation
+   * Sets up drag data and visual feedback
+   * Drag and drop is enabled for authenticated users, disabled for guests
+   */
   const handleDragStart = (e: React.DragEvent, event: PlanEvent) => {
+    // Enable drag and drop for authenticated users, disable for guest users
+    if (isGuestMode) {
+      e.preventDefault();
+      return;
+    }
+
     e.dataTransfer.setData('text/plain', event.id);
     e.dataTransfer.effectAllowed = 'move';
     setDraggedEvent(event);
@@ -323,10 +542,10 @@ const GridCalendar: React.FC<{
                       if (draggedEvent) return;
                       onImageClick(event);
                     }}
-                    draggable={true}
+                    draggable={!isGuestMode}
                     onDragStart={(e) => handleDragStart(e, event)}
                     onDragEnd={handleDragEnd}
-                    title="Drag to reschedule"
+                    title={isGuestMode ? "Guest mode - drag disabled" : "Drag to reschedule meal"}
                   >
                     {event.image && (
                       <div className={styles.calendarEventImageContainer}>
@@ -335,6 +554,7 @@ const GridCalendar: React.FC<{
                           alt={event.title}
                           className={styles.calendarEventImage}
                           onClick={(e) => handleImageClick(event, e)}
+                          onError={onImageError}
                         />
                         <div className={styles.calendarEventMealType}>
                           <span className={styles.mealTypeIndicator} title={event.mealType}>
@@ -444,10 +664,10 @@ const GridCalendar: React.FC<{
                       if (draggedEvent) return;
                       onImageClick(event);
                     }}
-                    draggable={true}
+                    draggable={!isGuestMode}
                     onDragStart={(e) => handleDragStart(e, event)}
                     onDragEnd={handleDragEnd}
-                    title="Drag to reschedule"
+                    title={isGuestMode ? "Guest mode - drag disabled" : "Drag to reschedule meal"}
                   >
                     {event.image && (
                       <div className={styles.calendarEventImageContainer}>
@@ -456,6 +676,7 @@ const GridCalendar: React.FC<{
                           alt={event.title}
                           className={styles.calendarEventImage}
                           onClick={(e) => handleImageClick(event, e)}
+                          onError={onImageError}
                         />
                         <div className={styles.calendarEventMealType}>
                           <span className={styles.mealTypeIndicator} title={event.mealType}>
@@ -574,44 +795,91 @@ const GridCalendar: React.FC<{
   );
 };
 
+/**
+ * PlanPage Component
+ * 
+ * Main meal planning page that provides a comprehensive interface for managing meal plans.
+ * Features include calendar view, drag-and-drop rescheduling, recipe management, and nutrition tracking.
+ * 
+ * State Management:
+ * - Modal visibility states for various UI components
+ * - Data states for selected recipes and dates
+ * - UI states for calendar view and interactions
+ * - Form data for editing custom recipes
+ * 
+ * Key Functionality:
+ * - Calendar-based meal planning with drag-and-drop
+ * - Custom recipe creation and editing
+ * - Nutrition tracking and visualization
+ * - Trash management for deleted meals
+ * - Image upload for custom recipes
+ * - Guest mode support with limited functionality
+ */
 const PlanPage: React.FC = () => {
-  const navigate = useNavigate();
+  // ===== HOOKS AND CONTEXT =====
+  // React hooks and context providers for navigation, plan management, and guest mode
+
+  const navigate = useNavigate();  // Hook for programmatic navigation
   const {
-    events,
-    trashedEvents,
-    moveToTrash,
-    restoreFromTrash,
-    deleteFromTrash,
-    clearTrash,
-    addToPlan,
-    moveEvent,
-    ensureNutritionData,
-
-    updateEvent,
-    clearAll
+    events,                    // Array of meal plan events
+    trashedEvents,            // Array of events in trash
+    moveToTrash,              // Function to move event to trash
+    restoreFromTrash,         // Function to restore event from trash
+    deleteFromTrash,          // Function to permanently delete event
+    clearTrash,               // Function to empty trash
+    addToPlan,                // Function to add event to plan
+    moveEvent,                // Function to move event to new date
+    ensureNutritionData,      // Function to ensure nutrition data exists
+    updateEvent,              // Function to update event details
+    clearAllToTrash           // Function to move all events to trash
   } = usePlan();
-  const { isGuestMode } = useGuest();
+  const { isGuestMode } = useGuest();  // Guest mode context
 
+  // ===== EFFECTS =====
+  // Side effects for data initialization and lifecycle management
+
+  /**
+   * Ensure nutrition data exists for all events on component mount
+   * This prevents missing nutrition data in the UI
+   */
   React.useEffect(() => {
     ensureNutritionData();
   }, []);
 
-  const [showClearConfirm, setShowClearConfirm] = useState(false);
+  /**
+   * Initialize selected date with today's date on component mount
+   * This ensures nutritional stats are shown for today by default
+   */
+  React.useEffect(() => {
+    setSelectedDate(todayString);
+  }, []);
 
-  const [showTrashModal, setShowTrashModal] = useState(false);
-  const [showRecipeModal, setShowRecipeModal] = useState(false);
-  const [selectedRecipe, setSelectedRecipe] = useState<PlanEvent | null>(null);
-  const [showAddMealModal, setShowAddMealModal] = useState(false);
-  const [selectedDate, setSelectedDate] = useState('');
-  const [calendarView, setCalendarView] = useState<'month' | 'week'>('month');
-  const [showAllMeals, setShowAllMeals] = useState(false);
+  // ===== STATE MANAGEMENT =====
+  // Component state for UI interactions, data management, and form handling
 
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  // Modal visibility states
+  const [showClearConfirm, setShowClearConfirm] = useState(false);        // Clear all confirmation modal
+  const [showTrashModal, setShowTrashModal] = useState(false);            // Trash management modal
+  const [showRecipeModal, setShowRecipeModal] = useState(false);          // Recipe details modal
+  const [showAddMealModal, setShowAddMealModal] = useState(false);        // Add meal modal
+  const [showCustomRecipeModal, setShowCustomRecipeModal] = useState(false);  // Custom recipe modal
+  const [showConfirmModal, setShowConfirmModal] = useState(false);        // General confirmation modal
+  const [showEditModal, setShowEditModal] = useState(false);              // Edit recipe modal
+  const [showNotesModal, setShowNotesModal] = useState(false);            // Add notes modal
 
-  const [confirmMessage, setConfirmMessage] = useState('');
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [showNotesModal, setShowNotesModal] = useState(false);
-  const [editingRecipe, setEditingRecipe] = useState<PlanEvent | null>(null);
+  // Data states
+  const [selectedRecipe, setSelectedRecipe] = useState<PlanEvent | null>(null);  // Currently selected recipe
+  const [selectedDate, setSelectedDate] = useState('');                          // Selected calendar date
+  const [editingRecipe, setEditingRecipe] = useState<PlanEvent | null>(null);    // Recipe being edited
+  const [confirmMessage, setConfirmMessage] = useState('');                      // Confirmation modal message
+
+  // UI states
+  const [calendarView, setCalendarView] = useState<'month' | 'week'>('month');   // Calendar view mode
+  const [showAllMeals, setShowAllMeals] = useState(false);                       // Toggle between today/all meals
+  const [dragOver, setDragOver] = useState(false);                               // Drag and drop visual feedback
+  const [customImage, setCustomImage] = useState<string | null>(null);           // Custom uploaded image
+
+  // Form data
   const [editFormData, setEditFormData] = useState({
     title: '',
     mealType: 'main course',
@@ -621,18 +889,22 @@ const PlanPage: React.FC = () => {
     notes: '',
     image: undefined as string | undefined
   });
-  const [dragOver, setDragOver] = useState(false);
-  const [customImage, setCustomImage] = useState<string | null>(null);
 
-  // Toast state variables - commented out for now
-  // const [showToast, setShowToast] = useState(false);
-  // const [toastMessage, setToastMessage] = useState('');
-  // const [toastType, setToastType] = useState<'success' | 'error' | 'warning' | 'info'>('info');
+  // ===== COMPUTED VALUES =====
+  // Derived values and calculations used throughout the component
 
   const today = new Date();
-  const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-  const todayEvents = events.filter(event => event.date === todayString);
+  const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;  // Today's date in YYYY-MM-DD format
+  const todayEvents = events.filter(event => event.date === todayString);  // Events scheduled for today
 
+  // ===== UTILITY FUNCTIONS =====
+  // Helper functions for data processing, calculations, and UI utilities
+
+  /**
+   * Generate nutrition data for custom recipes based on title and meal type
+   * Uses keyword matching to estimate nutritional values
+   * This provides reasonable nutrition estimates for custom recipes
+   */
   const generateNutritionData = (title: string, mealType: string) => {
     const baseNutrition = {
       breakfast: { calories: 350, protein: 15, carbs: 45, fat: 12 },
@@ -685,6 +957,10 @@ const PlanPage: React.FC = () => {
     };
   };
 
+  /**
+   * Get color for difficulty level
+   * Returns appropriate color based on difficulty string
+   */
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'easy': return '#4CAF50';
@@ -694,6 +970,10 @@ const PlanPage: React.FC = () => {
     }
   };
 
+  /**
+   * Get emoji icon for meal type
+   * Returns appropriate emoji based on meal type string
+   */
   const getMealTypeIcon = (mealType: string) => {
     switch (mealType) {
       case 'breakfast': return '🌅';
@@ -705,19 +985,35 @@ const PlanPage: React.FC = () => {
     }
   };
 
+  // ===== EVENT HANDLERS =====
+  // User interaction handlers for clicks, form submissions, and UI events
+
+  /**
+   * Handle image loading errors
+   * Sets a fallback image when recipe image fails to load
+   * Ensures UI consistency even when images are unavailable
+   */
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     const target = e.target as HTMLImageElement;
     target.src = 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop';
   };
 
+  /**
+   * Handle clicking on a meal plan event
+   * Opens the recipe details modal
+   */
   const handleEventClick = (event: PlanEvent) => {
     setSelectedRecipe(event);
     setShowRecipeModal(true);
   };
 
+  /**
+   * Handle clearing all meals from the plan
+   * Moves all events to trash using bulk operation
+   */
   const handleClearAll = async () => {
-    // Use the clearAll function from context to properly clear all events
-    await clearAll();
+    // Use the optimized bulk operation to move all events to trash at once
+    await clearAllToTrash();
     setShowClearConfirm(false);
   };
 
@@ -725,6 +1021,10 @@ const PlanPage: React.FC = () => {
 
   // no-op; swap flow handled via navigation to Recipes/RecipeDetail
 
+  /**
+   * Navigate to recipe instructions page
+   * Opens the full recipe details for the selected recipe
+   */
   const handleViewRecipeInstructions = () => {
     if (selectedRecipe) {
       navigate(`/recipes/${selectedRecipe.recipeId}`);
@@ -732,16 +1032,28 @@ const PlanPage: React.FC = () => {
     }
   };
 
+  /**
+   * Handle clicking on a calendar day
+   * Opens the add meal modal for the selected date and updates nutritional stats
+   */
   const handleDayClick = (date: string) => {
     setSelectedDate(date);
     setShowAddMealModal(true);
   };
 
+  /**
+   * Handle dropping an event to a new date
+   * Moves the event to the new date using the moveEvent method
+   */
   const handleEventDrop = async (eventId: string, newDate: string) => {
     // Use the new moveEvent method for better performance
     await moveEvent(eventId, newDate);
   };
 
+  /**
+   * Add a custom recipe to the meal plan
+   * Creates a new event with generated nutrition data
+   */
   const handleAddCustomRecipe = (recipeData: { title: string; mealType: string; date: string }) => {
     const newEvent: Omit<PlanEvent, 'id'> = {
       title: recipeData.title,
@@ -758,11 +1070,28 @@ const PlanPage: React.FC = () => {
     addToPlan(newEvent);
   };
 
+  /**
+   * Navigate to recipe browser
+   * Passes selected date as query parameter for context
+   */
   const handleBrowseRecipes = () => {
     // Pass the selected date to the recipes page so it can be used when adding meals
     navigate(`/recipes?selectedDate=${selectedDate}`);
   };
 
+  /**
+   * Open custom recipe modal from empty state
+   * Uses today's date as default for new recipes
+   */
+  const handleOpenCustomRecipeModal = () => {
+    setSelectedDate(todayString); // Use today's date as default
+    setShowCustomRecipeModal(true);
+  };
+
+  /**
+   * Open edit modal for custom recipe
+   * Populates form with current recipe data
+   */
   const handleEditCustomRecipe = (recipe: PlanEvent) => {
     setEditingRecipe(recipe);
     setEditFormData({
@@ -779,6 +1108,10 @@ const PlanPage: React.FC = () => {
     setShowRecipeModal(false);
   };
 
+  /**
+   * Save edited recipe changes
+   * Updates the recipe in the plan and closes modals
+   */
   const handleSaveEdit = async () => {
     if (editingRecipe && editFormData.title.trim()) {
       // Update the recipe in the plan
@@ -815,6 +1148,10 @@ const PlanPage: React.FC = () => {
     }
   };
 
+  /**
+   * Open notes modal for recipe
+   * Populates form with current recipe data for notes editing
+   */
   const handleAddNotes = (recipe: PlanEvent) => {
     setEditingRecipe(recipe);
     setEditFormData({
@@ -831,6 +1168,10 @@ const PlanPage: React.FC = () => {
     setShowRecipeModal(false);
   };
 
+  /**
+   * Save recipe notes
+   * Updates only the notes field of the recipe
+   */
   const handleSaveNotes = async () => {
     if (editingRecipe) {
       const updatedRecipe: PlanEvent = {
@@ -858,16 +1199,28 @@ const PlanPage: React.FC = () => {
     }
   };
 
+  /**
+   * Handle drag over for image upload
+   * Sets visual feedback for drag and drop
+   */
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     setDragOver(true);
   };
 
+  /**
+   * Handle drag leave for image upload
+   * Removes visual feedback when dragging away
+   */
   const handleDragLeave = (e: React.DragEvent) => {
     e.preventDefault();
     setDragOver(false);
   };
 
+  /**
+   * Handle file drop for image upload
+   * Processes dropped image files and converts to base64
+   */
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setDragOver(false);
@@ -886,6 +1239,10 @@ const PlanPage: React.FC = () => {
     }
   };
 
+  /**
+   * Handle image file upload via file input
+   * Processes selected image files and converts to base64
+   */
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && file.type.startsWith('image/')) {
@@ -899,10 +1256,17 @@ const PlanPage: React.FC = () => {
     }
   };
 
+  /**
+   * Remove custom image from recipe
+   * Clears both custom image state and form data
+   */
   const removeImage = () => {
     setCustomImage(null);
     setEditFormData({ ...editFormData, image: undefined });
   };
+
+  // ===== RENDER =====
+  // Main component JSX with all UI elements and modals
 
   return (
     <div className={styles.planPageContainer}>
@@ -920,7 +1284,9 @@ const PlanPage: React.FC = () => {
               <div className={styles.sectionTitleContainer}>
                 <h2 className={styles.sectionTitle}>
                   Smart Calendar
-                  <span className={styles.dragHint}>💡 Drag meals to reschedule</span>
+                  <span className={styles.dragHint}>
+                    {isGuestMode ? "💡 Guest mode - drag disabled" : "💡 Drag meals to reschedule"}
+                  </span>
                 </h2>
                 <div className={styles.calendarActions}>
                   <button
@@ -958,13 +1324,21 @@ const PlanPage: React.FC = () => {
                   <div className={styles.emptyCalendarState}>
                     <div className={styles.emptyCalendarIcon}></div>
                     <h3>No Meals Planned</h3>
-                    <p>Your meal plan is empty. Browse recipes to add meals to your plan.</p>
-                    <button
-                      className={styles.addFirstMealButton}
-                      onClick={() => navigate('/recipes')}
-                    >
-                      Browse Recipes
-                    </button>
+                    <p>Your meal plan is empty. Get started by browsing recipes or creating your own custom recipe.</p>
+                    <div className={styles.emptyStateButtons}>
+                      <button
+                        className={styles.addFirstMealButton}
+                        onClick={() => navigate('/recipes')}
+                      >
+                        Browse Recipes
+                      </button>
+                      <button
+                        className={styles.addCustomRecipeButton}
+                        onClick={handleOpenCustomRecipeModal}
+                      >
+                        Add Custom Recipe
+                      </button>
+                    </div>
                   </div>
                 ) : (
                   <GridCalendar
@@ -975,6 +1349,7 @@ const PlanPage: React.FC = () => {
                     onEventDrop={handleEventDrop}
                     view={calendarView}
                     isGuestMode={isGuestMode}
+                    onImageError={handleImageError}
                   />
                 )}
               </div>
@@ -990,18 +1365,37 @@ const PlanPage: React.FC = () => {
                 <div className={styles.mealPlanToggle}>
                   <button
                     className={`${styles.toggleButton} ${!showAllMeals ? styles.active : ''}`}
-                    onClick={() => setShowAllMeals(false)}
+                    onClick={() => {
+                      setShowAllMeals(false);
+                      setSelectedDate(todayString);
+                    }}
                   >
                     Today
                   </button>
                   <button
                     className={`${styles.toggleButton} ${showAllMeals ? styles.active : ''}`}
-                    onClick={() => setShowAllMeals(true)}
+                    onClick={() => {
+                      setShowAllMeals(true);
+                      // Keep the current selected date for nutritional stats
+                    }}
                   >
                     All Meals
                   </button>
                 </div>
               </div>
+
+              {/* Nutritional Statistics */}
+              {!showAllMeals ? (
+                <NutritionalStats
+                  date={todayString}
+                  className={styles.nutritionalStatsSection}
+                />
+              ) : selectedDate && (
+                <NutritionalStats
+                  date={selectedDate}
+                  className={styles.nutritionalStatsSection}
+                />
+              )}
 
               {(showAllMeals ? events : todayEvents).length === 0 ? (
                 <div className={styles.emptyTodayState}>
@@ -1100,7 +1494,14 @@ const PlanPage: React.FC = () => {
         onAddCustomRecipe={handleAddCustomRecipe}
         onBrowseRecipes={handleBrowseRecipes}
         selectedDate={selectedDate}
-        isGuestMode={isGuestMode}
+      />
+
+      {/* Custom Recipe Modal - allows users to create custom recipes directly */}
+      <CustomRecipeModal
+        isOpen={showCustomRecipeModal}
+        onClose={() => setShowCustomRecipeModal(false)}
+        onAddCustomRecipe={handleAddCustomRecipe}
+        selectedDate={selectedDate}
       />
 
       {showClearConfirm && (
@@ -1342,7 +1743,6 @@ const PlanPage: React.FC = () => {
 
           }
         }}
-        title="Confirm Action"
         message={confirmMessage}
         confirmText="Confirm"
         cancelText="Cancel"

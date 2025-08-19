@@ -1,0 +1,25 @@
+// Firebase Configuration File
+// This file configures Firebase services for the application
+// Firebase provides hosting, database, and authentication services
+{
+  // Firestore database configuration
+  "firestore": {
+    "rules": "firestore.rules", // Security rules for database access
+    "indexes": "firestore.indexes.json" // Database indexes for better performance
+  },
+  // Firebase hosting configuration
+  "hosting": {
+    "public": "dist", // Directory containing built files to host
+    "ignore": [
+      "firebase.json", // Don't upload this config file
+      "**/.*", // Don't upload hidden files
+      "**/node_modules/**" // Don't upload node_modules
+    ],
+    "rewrites": [
+      {
+        "source": "**", // Match all routes
+        "destination": "/index.html" // Serve index.html for all routes (for React Router)
+      }
+    ]
+  }
+}

@@ -1,7 +1,13 @@
+/* ===== HEADER WRAPPER ===== */
+
+/* Main container for the entire header */
 .headerWrapper {
   width: 100%;
 }
 
+/* ===== HEADER CONTAINER ===== */
+
+/* Main header container with flexbox layout */
 .headerContainer {
   background-color: #F8F7E5;
   padding: 15px 20px;
@@ -10,24 +16,43 @@
   align-items: center;
 }
 
+/* ===== LOGO SECTION ===== */
+
+/* Logo container with flexbox layout */
 .logo {
   display: flex;
   align-items: center;
   gap: 5px;
 }
 
+/* Logo image styling */
 .logoImage {
   height: 40px;
   width: auto;
 }
 
-/* Navigation container */
+/* Logo text styling */
+.logo h1 {
+  font-size: 30px;
+  color: #17371A;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+/* ===== NAVIGATION MENU ===== */
+
+/* Navigation container with flexbox layout */
 .navigation {
   display: flex;
   gap: 30px;
 }
 
-/* Button styling */
+/* Special styling for navigation when on plan page */
+.planPage {
+  /* Add any special styling for plan page navigation here */
+}
+
+/* Base button styling for navigation */
 .navigation button {
   font-size: 16px;
   color: #17371A;
@@ -44,6 +69,7 @@
   position: relative;
 }
 
+/* Hover effect for navigation buttons */
 .navigation button:hover {
   color: #546A04;
   background-color: transparent;
@@ -52,12 +78,14 @@
   box-shadow: none;
 }
 
+/* Focus state for navigation buttons */
 .navigation button:focus {
   outline: none;
   border: none;
   box-shadow: none;
 }
 
+/* Active state for navigation buttons */
 .navigation button:active {
   outline: none;
   border: none;
@@ -65,7 +93,9 @@
   background-color: transparent;
 }
 
-/* Active button */
+/* ===== ACTIVE BUTTON STYLING ===== */
+
+/* Styling for the currently active navigation button */
 .active {
   background-color: #546A04;
   color: #F8F7E5;
@@ -79,6 +109,7 @@
   transition: all 0.3s ease;
 }
 
+/* Hover effect for active button */
 .active:hover {
   background-color: #17371A;
   border-color: #17371A;
@@ -88,12 +119,14 @@
   transform: translateY(-1px);
 }
 
+/* Focus state for active button */
 .active:focus {
   outline: none;
   border: none;
   box-shadow: none;
 }
 
+/* Active state for active button */
 .active:active {
   outline: none;
   border: none;
@@ -101,6 +134,7 @@
   background-color: #546A04;
 }
 
+/* Underline indicator for active button */
 .active::after {
   content: '';
   position: absolute;
@@ -113,28 +147,27 @@
   border-radius: 2px;
 }
 
-/* Auth links (e.g. login) */
+/* ===== AUTHENTICATION SECTION ===== */
+
+/* Container for authentication controls */
 .authLinks {
   display: flex;
   align-items: center;
+  gap: 15px;
 }
 
-/* User Profile Section */
-.userSection {
-  display: flex;
-  align-items: center;
-  margin-right: 20px;
-}
+/* ===== USER PROFILE ===== */
 
+/* User profile display container */
 .userProfile {
   display: flex;
   align-items: center;
   padding: 8px 16px;
-  background: rgba(84, 106, 4, 0.1);
   border-radius: 20px;
-  border: 1px solid rgba(84, 106, 4, 0.2);
+  font-style: italic;
 }
 
+/* Styling for authenticated user greeting */
 .userGreeting {
   font-size: 14px;
   color: #17371A;
@@ -142,6 +175,7 @@
   letter-spacing: 0.5px;
 }
 
+/* Styling for guest mode indicator */
 .guestMode {
   font-size: 14px;
   color: #6c757d;
@@ -150,6 +184,9 @@
   text-transform: uppercase;
 }
 
+/* ===== AUTHENTICATION BUTTONS ===== */
+
+/* Base styling for login/logout buttons */
 .authLinks button {
   font-size: 16px;
   color: #17371A;
@@ -161,10 +198,10 @@
   transition: color 0.2s ease-in-out;
   padding: 8px 12px;
   border-radius: 0px;
-  margin-left: 30px;
   box-shadow: none;
 }
 
+/* Hover effect for auth buttons */
 .authLinks button:hover {
   color: #546A04;
   background-color: transparent;
@@ -173,12 +210,14 @@
   box-shadow: none;
 }
 
+/* Focus state for auth buttons */
 .authLinks button:focus {
   outline: none;
   border: none;
   box-shadow: none;
 }
 
+/* Active state for auth buttons */
 .authLinks button:active {
   outline: none;
   border: none;
@@ -186,18 +225,29 @@
   background-color: transparent;
 }
 
-/* Responsive adjustments */
+/* ===== RESPONSIVE DESIGN ===== */
+
+/* Mobile and tablet adjustments */
 @media (max-width: 768px) {
+
+  /* Header container adjustments for mobile */
   .headerContainer {
     padding: 10px 15px;
     flex-wrap: wrap;
     gap: 10px;
   }
 
+  /* Logo text size adjustment for mobile */
+  .logo h1 {
+    font-size: 24px;
+  }
+
+  /* Logo image size adjustment for mobile */
   .logoImage {
     height: 30px;
   }
 
+  /* Navigation adjustments for mobile */
   .navigation {
     gap: 15px;
     order: 3;
@@ -206,24 +256,29 @@
     margin-top: 10px;
   }
 
+  /* Navigation button size adjustment for mobile */
   .navigation button {
     font-size: 14px;
     padding: 6px 12px;
   }
 
-  .userSection {
-    margin-right: 10px;
+  /* Auth links spacing adjustment for mobile */
+  .authLinks {
+    gap: 10px;
   }
 
+  /* User profile padding adjustment for mobile */
   .userProfile {
     padding: 6px 12px;
   }
 
+  /* User text size adjustment for mobile */
   .userGreeting,
   .guestMode {
     font-size: 12px;
   }
 
+  /* Auth button size adjustment for mobile */
   .authLinks button {
     font-size: 12px;
     padding: 6px 8px;

@@ -1,6 +1,6 @@
-/* LoadingStates.module.css */
+/* ===== LOADING SPINNER STYLES ===== */
 
-/* Loading Spinner */
+/* Container for all loading spinners */
 .loadingContainer {
   display: flex;
   flex-direction: column;
@@ -10,6 +10,9 @@
   text-align: center;
 }
 
+/* ===== SPINNER VARIANTS ===== */
+
+/* Default spinning circle */
 .spinner {
   position: relative;
   border-radius: 50%;
@@ -44,7 +47,7 @@
   background: rgba(84, 106, 4, 0.05);
 }
 
-/* Dots Spinner */
+/* Bouncing dots spinner */
 .dotsSpinner {
   display: flex;
   gap: 8px;
@@ -95,7 +98,7 @@
   animation-delay: 0.2s;
 }
 
-/* Pulse Spinner */
+/* Pulsing circle spinner */
 .pulseSpinner {
   border-radius: 50%;
   background: #546A04;
@@ -117,7 +120,7 @@
   height: 48px;
 }
 
-/* Bars Spinner */
+/* Animated bars spinner */
 .barsSpinner {
   display: flex;
   gap: 4px;
@@ -174,6 +177,9 @@
   animation-delay: 0.3s;
 }
 
+/* ===== ANIMATIONS ===== */
+
+/* Spinning animation for default spinner */
 @keyframes spin {
   0% {
     transform: rotate(0deg);
@@ -184,6 +190,7 @@
   }
 }
 
+/* Bouncing animation for dots */
 @keyframes dotsBounce {
 
   0%,
@@ -199,6 +206,7 @@
   }
 }
 
+/* Pulsing animation for pulse spinner */
 @keyframes pulse {
 
   0%,
@@ -213,6 +221,7 @@
   }
 }
 
+/* Wave animation for bars */
 @keyframes barsWave {
 
   0%,
@@ -227,6 +236,7 @@
   }
 }
 
+/* Loading message text */
 .loadingMessage {
   margin-top: 16px;
   font-size: 14px;
@@ -234,7 +244,9 @@
   font-weight: 500;
 }
 
-/* Error Message */
+/* ===== ERROR MESSAGE STYLES ===== */
+
+/* Base error container */
 .errorContainer {
   display: flex;
   flex-direction: column;
@@ -249,22 +261,26 @@
   transition: all 0.3s ease;
 }
 
+/* Warning variant */
 .warningContainer {
   border-color: rgba(255, 193, 7, 0.3);
   background: rgba(255, 255, 255, 0.98);
 }
 
+/* Info variant */
 .infoContainer {
   border-color: rgba(13, 202, 240, 0.3);
   background: rgba(255, 255, 255, 0.98);
 }
 
+/* Error icon with shake animation */
 .errorIcon {
   font-size: 48px;
   margin-bottom: 16px;
   animation: errorShake 0.5s ease-in-out;
 }
 
+/* Error title */
 .errorTitle {
   font-size: 20px;
   font-weight: 600;
@@ -272,6 +288,7 @@
   margin: 0 0 12px 0;
 }
 
+/* Error message */
 .errorMessage {
   font-size: 14px;
   color: #666;
@@ -280,6 +297,7 @@
   max-width: 400px;
 }
 
+/* Technical details section */
 .errorDetails {
   margin: 16px 0;
   text-align: left;
@@ -302,6 +320,7 @@
   border: 1px solid #e9ecef;
 }
 
+/* Retry button */
 .retryButton {
   background: linear-gradient(135deg, #546A04, #4a5a03);
   color: white;
@@ -320,6 +339,7 @@
   box-shadow: 0 4px 12px rgba(84, 106, 4, 0.3);
 }
 
+/* Error shake animation */
 @keyframes errorShake {
 
   0%,
@@ -336,7 +356,135 @@
   }
 }
 
-/* Skeleton Loading */
+/* ===== EMPTY STATE STYLES ===== */
+
+/* Base empty state container */
+.emptyContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100px 20px;
+  text-align: center;
+  margin: 40px 0;
+  position: relative;
+}
+
+/* Search-specific empty state */
+.searchEmptyContainer {
+  border-color: rgba(84, 106, 4, 0.2);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(84, 106, 4, 0.02));
+}
+
+/* Favorites-specific empty state */
+.favoritesEmptyContainer {
+  border-color: rgba(220, 53, 69, 0.2);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(220, 53, 69, 0.02));
+}
+
+/* Meal plan-specific empty state */
+.planEmptyContainer {
+  border-color: rgba(13, 202, 240, 0.2);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(13, 202, 240, 0.02));
+}
+
+/* Empty state icon with heartbeat animation */
+.emptyIcon {
+  font-size: 72px;
+  margin-bottom: 24px;
+  animation: heartBeat 2s ease-in-out infinite;
+  filter: drop-shadow(0 4px 12px rgba(84, 106, 4, 0.3));
+  opacity: 0.8;
+}
+
+/* Empty state title */
+.emptyTitle {
+  font-size: 24px;
+  font-weight: 700;
+  color: #F8F7E5;
+  margin: 0 0 20px 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Empty state message */
+.emptyMessage {
+  font-size: 16px;
+  color: #F8F7E5;
+  margin: 0 0 40px 0;
+  line-height: 1.6;
+  max-width: 450px;
+  opacity: 0.9;
+  font-weight: 500;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Action button with hover effects */
+.actionButton {
+  padding: 16px 32px;
+  border: none;
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #546A04 0%, #17371A 50%, #546A04 100%);
+  color: #F8F7E5;
+  box-shadow: 0 6px 20px rgba(84, 106, 4, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.actionButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.actionButton:hover::before {
+  left: 100%;
+}
+
+.actionButton:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(84, 106, 4, 0.4);
+  background: linear-gradient(135deg, #17371A 0%, #546A04 50%, #17371A 100%);
+}
+
+.actionButton:active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(84, 106, 4, 0.3);
+}
+
+/* Heartbeat animation for empty state icon */
+@keyframes heartBeat {
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+
+  50% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+}
+
+/* ===== SKELETON LOADING STYLES ===== */
+
+/* Base skeleton card */
 .skeletonCard {
   background: rgba(255, 255, 255, 0.95);
   border-radius: 16px;
@@ -347,6 +495,7 @@
   transition: all 0.3s ease;
 }
 
+/* Meal plan skeleton variant */
 .skeletonPlanCard {
   background: rgba(255, 255, 255, 0.95);
   border-radius: 12px;
@@ -356,6 +505,7 @@
   animation: skeletonPulse 1.2s ease-in-out infinite;
 }
 
+/* List skeleton variant */
 .skeletonListCard {
   background: rgba(255, 255, 255, 0.95);
   border-radius: 8px;
@@ -365,6 +515,7 @@
   animation: skeletonPulse 1.2s ease-in-out infinite;
 }
 
+/* Skeleton image placeholder */
 .skeletonImage {
   height: 200px;
   background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
@@ -372,10 +523,12 @@
   animation: skeletonShimmer 1.2s infinite;
 }
 
+/* Skeleton content area */
 .skeletonContent {
   padding: 16px;
 }
 
+/* Skeleton title placeholder */
 .skeletonTitle {
   height: 20px;
   background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
@@ -385,6 +538,7 @@
   margin-bottom: 12px;
 }
 
+/* Skeleton metadata grid */
 .skeletonMeta {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -392,6 +546,7 @@
   margin-bottom: 16px;
 }
 
+/* Individual skeleton metadata items */
 .skeletonMetaItem {
   height: 14px;
   background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
@@ -400,6 +555,7 @@
   border-radius: 4px;
 }
 
+/* Skeleton button placeholder */
 .skeletonButton {
   height: 36px;
   background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
@@ -408,6 +564,7 @@
   border-radius: 8px;
 }
 
+/* Skeleton pulse animation */
 @keyframes skeletonPulse {
 
   0%,
@@ -420,6 +577,7 @@
   }
 }
 
+/* Skeleton shimmer animation */
 @keyframes skeletonShimmer {
   0% {
     background-position: -200% 0;
@@ -430,13 +588,28 @@
   }
 }
 
-/* Progressive Loading */
+/* ===== SEARCH LOADING STYLES ===== */
+
+/* Container for search-specific loading */
+.searchLoadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+/* ===== PROGRESSIVE LOADING STYLES ===== */
+
+/* Container for progressive loading */
 .progressiveContainer {
   display: grid;
   gap: 20px;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
 }
 
+/* Error state in progressive loading */
 .errorState {
   grid-column: 1 / -1;
   display: flex;
@@ -445,7 +618,26 @@
   padding: 40px 20px;
 }
 
-/* Toast Notifications */
+/* ===== INLINE LOADING STYLES ===== */
+
+/* Container for inline loading */
+.inlineLoading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+}
+
+/* Inline loading text */
+.inlineText {
+  font-size: 14px;
+  color: #546A04;
+  font-weight: 500;
+}
+
+/* ===== TOAST NOTIFICATION STYLES ===== */
+
+/* Base toast container */
 .toast {
   position: fixed;
   top: 20px;
@@ -462,6 +654,7 @@
   backdrop-filter: blur(10px);
 }
 
+/* Toast type variants */
 .toast.success {
   background: rgba(40, 167, 69, 0.95);
   color: white;
@@ -486,17 +679,20 @@
   border: 1px solid rgba(13, 202, 240, 0.3);
 }
 
+/* Toast icon */
 .toastIcon {
   font-size: 20px;
   flex-shrink: 0;
 }
 
+/* Toast message */
 .toastMessage {
   font-size: 14px;
   font-weight: 500;
   flex: 1;
 }
 
+/* Toast close button */
 .toastClose {
   background: none;
   border: none;
@@ -517,6 +713,7 @@
   background: rgba(255, 255, 255, 0.2);
 }
 
+/* Toast slide-in animation */
 @keyframes toastSlideIn {
   from {
     transform: translateX(100%);
@@ -529,7 +726,9 @@
   }
 }
 
-/* Page Loading */
+/* ===== PAGE LOADING STYLES ===== */
+
+/* Full page loading container */
 .pageLoadingContainer {
   display: flex;
   align-items: center;
@@ -538,8 +737,47 @@
   padding: 40px 20px;
 }
 
-/* Responsive Design */
+/* ===== SHIMMER EFFECT STYLES ===== */
+
+/* Shimmer loading effect */
+.shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+
+/* Shimmer animation */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+/* Tablet and smaller screens */
 @media (max-width: 768px) {
+  .emptyContainer {
+    padding: 40px 20px;
+  }
+
+  .emptyIcon {
+    font-size: 48px;
+  }
+
+  .emptyTitle {
+    font-size: 20px;
+  }
+
+  .emptyMessage {
+    font-size: 14px;
+  }
+
   .errorTitle {
     font-size: 18px;
   }
@@ -565,7 +803,24 @@
   }
 }
 
+/* Mobile screens */
 @media (max-width: 480px) {
+  .emptyContainer {
+    padding: 30px 16px;
+  }
+
+  .emptyIcon {
+    font-size: 40px;
+  }
+
+  .emptyTitle {
+    font-size: 18px;
+  }
+
+  .emptyMessage {
+    font-size: 13px;
+  }
+
   .errorContainer {
     padding: 30px 16px;
   }
@@ -594,12 +849,22 @@
     grid-template-columns: 1fr;
     gap: 12px;
   }
+
+  .inlineLoading {
+    padding: 6px 8px;
+  }
+
+  .inlineText {
+    font-size: 12px;
+  }
 }
 
-/* Dark mode support */
+/* ===== DARK MODE SUPPORT ===== */
+
 @media (prefers-color-scheme: dark) {
 
   .errorContainer,
+  .emptyContainer,
   .skeletonCard,
   .skeletonPlanCard,
   .skeletonListCard {
@@ -607,11 +872,13 @@
     border-color: rgba(84, 106, 4, 0.3);
   }
 
-  .errorTitle {
+  .errorTitle,
+  .emptyTitle {
     color: #e0e0e0;
   }
 
-  .errorMessage {
+  .errorMessage,
+  .emptyMessage {
     color: #b0b0b0;
   }
 
@@ -619,6 +886,10 @@
   .skeletonTitle,
   .skeletonMetaItem,
   .skeletonButton {
+    background: linear-gradient(90deg, #404040 25%, #505050 50%, #404040 75%);
+  }
+
+  .shimmer {
     background: linear-gradient(90deg, #404040 25%, #505050 50%, #404040 75%);
   }
 }

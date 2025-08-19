@@ -1,5 +1,6 @@
-/* LoginPage.module.css - Soft & Comfortable Design */
+/* ===== LOGIN PAGE CONTAINER ===== */
 
+/* Main container for the entire login page */
 .loginPageContainer {
   min-height: 100vh;
   background: linear-gradient(135deg, #f5f5f0 0%, #e8e8e0 50%, #f0f0e8 100%);
@@ -11,6 +12,7 @@
   position: relative;
 }
 
+/* Background decorative elements */
 .loginPageContainer::before {
   content: '';
   position: absolute;
@@ -24,13 +26,17 @@
   pointer-events: none;
 }
 
+/* ===== LOGO SECTION ===== */
+
+/* Container for the logo */
 .logoSection {
-  margin-bottom: 40px;
+  margin-bottom: 35px;
   text-align: center;
   position: relative;
   z-index: 2;
 }
 
+/* Logo image styling */
 .logo {
   height: 90px;
   width: auto;
@@ -38,6 +44,9 @@
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
 }
 
+/* ===== LOGIN BOX ===== */
+
+/* Main login form container */
 .loginBox {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
@@ -54,6 +63,9 @@
   border: 1px solid rgba(84, 106, 4, 0.1);
 }
 
+/* ===== TITLE AND SUBTITLE ===== */
+
+/* Main page title */
 .title {
   font-size: 32px;
   font-weight: 600;
@@ -62,6 +74,7 @@
   letter-spacing: -0.5px;
 }
 
+/* Subtitle text */
 .subtitle {
   font-size: 16px;
   color: #546A04;
@@ -69,8 +82,9 @@
   font-weight: 400;
 }
 
+/* ===== LOGIN FORM ===== */
 
-
+/* Form container with flexbox layout */
 .loginForm {
   display: flex;
   flex-direction: column;
@@ -78,11 +92,15 @@
   margin-bottom: 25px;
 }
 
+/* ===== INPUT FIELDS ===== */
+
+/* Container for each input field group */
 .inputGroup {
   text-align: left;
   position: relative;
 }
 
+/* Input field labels */
 .label {
   display: block;
   font-size: 13px;
@@ -93,6 +111,7 @@
   letter-spacing: 0.8px;
 }
 
+/* Input field styling */
 .inputField {
   width: 100%;
   padding: 14px 16px;
@@ -105,6 +124,7 @@
   box-sizing: border-box;
 }
 
+/* Focus state for input fields */
 .inputField:focus {
   outline: none;
   border-color: #546A04;
@@ -112,6 +132,9 @@
   background: rgba(255, 255, 255, 1);
 }
 
+/* ===== LOGIN BUTTON ===== */
+
+/* Main login button styling */
 .loginButton {
   background: linear-gradient(135deg, #546A04 0%, #4a5d03 100%);
   color: white;
@@ -120,19 +143,22 @@
   border-radius: 12px;
   font-size: 15px;
   font-weight: 600;
+  width: 60%;
   cursor: pointer;
   transition: all 0.2s ease;
   text-transform: uppercase;
   letter-spacing: 1px;
-  margin-top: 8px;
+  margin: 6px auto 6px auto;
 }
 
+/* Hover effect for login button */
 .loginButton:hover:not(:disabled) {
   background: linear-gradient(135deg, #4a5d03 0%, #3f4f02 100%);
   transform: translateY(-1px);
   box-shadow: 0 8px 25px rgba(84, 106, 4, 0.3);
 }
 
+/* Disabled state for login button */
 .loginButton:disabled {
   background: #cccccc;
   cursor: not-allowed;
@@ -140,89 +166,79 @@
   box-shadow: none;
 }
 
-/* Guest mode styles */
-.guestSection {
-  margin: 25px 0;
-  padding: 20px 0;
-  border-top: 1px solid #e9ecef;
-  border-bottom: 1px solid #e9ecef;
-}
+/* ===== SIGNUP SECTION ===== */
 
-.guestButton {
-  background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
-  color: white;
-  border: none;
-  padding: 14px 20px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  width: 100%;
-  margin-bottom: 12px;
-}
-
-.guestButton:hover:not(:disabled) {
-  background: linear-gradient(135deg, #5a6268 0%, #495057 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
-}
-
-.guestButton:disabled {
-  background: #cccccc;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-.guestNote {
-  font-size: 12px;
-  color: #6c757d;
-  margin: 0;
-  line-height: 1.4;
-}
-
+/* Text for signup link */
 .signupText {
   font-size: 14px;
   color: #546A04;
   margin: 20px 0 0 0;
 }
 
+/* Signup link button styling */
 .signupLink {
   color: #546A04;
   text-decoration: none;
   font-weight: 600;
   transition: color 0.2s ease;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-size: inherit;
 }
 
+/* Hover effect for signup link */
 .signupLink:hover {
   color: #2c3e2a;
   text-decoration: underline;
 }
 
+/* ===== ERROR MESSAGE ===== */
+
+/* Error message container styling */
 .errorMessage {
-  background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
-  color: #721c24;
-  padding: 12px 16px;
-  border-radius: 8px;
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+  color: #856404;
+  padding: 14px 18px;
+  border-radius: 10px;
   font-size: 14px;
   margin-bottom: 20px;
-  border: 1px solid #f5c6cb;
+  border: 2px solid #ffc107;
   text-align: left;
+  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.2);
+  position: relative;
+  animation: warningPulse 2s ease-in-out infinite;
 }
 
-/* Responsive adjustments */
+/* ===== ANIMATIONS ===== */
+
+/* Gentle pulse animation to draw attention to the warning */
+@keyframes warningPulse {
+
+  0%,
+  100% {
+    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.2);
+  }
+
+  50% {
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
+  }
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+/* Mobile and tablet adjustments */
 @media (max-width: 480px) {
+
+  /* Login box adjustments for mobile */
   .loginBox {
     padding: 40px 30px;
     width: 95vw;
   }
 
+  /* Title size adjustment for mobile */
   .title {
     font-size: 28px;
   }
-
-
 }

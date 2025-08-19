@@ -1,5 +1,8 @@
-// Service for handling recipe API calls and mock data
+// API Service - Handles all communication with the Spoonacular recipe API
+// This service manages recipe searches, details, and API error handling
+// It includes rate limiting, retry logic, and fallback to mock data when API fails
 
+// Import types for recipe data and API responses
 import type {
   Recipe,
   RecipeSearchParams,
@@ -7,32 +10,31 @@ import type {
   RecipeDetailResponse,
   FilterOptionsResponse
 } from '../types/recipeTypes';
+import { mockRecipes } from './mockData';
 
-// API Configuration
+// API Configuration - Base URL and API key from environment variables
+// These values tell the service where to find the recipe API and how to authenticate
 const API_BASE_URL = 'https://api.spoonacular.com/recipes';
 const API_KEY = import.meta.env.VITE_SPOONACULAR_API_KEY || 'your-api-key-here';
 
+// Configuration settings for the API service
+// These control how the service behaves when making API calls
 const CONFIG = {
-  LOG_API_ERRORS: import.meta.env.DEV,
-  USE_MOCK_DATA_FALLBACK: true,
-  RATE_LIMIT_DELAY: 1000,
-  MAX_RETRIES: 3,
-  REQUEST_TIMEOUT: 10000,
-  MOCK_DATA_DELAY: 0,
+  LOG_API_ERRORS: import.meta.env.DEV, // Only log errors in development mode
+  USE_MOCK_DATA_FALLBACK: true, // Always use mock data when API fails
+  RATE_LIMIT_DELAY: 1000, // Wait 1 second between requests to be respectful to the API
+  MAX_RETRIES: 3, // Maximum number of retry attempts for failed requests
+  REQUEST_TIMEOUT: 10000, // 10 seconds timeout for requests
 };
 
-// Custom error types
-export interface ApiError {
-  code: string;
-  message: string;
-  details?: unknown;
-  retryable: boolean;
-}
-
+/**
+ * Custom error class for API-related errors
+ * This helps distinguish between different types of errors and provides useful information
+ */
 export class RecipeApiError extends Error {
-  public code: string;
-  public retryable: boolean;
-  public details?: unknown;
+  public code: string;        // Error code (e.g., 'AUTH_ERROR', 'RATE_LIMIT_ERROR')
+  public retryable: boolean;  // Whether this error can be retried
+  public details?: unknown;   // Additional error details
 
   constructor(message: string, code: string, retryable: boolean = false, details?: unknown) {
     super(message);
@@ -43,314 +45,25 @@ export class RecipeApiError extends Error {
   }
 }
 
-// Mock recipe data for when the API is unavailable
-const mockRecipes: Recipe[] = [
-  {
-    id: 1,
-    title: "Crispy Chicken Tacos with Avocado Salsa",
-    image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop",
-    imageType: "jpg",
-    servings: 4,
-    readyInMinutes: 25,
-    aggregateLikes: 89,
-    healthScore: 78,
-    spoonacularScore: 94,
-    pricePerServing: 320,
-    analyzedInstructions: [],
-    cheap: false,
-    cuisines: ["Mexican"],
-    dairyFree: false,
-    diets: ["High-Protein"],
-    gaps: "GAPS",
-    glutenFree: false,
-    instructions: "1. Season chicken with spices and pan-fry until crispy\n2. Warm corn tortillas\n3. Make fresh avocado salsa with lime and cilantro\n4. Assemble tacos with chicken, salsa, and crumbled queso fresco",
-    ketogenic: false,
-    lowFodmap: false,
-    occasions: ["Dinner", "Lunch"],
-    sustainable: true,
-    vegan: false,
-    vegetarian: false,
-    veryHealthy: true,
-    veryPopular: true,
-    whole30: false,
-    weightWatcherSmartPoints: 8,
-    dishTypes: ["Main Course"],
-    extendedIngredients: [
-      {
-        id: 1,
-        aisle: "Meat",
-        amount: 1.5,
-        unit: "pounds",
-        name: "chicken breast",
-        original: "1.5 pounds chicken breast, sliced",
-        originalName: "chicken breast",
-        meta: ["sliced"],
-        image: "chicken-breast.jpg"
-      },
-      {
-        id: 2,
-        aisle: "Produce",
-        amount: 2,
-        unit: "avocados",
-        name: "avocado",
-        original: "2 ripe avocados",
-        originalName: "avocado",
-        meta: ["ripe"],
-        image: "avocado.jpg"
-      },
-      {
-        id: 3,
-        aisle: "Bakery",
-        amount: 8,
-        unit: "corn tortillas",
-        name: "corn tortillas",
-        original: "8 corn tortillas",
-        originalName: "corn tortillas",
-        meta: [],
-        image: "corn-tortillas.jpg"
-      }
-    ],
-    summary: "Crispy pan-fried chicken tacos topped with fresh avocado salsa and crumbled queso fresco. A quick and flavorful Mexican-inspired meal perfect for weeknight dinners."
-  },
-  {
-    id: 2,
-    title: "Mediterranean Quinoa Bowl with Roasted Vegetables",
-    image: "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=400&h=300&fit=crop",
-    imageType: "jpg",
-    servings: 3,
-    readyInMinutes: 35,
-    aggregateLikes: 76,
-    healthScore: 92,
-    spoonacularScore: 88,
-    pricePerServing: 280,
-    analyzedInstructions: [],
-    cheap: true,
-    cuisines: ["Mediterranean"],
-    dairyFree: true,
-    diets: ["Vegetarian", "Vegan"],
-    gaps: "GAPS",
-    glutenFree: true,
-    instructions: "1. Cook quinoa according to package instructions\n2. Roast chickpeas, bell peppers, and zucchini with olive oil and herbs\n3. Prepare lemon-tahini dressing\n4. Assemble bowls with quinoa, vegetables, and dressing",
-    ketogenic: false,
-    lowFodmap: false,
-    occasions: ["Lunch", "Dinner"],
-    sustainable: true,
-    vegan: true,
-    vegetarian: true,
-    veryHealthy: true,
-    veryPopular: false,
-    whole30: false,
-    weightWatcherSmartPoints: 6,
-    dishTypes: ["Main Course"],
-    extendedIngredients: [
-      {
-        id: 4,
-        aisle: "Pasta and Rice",
-        amount: 1,
-        unit: "cup",
-        name: "quinoa",
-        original: "1 cup quinoa",
-        originalName: "quinoa",
-        meta: [],
-        image: "quinoa.jpg"
-      },
-      {
-        id: 5,
-        aisle: "Canned and Jarred",
-        amount: 1,
-        unit: "can",
-        name: "chickpeas",
-        original: "1 can chickpeas, drained",
-        originalName: "chickpeas",
-        meta: ["drained"],
-        image: "chickpeas.jpg"
-      },
-      {
-        id: 6,
-        aisle: "Produce",
-        amount: 2,
-        unit: "bell peppers",
-        name: "bell peppers",
-        original: "2 bell peppers, sliced",
-        originalName: "bell peppers",
-        meta: ["sliced"],
-        image: "bell-peppers.jpg"
-      }
-    ],
-    summary: "A nutritious Mediterranean-inspired quinoa bowl featuring roasted chickpeas, colorful bell peppers, and zucchini, topped with a creamy lemon-tahini dressing."
-  },
-  {
-    id: 3,
-    title: "Thai Green Curry with Coconut Rice",
-    image: "https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=400&h=300&fit=crop",
-    imageType: "jpg",
-    servings: 4,
-    readyInMinutes: 40,
-    aggregateLikes: 94,
-    healthScore: 71,
-    spoonacularScore: 91,
-    pricePerServing: 350,
-    analyzedInstructions: [],
-    cheap: false,
-    cuisines: ["Thai"],
-    dairyFree: true,
-    diets: ["High-Protein"],
-    gaps: "GAPS",
-    glutenFree: false,
-    instructions: "1. Cook coconut rice with pandan leaves\n2. Stir-fry chicken with green curry paste\n3. Add coconut milk and vegetables\n4. Simmer until sauce thickens and serve over rice",
-    ketogenic: false,
-    lowFodmap: false,
-    occasions: ["Dinner"],
-    sustainable: false,
-    vegan: false,
-    vegetarian: false,
-    veryHealthy: false,
-    veryPopular: true,
-    whole30: false,
-    weightWatcherSmartPoints: 12,
-    dishTypes: ["Main Course"],
-    extendedIngredients: [
-      {
-        id: 7,
-        aisle: "Meat",
-        amount: 1,
-        unit: "pound",
-        name: "chicken thigh",
-        original: "1 pound chicken thighs, cubed",
-        originalName: "chicken thigh",
-        meta: ["cubed"],
-        image: "chicken-thigh.jpg"
-      },
-      {
-        id: 8,
-        aisle: "Ethnic Foods",
-        amount: 2,
-        unit: "tablespoons",
-        name: "green curry paste",
-        original: "2 tablespoons green curry paste",
-        originalName: "green curry paste",
-        meta: [],
-        image: "green-curry-paste.jpg"
-      },
-      {
-        id: 9,
-        aisle: "Canned and Jarred",
-        amount: 1,
-        unit: "can",
-        name: "coconut milk",
-        original: "1 can coconut milk",
-        originalName: "coconut milk",
-        meta: [],
-        image: "coconut-milk.jpg"
-      }
-    ],
-    summary: "Aromatic Thai green curry with tender chicken, bamboo shoots, and Thai basil, served over fragrant coconut rice for an authentic Southeast Asian dining experience."
-  }
-];
-
-// Add more mock recipes for variety
-for (let i = 4; i <= 20; i++) {
-  const recipeTemplates = [
-    {
-      title: "Grilled Vegetable Panini",
-      cuisines: ["Italian"],
-      diets: ["Vegetarian"],
-      dishTypes: ["Main Course"],
-      readyInMinutes: 20,
-      healthScore: 85
-    },
-    {
-      title: "Spicy Tofu Stir-Fry",
-      cuisines: ["Asian"],
-      diets: ["Vegan"],
-      dishTypes: ["Main Course"],
-      readyInMinutes: 25,
-      healthScore: 88
-    },
-    {
-      title: "Classic Caesar Salad",
-      cuisines: ["Italian"],
-      diets: ["Vegetarian"],
-      dishTypes: ["Side Dish"],
-      readyInMinutes: 15,
-      healthScore: 75
-    },
-    {
-      title: "Beef and Broccoli",
-      cuisines: ["Chinese"],
-      diets: ["High-Protein"],
-      dishTypes: ["Main Course"],
-      readyInMinutes: 30,
-      healthScore: 72
-    },
-    {
-      title: "Chocolate Chip Cookies",
-      cuisines: ["American"],
-      diets: ["Vegetarian"],
-      dishTypes: ["Dessert"],
-      readyInMinutes: 35,
-      healthScore: 45
-    }
-  ];
-
-  const template = recipeTemplates[(i - 4) % recipeTemplates.length];
-
-  mockRecipes.push({
-    id: i,
-    title: template.title,
-    image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop',
-    imageType: 'jpg',
-    servings: 2 + (i % 3),
-    readyInMinutes: template.readyInMinutes,
-    aggregateLikes: 50 + (i * 3),
-    healthScore: template.healthScore,
-    spoonacularScore: 70 + (i * 2),
-    pricePerServing: 200 + (i * 20),
-    analyzedInstructions: [],
-    cheap: i % 2 === 0,
-    cuisines: template.cuisines,
-    dairyFree: template.diets.includes('Vegan'),
-    diets: template.diets,
-    gaps: 'GAPS',
-    glutenFree: template.diets.includes('Gluten-Free'),
-    instructions: `1. Prepare ingredients\n2. Cook according to recipe\n3. Serve and enjoy`,
-    ketogenic: false,
-    lowFodmap: false,
-    occasions: ['Dinner'],
-    sustainable: i % 2 === 0,
-    vegan: template.diets.includes('Vegan'),
-    vegetarian: template.diets.includes('Vegetarian'),
-    veryHealthy: template.healthScore > 80,
-    veryPopular: i % 3 === 0,
-    whole30: false,
-    weightWatcherSmartPoints: 5 + (i % 8),
-    dishTypes: template.dishTypes,
-    extendedIngredients: [
-      {
-        id: 100 + i,
-        aisle: 'Produce',
-        amount: 1,
-        unit: 'unit',
-        name: 'Main Ingredient',
-        original: '1 unit Main Ingredient',
-        originalName: 'Main Ingredient',
-        meta: [],
-        image: 'ingredient.jpg'
-      }
-    ],
-    summary: `A delicious ${template.title.toLowerCase()} recipe perfect for any occasion.`
-  });
-}
-
-// Helper function to build query parameters
+/**
+ * Helper function to convert parameters object to URL query string
+ * @param params - Object containing search parameters
+ * @returns URL-encoded query string
+ * 
+ * This function takes an object of search parameters and converts it into
+ * a query string that can be added to a URL for API requests.
+ */
 const buildQueryParams = (params: Record<string, string | number | boolean | string[]>): string => {
   const searchParams = new URLSearchParams();
 
+  // Loop through each parameter and add it to the query string
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== '') {
       if (Array.isArray(value)) {
+        // If the value is an array, join it with commas
         searchParams.append(key, value.join(','));
       } else {
+        // If the value is a single item, convert it to string
         searchParams.append(key, value.toString());
       }
     }
@@ -359,79 +72,28 @@ const buildQueryParams = (params: Record<string, string | number | boolean | str
   return searchParams.toString();
 };
 
-// Main API Service Class
+// Main API Service Class - Handles all recipe-related API calls
+// This class manages the communication with the Spoonacular API
 class RecipeApiService {
-  private useMockData: boolean;
-  private requestCount: number = 0;
-  private lastRequestTime: number = 0;
-  private mockDataLoaded: boolean = false;
+  private requestCount: number = 0;      // Track number of requests made
+  private lastRequestTime: number = 0;   // Track when the last request was made
 
   constructor() {
-    this.useMockData = !API_KEY || API_KEY === 'your-api-key-here';
-    this.preloadMockData();
-
     if (CONFIG.LOG_API_ERRORS) {
-      console.log('API Service initialized:', {
-        hasApiKey: !!API_KEY && API_KEY !== 'your-api-key-here',
-        useMockData: this.useMockData,
-        rateLimitDelay: CONFIG.RATE_LIMIT_DELAY,
-        maxRetries: CONFIG.MAX_RETRIES
-      });
+      console.log('API Service initialized');
     }
   }
 
-  private preloadMockData(): void {
-    if (!this.mockDataLoaded) {
-      this.mockDataLoaded = true;
-      if (CONFIG.LOG_API_ERRORS) {
-        console.log('Mock data preloaded for instant access');
-      }
-    }
-  }
-
-  private saveFiltersToStorage(filters: Record<string, any>): void {
-    try {
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && value !== '') {
-          localStorage.setItem(`cravrplan_filters_${key}`, JSON.stringify(value));
-        } else {
-          localStorage.removeItem(`cravrplan_filters_${key}`);
-        }
-      });
-    } catch (error) {
-      console.warn('Failed to save filters to localStorage:', error);
-    }
-  }
-
-  private loadFiltersFromStorage(): Record<string, any> {
-    const filters: Record<string, any> = {};
-    try {
-      const filterKeys = ['query', 'cuisine', 'diet', 'intolerances', 'maxReadyTime', 'type'];
-      filterKeys.forEach(key => {
-        const stored = localStorage.getItem(`cravrplan_filters_${key}`);
-        if (stored) {
-          try {
-            filters[key] = JSON.parse(stored);
-          } catch (e) {
-            console.warn(`Failed to parse stored filter ${key}:`, e);
-          }
-        }
-      });
-    } catch (error) {
-      console.warn('Failed to load filters from localStorage:', error);
-    }
-    return filters;
-  }
-
+  /**
+   * Rate limiting function to prevent too many API calls
+   * This ensures we don't exceed the API's rate limits
+   */
   private async checkRateLimit(): Promise<void> {
-    // Skip rate limiting when using mock data
-    if (this.useMockData) {
-      return;
-    }
-
     const now = Date.now();
     const timeSinceLastRequest = now - this.lastRequestTime;
 
+    // If we've made 10 requests in the last minute, wait
+    // This prevents hitting the API's rate limits
     if (this.requestCount >= 10 && timeSinceLastRequest < 60000) {
       const waitTime = 60000 - timeSinceLastRequest;
       console.warn(`Rate limit exceeded. Please wait ${Math.ceil(waitTime / 1000)} seconds.`);
@@ -440,6 +102,7 @@ class RecipeApiService {
       this.lastRequestTime = Date.now();
     }
 
+    // Reset counter if more than a minute has passed
     if (timeSinceLastRequest > 60000) {
       this.requestCount = 0;
     }
@@ -448,19 +111,35 @@ class RecipeApiService {
     this.lastRequestTime = now;
   }
 
+  /**
+   * Main function to make HTTP requests with error handling and retry logic
+   * @param url - The URL to make the request to
+   * @param options - Request options (method, headers, body, etc.)
+   * @param retryCount - Current retry attempt number
+   * @returns The response data
+   * 
+   * This function handles all HTTP requests to the API. It includes:
+   * - Rate limiting to prevent too many requests
+   * - Timeout handling to prevent hanging requests
+   * - Error handling for different HTTP status codes
+   * - Retry logic for certain types of errors
+   */
   private async makeRequest<T>(url: string, options: RequestInit = {}, retryCount: number = 0): Promise<T> {
     try {
-      // Only apply rate limiting delay if not using mock data
-      if (!this.useMockData && this.lastRequestTime > 0) {
+      // Add delay between requests to respect rate limits
+      if (this.lastRequestTime > 0) {
         const timeSinceLastRequest = Date.now() - this.lastRequestTime;
         if (timeSinceLastRequest < CONFIG.RATE_LIMIT_DELAY) {
           await new Promise(resolve => setTimeout(resolve, CONFIG.RATE_LIMIT_DELAY - timeSinceLastRequest));
         }
       }
 
+      // Set up timeout for the request
+      // This prevents requests from hanging indefinitely
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), CONFIG.REQUEST_TIMEOUT);
 
+      // Make the actual HTTP request
       const response = await fetch(url, {
         ...options,
         signal: controller.signal,
@@ -472,6 +151,8 @@ class RecipeApiService {
 
       clearTimeout(timeoutId);
 
+      // Handle different HTTP error status codes
+      // Each status code gets a specific error message and handling
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
 
@@ -482,30 +163,23 @@ class RecipeApiService {
             false,
             errorData
           );
-        } else if (response.status === 402) {
-          throw new RecipeApiError(
-            'API payment required. Using mock data instead.',
-            'PAYMENT_REQUIRED',
-            false,
-            errorData
-          );
         } else if (response.status === 429) {
           throw new RecipeApiError(
-            'API rate limit exceeded. Using mock data instead.',
+            'API rate limit exceeded. Please try again later.',
             'RATE_LIMIT_ERROR',
             true,
             errorData
           );
         } else if (response.status >= 500) {
           throw new RecipeApiError(
-            'Server error. Using mock data instead.',
+            'Server error. Please try again later.',
             'SERVER_ERROR',
             true,
             errorData
           );
         } else {
           throw new RecipeApiError(
-            `API request failed: ${response.status} ${response.statusText}. Using mock data instead.`,
+            `API request failed: ${response.status} ${response.statusText}`,
             'REQUEST_ERROR',
             false,
             errorData
@@ -519,22 +193,25 @@ class RecipeApiService {
         throw error;
       }
 
+      // Handle timeout errors
       if (error instanceof Error && error.name === 'AbortError') {
         throw new RecipeApiError(
-          'Request timeout. Using mock data instead.',
+          'Request timeout. Please try again.',
           'TIMEOUT_ERROR',
           true
         );
       }
 
+      // Retry logic for certain types of errors
+      // This automatically retries requests that might succeed on a second attempt
       if (retryCount < CONFIG.MAX_RETRIES && this.isRetryableError(error as { code?: string; name?: string })) {
-        const delay = Math.pow(2, retryCount) * 1000;
+        const delay = Math.pow(2, retryCount) * 1000; // Exponential backoff
         await new Promise(resolve => setTimeout(resolve, delay));
         return this.makeRequest<T>(url, options, retryCount + 1);
       }
 
       throw new RecipeApiError(
-        `Network error: ${error instanceof Error ? error.message : 'Unknown error'}. Using mock data instead.`,
+        `Network error: ${error instanceof Error ? error.message : 'Unknown error'}`,
         'NETWORK_ERROR',
         false,
         error
@@ -542,6 +219,15 @@ class RecipeApiService {
     }
   }
 
+  /**
+   * Check if an error is retryable
+   * @param error - The error to check
+   * @returns True if the error can be retried, false otherwise
+   * 
+   * This function determines whether a failed request should be retried.
+   * Some errors (like rate limits or server errors) can be retried,
+   * while others (like authentication errors) cannot.
+   */
   private isRetryableError(error: { code?: string; name?: string }): boolean {
     return error.code === 'RATE_LIMIT_ERROR' ||
       error.code === 'SERVER_ERROR' ||
@@ -549,34 +235,21 @@ class RecipeApiService {
       error.name === 'AbortError';
   }
 
-  private handleApiError<T>(error: unknown, fallbackData: T): T {
-    if (CONFIG.LOG_API_ERRORS) {
-      console.warn('API Error - falling back to mock data:', {
-        message: error instanceof Error ? error.message : 'Unknown error',
-        code: (error as { code?: string })?.code,
-        retryable: (error as { retryable?: boolean })?.retryable,
-        details: (error as { details?: unknown })?.details
-      });
-    }
-
-    if (CONFIG.USE_MOCK_DATA_FALLBACK) {
-      console.log('✅ Using mock data for instant response');
-      return fallbackData;
-    }
-
-    throw error;
-  }
-
+  /**
+   * Search for recipes using the API with fallback to mock data
+   * @param params - Search parameters (query, cuisine, diet, etc.)
+   * @returns Search results with recipes and metadata
+   * 
+   * This is the main function for searching recipes. It tries the API first,
+   * and if that fails, it falls back to mock data to ensure the app always works.
+   */
   async searchRecipes(params: RecipeSearchParams): Promise<RecipeSearchResponse> {
-    this.saveFiltersToStorage(params);
-
-    if (this.useMockData) {
-      return this.getMockSearchResults(params);
-    }
+    const mockResult = this.getMockSearchResults(params);
 
     try {
       await this.checkRateLimit();
 
+      // Build query parameters for the API request
       const queryParams = buildQueryParams({
         ...params,
         apiKey: API_KEY,
@@ -585,74 +258,170 @@ class RecipeApiService {
         number: params.number || 20
       });
 
-      const response = await this.makeRequest<RecipeSearchResponse>(`${API_BASE_URL}/complexSearch?${queryParams}`);
-      return response;
-    } catch (error: unknown) {
-      return this.handleApiError(error, this.getMockSearchResults(params));
+      // Make API request
+      const apiResult = await this.makeRequest<RecipeSearchResponse>(`${API_BASE_URL}/complexSearch?${queryParams}`);
+      return apiResult;
+    } catch (error) {
+      // If API fails, use mock data
+      if (CONFIG.LOG_API_ERRORS) {
+        console.log('API call failed, using mock data:', error);
+      }
+      return {
+        results: mockResult.results,
+        offset: mockResult.offset,
+        number: mockResult.number,
+        totalResults: mockResult.totalResults
+      };
     }
   }
 
-  async getRecipeDetails(recipeId: number): Promise<RecipeDetailResponse> {
-    if (this.useMockData) {
-      return this.getMockRecipeDetails(recipeId);
-    }
+  /**
+   * Search for recipes by ingredients with API fallback
+   * @param ingredients - Array of ingredient names to search for
+   * @param maxMissingIngredients - Maximum number of missing ingredients allowed
+   * @returns Array of recipes that can be made with the given ingredients
+   * 
+   * This function finds recipes that can be made with the ingredients the user has.
+   * It allows for some missing ingredients to be flexible in recipe suggestions.
+   */
+  async searchRecipesByIngredients(ingredients: string[], maxMissingIngredients: number = 3): Promise<Recipe[]> {
+    const mockResults = this.getMockRecipesByIngredients(ingredients, maxMissingIngredients);
 
     try {
       await this.checkRateLimit();
 
-      const queryParams = buildQueryParams({
-        apiKey: API_KEY
+      // Build query parameters for ingredient search
+      const ingredientParams = buildQueryParams({
+        ingredients: ingredients.join(','),
+        ranking: 2,
+        ignorePantry: true,
+        number: 20,
+        apiKey: API_KEY,
+        addRecipeInformation: true,
+        fillIngredients: true
       });
 
-      const response = await this.makeRequest<RecipeDetailResponse>(`${API_BASE_URL}/${recipeId}/information?${queryParams}`);
-      return response;
-    } catch (error: unknown) {
-      console.error('Error fetching recipe details:', error);
-      return this.handleApiError(error, this.getMockRecipeDetails(recipeId));
+      const result = await this.makeRequest<{ results: Recipe[] }>(`${API_BASE_URL}/findByIngredients?${ingredientParams}`);
+      return result.results || [];
+    } catch (error) {
+      // If API fails, use mock data
+      if (CONFIG.LOG_API_ERRORS) {
+        console.log('API call failed, using mock data:', error);
+      }
+      return mockResults;
     }
   }
 
+  /**
+   * Get detailed information about a specific recipe
+   * @param recipeId - The unique ID of the recipe
+   * @returns Detailed recipe information including nutrition and instructions
+   * 
+   * This function gets comprehensive information about a specific recipe,
+   * including ingredients, instructions, nutrition facts, and more.
+   */
+  async getRecipeDetails(recipeId: number): Promise<RecipeDetailResponse> {
+    try {
+      await this.checkRateLimit();
+
+      const detailParams = buildQueryParams({ apiKey: API_KEY });
+      const result = await this.makeRequest<RecipeDetailResponse>(`${API_BASE_URL}/${recipeId}/information?${detailParams}`);
+      return result;
+    } catch (error) {
+      // If API fails, use mock data
+      if (CONFIG.LOG_API_ERRORS) {
+        console.log('API call failed, using mock data:', error);
+      }
+      return this.getMockRecipeDetails(recipeId);
+    }
+  }
+
+  /**
+   * Get available filter options (uses mock data since API doesn't provide this)
+   * @returns Object containing all available filter options
+   * 
+   * This function returns all the available options for filtering recipes.
+   * Since the API doesn't provide this data, we use predefined mock options.
+   */
   async getFilterOptions(): Promise<FilterOptionsResponse> {
     return this.getMockFilterOptions();
   }
 
-  getLastUsedFilters(): RecipeSearchParams {
-    return this.loadFiltersFromStorage();
-  }
+  // ===== MOCK DATA METHODS FOR FALLBACK =====
 
-  // Mock data methods
+  /**
+   * Filter mock recipes based on search parameters
+   * @param params - Search parameters to filter by
+   * @returns Filtered recipe results using mock data
+   * 
+   * This function filters the local mock recipes based on the search parameters.
+   * It's used as a fallback when the API is unavailable.
+   */
   private getMockSearchResults(params: RecipeSearchParams): RecipeSearchResponse {
     let filteredRecipes = [...mockRecipes];
 
+    // Filter by search query
     if (params.query) {
       const query = params.query.toLowerCase();
-      filteredRecipes = filteredRecipes.filter(recipe =>
+      filteredRecipes = filteredRecipes.filter((recipe: any) =>
         recipe.title.toLowerCase().includes(query) ||
-        recipe.summary.toLowerCase().includes(query) ||
-        recipe.extendedIngredients.some(ingredient =>
+        recipe.summary?.toLowerCase().includes(query) ||
+        recipe.extendedIngredients.some((ingredient: any) =>
           ingredient.name.toLowerCase().includes(query)
         )
       );
     }
 
+    // Filter by diet
     if (params.diet) {
-      filteredRecipes = filteredRecipes.filter(recipe =>
+      filteredRecipes = filteredRecipes.filter((recipe: any) =>
         recipe.diets.includes(params.diet!)
       );
     }
 
+    // Filter by cuisine
     if (params.cuisine) {
-      filteredRecipes = filteredRecipes.filter(recipe =>
+      filteredRecipes = filteredRecipes.filter((recipe: any) =>
         recipe.cuisines.includes(params.cuisine!)
       );
     }
 
+    // Filter by meal type
+    if (params.type) {
+      const mealType = params.type.toLowerCase();
+      filteredRecipes = filteredRecipes.filter((recipe: any) => {
+        if (recipe.dishTypes.some((dishType: any) =>
+          dishType.toLowerCase().includes(mealType)
+        )) {
+          return true;
+        }
+
+        if (recipe.occasions.some((occasion: any) =>
+          occasion.toLowerCase().includes(mealType)
+        )) {
+          return true;
+        }
+
+        const title = recipe.title.toLowerCase();
+        if (mealType === 'breakfast' && title.includes('breakfast')) return true;
+        if (mealType === 'lunch' && title.includes('lunch')) return true;
+        if (mealType === 'dinner' && title.includes('dinner')) return true;
+        if (mealType === 'snack' && title.includes('snack')) return true;
+        if (mealType === 'dessert' && title.includes('dessert')) return true;
+        if (mealType === 'appetizer' && title.includes('appetizer')) return true;
+
+        return false;
+      });
+    }
+
+    // Filter by cooking time
     if (params.maxReadyTime) {
       filteredRecipes = filteredRecipes.filter(recipe =>
         recipe.readyInMinutes <= params.maxReadyTime!
       );
     }
 
+    // Filter by food intolerances
     if (params.intolerances && params.intolerances.length > 0) {
       filteredRecipes = filteredRecipes.filter(recipe => {
         const intolerances = params.intolerances!;
@@ -668,6 +437,7 @@ class RecipeApiService {
       });
     }
 
+    // Apply pagination
     const offset = params.offset || 0;
     const number = params.number || 20;
     const paginatedRecipes = filteredRecipes.slice(offset, offset + number);
@@ -680,6 +450,14 @@ class RecipeApiService {
     };
   }
 
+  /**
+   * Get mock recipe details with nutrition information
+   * @param recipeId - The unique ID of the recipe
+   * @returns Detailed recipe information with mock nutrition data
+   * 
+   * This function provides detailed recipe information when the API is unavailable.
+   * It includes mock nutrition data to make the recipe details look complete.
+   */
   private getMockRecipeDetails(recipeId: number): RecipeDetailResponse {
     const recipe = mockRecipes.find(r => r.id === recipeId);
     if (!recipe) {
@@ -749,6 +527,13 @@ class RecipeApiService {
     };
   }
 
+  /**
+   * Get mock filter options for the recipe search
+   * @returns Object containing all available filter options
+   * 
+   * This function returns predefined filter options that users can choose from
+   * when searching for recipes. These options cover common dietary and cuisine preferences.
+   */
   private getMockFilterOptions(): FilterOptionsResponse {
     return {
       cuisines: [
@@ -762,9 +547,7 @@ class RecipeApiService {
         { name: "Japanese", value: "Japanese" },
         { name: "Chinese", value: "Chinese" },
         { name: "Thai", value: "Thai" },
-        { name: "Korean", value: "Korean" },
         { name: "Indian", value: "Indian" },
-        { name: "Spanish", value: "Spanish" },
         { name: "Middle Eastern", value: "Middle Eastern" }
       ],
       diets: [
@@ -797,34 +580,38 @@ class RecipeApiService {
       timePreferences: [
         { name: "Quick (15-30 min)", value: "15-30" },
         { name: "Medium (30-60 min)", value: "30-60" },
-        { name: "Long (60+ min)", value: "60+" },
-        { name: "Meal Prep", value: "meal-prep" },
-        { name: "Weekend Cooking", value: "weekend" }
+        { name: "Long (60+ min)", value: "60+" }
       ]
     };
   }
+
+  /**
+   * Filter mock recipes by ingredients
+   * @param ingredients - Array of ingredient names to search for
+   * @param maxMissingIngredients - Maximum number of missing ingredients allowed
+   * @returns Array of recipes that can be made with the given ingredients
+   * 
+   * This function finds recipes that can be made with the ingredients the user has.
+   * It counts how many ingredients are missing and only returns recipes that
+   * are missing fewer than maxMissingIngredients.
+   */
+  private getMockRecipesByIngredients(ingredients: string[], maxMissingIngredients: number = 3): Recipe[] {
+    return mockRecipes.filter(recipe => {
+      const recipeIngredients = recipe.extendedIngredients.map((ing: any) => ing.name.toLowerCase());
+      const missingCount = ingredients.filter((ing: string) => !recipeIngredients.includes(ing.toLowerCase())).length;
+      return missingCount <= maxMissingIngredients;
+    });
+  }
 }
 
-// Create a single instance of the API service
+// Create and export a single instance of the API service
+// This ensures we only have one API service throughout the app
 export const recipeApiService = new RecipeApiService();
 
-// Export individual functions for convenience
+// Export individual functions for easy use in other parts of the app
+// These functions provide a simple interface to the API service
 export const searchRecipes = (params: RecipeSearchParams) => recipeApiService.searchRecipes(params);
 export const getRecipeDetails = (recipeId: number) => recipeApiService.getRecipeDetails(recipeId);
 export const getFilterOptions = () => recipeApiService.getFilterOptions();
-
-// Export utility functions
-export const getLastUsedFilters = () => recipeApiService.getLastUsedFilters();
-export const isUsingMockData = () => recipeApiService['useMockData'];
-export const clearStoredFilters = () => {
-  try {
-    const filterKeys = ['query', 'cuisine', 'diet', 'intolerances', 'maxReadyTime', 'type'];
-    filterKeys.forEach(key => {
-      localStorage.removeItem(`cravrplan_filters_${key}`);
-    });
-    console.log('✅ Stored filters cleared');
-  } catch (error) {
-    console.warn('Failed to clear stored filters:', error);
-  }
-};
+export const searchRecipesByIngredients = (ingredients: string[], maxMissingIngredients: number = 3) => recipeApiService.searchRecipesByIngredients(ingredients, maxMissingIngredients);
 
