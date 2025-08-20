@@ -389,48 +389,62 @@ const RecipeDetailPage: React.FC = () => {
               // Instructions tab content
               <div className={styles.instructionsList}>
                 {(() => {
-                  // Try to use structured instructions first (from API)
-                  if (recipe.analyzedInstructions && recipe.analyzedInstructions.length > 0) {
-                    return recipe.analyzedInstructions.map((instructionGroup, groupIndex) => (
-                      <div key={groupIndex} className={styles.instructionGroup}>
-                        {instructionGroup.name && (
-                          <h3 className={styles.instructionGroupTitle}>{instructionGroup.name}</h3>
-                        )}
-                        <ol className={styles.instructionSteps}>
-                          {instructionGroup.steps.map((step) => (
-                            <li key={step.id} className={styles.instructionStep}>
-                              <div className={styles.stepHeader}>
-                                <span className={styles.stepNumber}>{step.number}</span>
-                                <span className={styles.stepText}>{step.step}</span>
-                              </div>
-                            </li>
-                          ))}
-                        </ol>
-                      </div>
-                    ));
+                  // Prefer structured instructions if present and contain steps
+                  const hasStructured = Array.isArray(recipe.analyzedInstructions)
+                    && recipe.analyzedInstructions.some(g => Array.isArray(g.steps) && g.steps.length > 0);
+
+                  if (hasStructured) {
+                    return recipe.analyzedInstructions
+                      .filter(group => Array.isArray(group.steps) && group.steps.length > 0)
+                      .map((instructionGroup, groupIndex) => (
+                        <div key={groupIndex} className={styles.instructionGroup}>
+                          {instructionGroup.name && (
+                            <h3 className={styles.instructionGroupTitle}>{instructionGroup.name}</h3>
+                          )}
+                          <ol className={styles.instructionSteps}>
+                            {instructionGroup.steps.map((step, stepIndex) => (
+                              <li key={`${groupIndex}-${stepIndex}`} className={styles.instructionStep}>
+                                <div className={styles.stepHeader}>
+                                  <span className={styles.stepNumber}>{step.number}</span>
+                                  <span className={styles.stepText}>{step.step}</span>
+                                </div>
+                              </li>
+                            ))}
+                          </ol>
+                        </div>
+                      ));
                   }
 
                   // Fallback: parse raw instructions string into steps
-                  if (recipe.instructions && recipe.instructions.trim()) {
-                    // Remove HTML tags and split by common step indicators
-                    const cleanInstructions = recipe.instructions.replace(/<[^>]*>/g, '');
+                  const raw = (recipe.instructions || '').trim();
+                  if (raw) {
+                    // Normalize HTML breaks to newlines before stripping tags
+                    const normalized = raw
+                      .replace(/<\s*br\s*\/?\s*>/gi, '\n')
+                      .replace(/<\/?p>/gi, '\n')
+                      .replace(/<\/?li>/gi, '\n');
 
-                    // Split by newlines first, then by numbered patterns
+                    const cleanInstructions = normalized.replace(/<[^>]*>/g, '').trim();
+
+                    // Try a variety of common splitting strategies
                     let steps = cleanInstructions
-                      .split(/\n/)
-                      .filter(step => step.trim().length > 0)
-                      .map(step => step.trim());
+                      .split(/\r?\n+/)
+                      .map(s => s.trim())
+                      .filter(Boolean);
 
-                    // If we got multiple steps from newlines, use them
-                    if (steps.length > 1) {
-                      // Remove the step numbers from the beginning of each step
-                      steps = steps.map(step => step.replace(/^\d+\.\s*/, ''));
-                    } else {
-                      // Fallback to regex splitting if newlines didn't work
+                    if (steps.length <= 1) {
                       steps = cleanInstructions
-                        .split(/(?:\d+\.|step\s+\d+|^\d+\))/i)
-                        .filter(step => step.trim().length > 0)
-                        .map(step => step.trim());
+                        .split(/(?:(?:^|\s)(?:step\s*\d+\s*:?)|\d+[\.)]\s+|•\s+|\-\s+)/gi)
+                        .map(s => s.trim())
+                        .filter(Boolean);
+                    }
+
+                    // If we still have a single long paragraph, try sentence based split
+                    if (steps.length <= 1) {
+                      steps = cleanInstructions
+                        .split(/(?<=[\.\!\?])\s+(?=[A-Z])/)
+                        .map(s => s.trim())
+                        .filter(Boolean);
                     }
 
                     if (steps.length > 0) {
@@ -438,6 +452,35 @@ const RecipeDetailPage: React.FC = () => {
                         <ol className={styles.instructionSteps}>
                           {steps.map((step, index) => (
                             <li key={`fallback-step-${index}`} className={styles.instructionStep}>
+                              <div className={styles.stepHeader}>
+                                <span className={styles.stepNumber}>{index + 1}</span>
+                                <span className={styles.stepText}>{step}</span>
+                              </div>
+                            </li>
+                          ))}
+                        </ol>
+                      );
+                    }
+                  }
+
+                  // Last resort: derive simple steps from summary if available
+                  if (recipe.summary) {
+                    const cleanSummary = recipe.summary
+                      .replace(/<\s*br\s*\/?\s*>/gi, '\n')
+                      .replace(/<[^>]*>/g, '')
+                      .trim();
+
+                    const summarySteps = cleanSummary
+                      .split(/(?<=[\.\!\?])\s+(?=[A-Z])/)
+                      .map(s => s.trim())
+                      .filter(Boolean)
+                      .slice(0, 8); // limit to avoid overly long lists from descriptive text
+
+                    if (summarySteps.length > 1) {
+                      return (
+                        <ol className={styles.instructionSteps}>
+                          {summarySteps.map((step, index) => (
+                            <li key={`summary-step-${index}`} className={styles.instructionStep}>
                               <div className={styles.stepHeader}>
                                 <span className={styles.stepNumber}>{index + 1}</span>
                                 <span className={styles.stepText}>{step}</span>
