@@ -23,12 +23,14 @@
 - [Architecture](#architecture)
 - [Tech Stack](#tech-stack)
 - [Quick Start](#quick-start)
+- [Deployment (Vercel)](#deployment-vercel)
 - [Screenshots](#screenshots)
 - [Development](#development)
 - [Security](#security)
 - [Performance](#performance)
 - [Testing](#testing)
 - [Scalability](#scalability)
+- [Business Impact](#business-impact)
 - [Contributing](#contributing)
 
 ---
@@ -127,7 +129,7 @@ graph TD
 | **External API** | Spoonacular | - | Recipe Data |
 | **Calendar** | FullCalendar | - | Meal Planning |
 | **Development** | ESLint | - | Code Quality |
-| **Hosting** | Firebase Hosting | - | Production Deployment |
+| **Hosting** | Vercel | - | Production Deployment |
 | **CI/CD** | GitHub Actions | - | Automated Deployment |
 
 ---
@@ -185,19 +187,40 @@ npm run build        # Build for production
 npm run preview      # Preview production build
 npm run lint         # Run ESLint
 
-# Firebase (if using Firebase CLI)
-firebase deploy       # Deploy to Firebase
-firebase deploy --only firestore:rules  # Deploy security rules
+# Vercel (Deployment)
+npm i -g vercel       # Install Vercel CLI (one-time)
+vercel link           # Link local project to Vercel (one-time)
+vercel                # Deploy a preview build
+vercel --prod         # Deploy to production
 ```
 
 ---
+
+### Deployment (Vercel)
+
+1. Install Vercel CLI: `npm i -g vercel`
+2. Link the project: `vercel link`
+3. Configure build settings (Vercel dashboard or `vercel.json`):
+   - Framework Preset: Vite
+   - Build Command: `npm run build`
+   - Output Directory: `dist`
+4. Set environment variables in Vercel (Dashboard → Project → Settings → Environment Variables) and optionally sync locally: `vercel env pull .env.local`
+5. Deploy:
+   - Preview: `vercel`
+   - Production: `vercel --prod`
+
+Note: If you use Firebase Firestore with custom security rules, you may still deploy rules via Firebase CLI:
+
+```bash
+firebase deploy --only firestore:rules
+```
 
 ## Screenshots
 
 <div align="center">
 
 ### Home Page - Recipe Discovery
-![Home Page](screenshots/home.png)
+![Home Page](screenshots/homepage.jpg)
 *Main recipe discovery interface with advanced filtering options*
 
 ### Meal Planning Calendar
@@ -205,12 +228,12 @@ firebase deploy --only firestore:rules  # Deploy security rules
 *Interactive calendar with drag-and-drop meal scheduling*
 
 ### Recipe Detail View
-![Recipe Detail](screenshots/recipe-detail.png)
+![Recipe Detail](screenshots/recipe-detail.jpg)
 *Comprehensive recipe information with nutritional data*
 
 ### Authentication Flow
-![Authentication](screenshots/auth.png)
-*Seamless transition between guest and member modes*
+![Authentication](screenshots/auth-login.jpg)
+*Log in screen demonstrating the authentication entry point*
 
 </div>
 
@@ -557,24 +580,3 @@ npm run build
 5. Open a Pull Request
 
 ---
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## Connect & Learn More
-
-<div align="center">
-
-[Portfolio](#) • [LinkedIn](#) • [GitHub](#) • [Email](#)
-
-**Built with modern web technologies and enterprise-grade architecture. Demonstrates advanced React patterns, TypeScript best practices, and scalable software design principles.**
-
-**Star this repository if you found it helpful!**
-
-</div>
-
-
-
