@@ -516,7 +516,7 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
    * Check if a feature is restricted for guest users
    * Currently all features are enabled for both guest and member modes
    */
-  const isFeatureRestricted: PlanContextType['isFeatureRestricted'] = (feature) => {
+  const isFeatureRestricted: PlanContextType['isFeatureRestricted'] = (_feature) => {
     // All features are now enabled for both guest and member modes
     return false;
   };

@@ -278,7 +278,6 @@ const AddToPlanModal: React.FC<AddToPlanModalProps> = ({ isOpen, onClose, recipe
         isOpen={showErrorModal}
         onClose={() => setShowErrorModal(false)}
         onConfirm={() => setShowErrorModal(false)}
-        title="Error"
         message={errorMessage}
         confirmText="OK"
         cancelText="Cancel"
@@ -295,7 +294,6 @@ const AddToPlanModal: React.FC<AddToPlanModalProps> = ({ isOpen, onClose, recipe
           setShowConfirmModal(false);
           handleConfirmAddToPlan();
         }}
-        title="Confirm Action"
         message={confirmMessage}
         confirmText="Confirm"
         cancelText="Cancel"

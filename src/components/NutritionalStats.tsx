@@ -44,7 +44,7 @@ const NutritionalStats: React.FC<NutritionalStatsProps> = ({ date, className }) 
    * Get color for nutrition type based on percentage
    * Returns appropriate color for visual indicators
    */
-  const getNutritionColor = (type: 'calories' | 'protein' | 'carbs' | 'fat', percentage: number): string => {
+  const getNutritionColor = (_type: 'calories' | 'protein' | 'carbs' | 'fat', percentage: number): string => {
     if (percentage >= 100) return '#e74c3c'; // Red for over 100%
     if (percentage >= 80) return '#f39c12';  // Orange for 80-99%
     if (percentage >= 60) return '#f1c40f';  // Yellow for 60-79%

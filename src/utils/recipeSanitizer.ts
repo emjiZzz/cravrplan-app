@@ -15,7 +15,7 @@ import type { Recipe } from '../types/recipeTypes';
  * default values for required fields to prevent database errors.
  */
 export function sanitizeRecipeForFirestore(recipe: Recipe): any {
-  const sanitized: any = {};
+  // const sanitized: any = {}; // Unused variable
 
   // Helper function to recursively remove undefined values from nested objects
   // This function goes through all properties of an object and removes any undefined values

@@ -131,8 +131,8 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
    * This prevents errors if the guest context isn't available yet
    */
   let isGuestMode = false;
-  let addGuestFavorite = (recipeData: { id: number; recipeId: string; recipe: FavoriteRecipe }) => { };
-  let removeGuestFavorite = (recipeId: string) => { };
+  let addGuestFavorite = (_recipeData: { id: number; recipeId: string; recipe: FavoriteRecipe }) => { };
+  let removeGuestFavorite = (_recipeId: string) => { };
   let guestData = { favoriteRecipes: [] as Array<{ id: number; recipeId: string; recipe: FavoriteRecipe }> };
 
   try {

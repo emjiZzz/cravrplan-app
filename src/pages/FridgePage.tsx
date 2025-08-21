@@ -21,13 +21,14 @@ interface FridgeRecipe extends Recipe {
 
 /**
  * Enhanced nutrition interface with direct calorie access
+ * Currently unused but kept for future enhancements
  */
-interface EnhancedNutrition {
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-}
+// interface EnhancedNutrition {
+//   calories: number;
+//   protein: number;
+//   carbs: number;
+//   fat: number;
+// }
 
 /**
  * Simple ingredient interface for fridge ingredients
@@ -58,12 +59,12 @@ const FridgePage: React.FC = () => {
   const [loading, setLoading] = useState(false);                    // Loading state for recipe search
   const [maxMissing, setMaxMissing] = useState(3);                  // Maximum missing ingredients allowed
   const [searchQuery, setSearchQuery] = useState('');               // Search query for filtering ingredients
-  const [matchingTolerance, setMatchingTolerance] = useState(0.8);  // Ingredient matching tolerance (0-1)
-  const [showAdvancedOptions, setShowAdvancedOptions] = useState(false); // Advanced filtering options
-  const [maxReadyTime, setMaxReadyTime] = useState(60);             // Maximum cooking time filter
-  const [cuisineFilter, setCuisineFilter] = useState('');           // Cuisine type filter
-  const [dietFilter, setDietFilter] = useState('');                 // Diet restriction filter
-  const [sortBy, setSortBy] = useState<'relevance' | 'missing' | 'time' | 'calories'>('relevance'); // Sort order
+  const [matchingTolerance] = useState(0.8);  // Ingredient matching tolerance (0-1)
+  // const [showAdvancedOptions] = useState(false); // Advanced filtering options - unused for now
+  const [maxReadyTime] = useState(60);             // Maximum cooking time filter
+  const [cuisineFilter] = useState('');           // Cuisine type filter
+  const [dietFilter] = useState('');                 // Diet restriction filter
+  const [sortBy] = useState<'relevance' | 'missing' | 'time' | 'calories'>('relevance'); // Sort order
 
   // ===== UTILITY FUNCTIONS =====
 
