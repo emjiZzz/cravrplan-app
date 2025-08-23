@@ -1,11 +1,6 @@
-// Firebase Configuration File
-// This file configures Firebase services for the application
-// Firebase provides hosting, database, and authentication services
-{
-  // Firestore database configuration
+
   "firestore": {
-    "rules": "firestore.rules", // Security rules for database access
-    "indexes": "firestore.indexes.json" // Database indexes for better performance
+    "indexes": "firestore.indexes.json" 
   },
   // Firebase hosting configuration
   "hosting": {
@@ -22,4 +17,3 @@
       }
     ]
   }
-}
