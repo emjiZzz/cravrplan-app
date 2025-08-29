@@ -1,0 +1,158 @@
+/* ===== MODAL BACKDROP ===== */
+/* Dark overlay that covers the entire screen */
+.modalBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+/* ===== MODAL CONTENT ===== */
+/* Main modal container with styling and animations */
+.modalContent {
+  background: linear-gradient(135deg, #F8F7E5 0%, #f5f5f0 50%, #F8F7E5 100%);
+  border-radius: 20px;
+  padding: 0;
+  max-width: 400px;
+  width: 90%;
+  max-height: 80vh;
+  overflow: hidden;
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.3),
+    0 8px 32px rgba(84, 106, 4, 0.1);
+  border: 2px solid rgba(84, 106, 4, 0.1);
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+/* Animation for modal entrance */
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ===== MODAL BODY ===== */
+/* Content area containing the message */
+.modalBody {
+  padding: 20px 24px;
+}
+
+.modalMessage {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #333;
+  margin: 0;
+  text-align: center;
+}
+
+/* ===== MODAL FOOTER ===== */
+/* Button container at the bottom of the modal */
+.modalFooter {
+  display: flex;
+  gap: 12px;
+  padding: 16px 24px 24px 24px;
+  border-top: 1px solid rgba(84, 106, 4, 0.1);
+}
+
+/* ===== BUTTON STYLES ===== */
+/* Base button styling */
+.modalButton {
+  flex: 1;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Cancel button styling */
+.cancelButton {
+  background: rgba(84, 106, 4, 0.1);
+  color: #546A04;
+  border: 2px solid rgba(84, 106, 4, 0.2);
+}
+
+.cancelButton:hover {
+  background: rgba(84, 106, 4, 0.2);
+  border-color: #546A04;
+  transform: translateY(-1px);
+}
+
+/* Confirm button base styling */
+.confirmButton {
+  background: linear-gradient(135deg, #4CAF50, #388E3C);
+  color: #F8F7E5;
+  border: 2px solid #4CAF50;
+}
+
+.confirmButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+/* ===== TYPE-SPECIFIC STYLES ===== */
+/* Different color schemes for different modal types */
+
+/* Info type (default) - green */
+.info .confirmButton {
+  background: linear-gradient(135deg, #4CAF50, #388E3C);
+}
+
+/* Warning type - yellow/orange */
+.warning .confirmButton {
+  background: linear-gradient(135deg, #ffc107, #e0a800);
+  color: #212529;
+  border-color: #ffc107;
+}
+
+/* Success type - green/teal */
+.success .confirmButton {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  border-color: #28a745;
+}
+
+/* Error type - red */
+.error .confirmButton {
+  background: linear-gradient(135deg, #dc3545, #c82333);
+  border-color: #dc3545;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+/* Mobile-friendly adjustments */
+@media (max-width: 480px) {
+  .modalContent {
+    width: 95%;
+    margin: 20px;
+  }
+
+  .modalBody {
+    padding: 16px 20px;
+  }
+
+  .modalFooter {
+    padding: 12px 20px 20px 20px;
+    flex-direction: column;
+    /* Stack buttons vertically on mobile */
+  }
+
+  .modalButton {
+    width: 100%;
+  }
+}

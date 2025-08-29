@@ -1,0 +1,28 @@
+[33mdbbd1ca[m Update .env
+[33m7b585fe[m 1Update .env
+[33m681cc4a[m Update .env
+[33m3a3e3b9[m Update env
+[33m60cb358[m .
+[33m82a7873[m Complete Firebase security setup with nutritional statistics feature
+[33m1dd348b[m[33m ([m[1;31morigin/beta-version[m[33m, [m[1;31morigin/APIdefault-betaversion[m[33m, [m[1;32mbeta-version[m[33m, [m[1;32mAPIdefault-betaversion[m[33m)[m feat: added default ProgressiveContainer when filters are empty
+[33mc9bc865[m feat: updating beta version
+[33m080da07[m[33m ([m[1;32mfeature/authentication-system[m[33m)[m Restore files from commit 939ae88
+[33mca1d473[m[33m ([m[1;31morigin/feature/authentication-system[m[33m)[m imperfect cravrplan
+[33m939ae88[m feat: g
+[33mef6128e[m feat: fix authentication for member mode
+[33mf6579fc[m with db
+[33m03259bc[m feat: O
+[33m3a341d9[m feat
+[33mbf12796[m feat: enhanced overall UI and UX
+[33mf68d0fc[m feat: implement dynamic cookware detection and improve recipe detail UI
+[33m0f8d561[m feat: enhanced plan page UI
+[33mc39baee[m .
+[33m2109a50[m feat: enhance PlanPage design and add responsive container layout
+[33m092e3ae[m[33m ([m[1;31morigin/test[m[33m, [m[1;32mtest[m[33m)[m fix: resolve Fridge page display issues and fix View Recipe navigation path
+[33mde5d5ea[m feat: remove equipment section from recipe detail page
+[33me501751[m feat: redesign login page with soft, comfortable design
+[33m21ceb33[m feat: enhanced RecipePage filter UI with improved styling and layout
+[33me761b2d[m Updated Recipes Page and Recipes Detail Page
+[33mf180c14[m[33m ([m[1;31morigin/feature/general-improvements[m[33m)[m General improvements and bug fixes across the application
+[33md519d87[m[33m ([m[1;31morigin/recipe-page[m[33m, [m[1;32mrecipe-page[m[33m, [m[1;32mmealplan-page[m[33m, [m[1;32mlogin-page[m[33m)[m Update the Log in page style and Adding the Sign up page
+[33m96310d0[m Adding Recipe Page and Recipe Detail Page

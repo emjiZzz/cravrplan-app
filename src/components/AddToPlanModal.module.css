@@ -1,0 +1,435 @@
+.modalWrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(8px);
+  padding: 20px;
+}
+
+.modalContent {
+  background: linear-gradient(135deg, #F8F7E5 0%, #f5f5f0 50%, #F8F7E5 100%);
+  border-radius: 20px;
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.3),
+    0 8px 32px rgba(84, 106, 4, 0.1);
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  animation: modalSlideIn 0.3s ease-out;
+  border: 1px solid rgba(84, 106, 4, 0.2);
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Recipe Preview Section */
+.recipePreview {
+  background: linear-gradient(135deg, #17371A 0%, #1a3f1e 100%);
+  padding: 30px;
+  border-radius: 20px 20px 0 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.recipePreview::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(circle at 20% 80%, rgba(84, 106, 4, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(84, 106, 4, 0.08) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.recipeImageContainer {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.recipeImage {
+  width: 100%;
+  max-width: 300px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  border: 2px solid rgba(248, 247, 229, 0.3);
+}
+
+.recipeInfo {
+  text-align: center;
+  color: #F8F7E5;
+}
+
+.recipeTitle {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+  line-height: 1.3;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.recipeDetails {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.recipeDetail {
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0.9;
+  background: rgba(248, 247, 229, 0.1);
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(248, 247, 229, 0.2);
+}
+
+/* Planning Form Section */
+.planningForm {
+  padding: 30px;
+}
+
+.formHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid rgba(84, 106, 4, 0.1);
+}
+
+.formHeader h3 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #17371A;
+  margin: 0;
+}
+
+.closeButton {
+  background: rgba(84, 106, 4, 0.1);
+  border: none;
+  font-size: 24px;
+  color: #17371A;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.closeButton:hover {
+  background: rgba(84, 106, 4, 0.2);
+  color: #546A04;
+  transform: scale(1.1);
+}
+
+.formContent {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.formLabel {
+  font-size: 16px;
+  font-weight: 600;
+  color: #17371A;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dateInput {
+  padding: 14px 16px;
+  border: 2px solid rgba(84, 106, 4, 0.2);
+  border-radius: 12px;
+  font-size: 16px;
+  background: white;
+  color: #17371A;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.dateInput:focus {
+  outline: none;
+  border-color: #546A04;
+  box-shadow: 0 0 0 3px rgba(84, 106, 4, 0.1);
+}
+
+.dateDisplay {
+  font-size: 14px;
+  color: #546A04;
+  font-weight: 500;
+  padding: 8px 12px;
+  background: rgba(84, 106, 4, 0.05);
+  border-radius: 8px;
+  border-left: 3px solid #546A04;
+}
+
+/* Meal Type Options */
+.mealTypeOptions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: nowrap;
+  padding: 4px 0;
+}
+
+.mealTypeOption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 10px;
+  border: 2px solid rgba(84, 106, 4, 0.15);
+  border-radius: 12px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  font-weight: 600;
+  color: #17371A;
+  width: 90px;
+  height: 90px;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.mealTypeOption:hover {
+  border-color: #546A04;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(84, 106, 4, 0.15);
+  background: linear-gradient(135deg, rgba(84, 106, 4, 0.02), rgba(84, 106, 4, 0.05));
+}
+
+.mealTypeOption.selected {
+  background: linear-gradient(135deg, #546A04, #17371A);
+  color: #F8F7E5;
+  border-color: #546A04;
+  box-shadow: 0 8px 20px rgba(84, 106, 4, 0.25);
+  transform: translateY(-2px);
+}
+
+.mealTypeIcon {
+  font-size: 28px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.mealTypeText {
+  font-size: 13px;
+  text-transform: capitalize;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* Conflict Warning */
+.conflictWarning {
+  background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+  border: 1px solid #ffc107;
+  color: #856404;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Form Actions */
+.formActions {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.cancelButton,
+.addButton {
+  flex: 1;
+  padding: 14px 20px;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cancelButton {
+  background: rgba(84, 106, 4, 0.1);
+  color: #17371A;
+  border: 2px solid rgba(84, 106, 4, 0.2);
+}
+
+.cancelButton:hover:not(:disabled) {
+  background: rgba(84, 106, 4, 0.2);
+  border-color: #546A04;
+  transform: translateY(-1px);
+}
+
+.cancelButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.addButton {
+  background: linear-gradient(135deg, #546A04, #17371A);
+  color: #F8F7E5;
+  border: 2px solid #546A04;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.addButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(84, 106, 4, 0.3);
+}
+
+.addButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.loadingSpinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(248, 247, 229, 0.3);
+  border-top: 2px solid #F8F7E5;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .modalWrapper {
+    padding: 15px;
+  }
+
+  .modalContent {
+    max-height: 95vh;
+  }
+
+  .recipePreview {
+    padding: 20px;
+  }
+
+  .recipeTitle {
+    font-size: 18px;
+  }
+
+  .recipeDetails {
+    gap: 15px;
+  }
+
+  .recipeDetail {
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+
+  .planningForm {
+    padding: 20px;
+  }
+
+  .formHeader h3 {
+    font-size: 20px;
+  }
+
+  .mealTypeOptions {
+    gap: 6px;
+    padding: 4px 0;
+  }
+
+  .mealTypeOption {
+    width: 80px;
+    height: 80px;
+    padding: 12px 8px;
+  }
+
+  .formActions {
+    flex-direction: column;
+  }
+
+  .cancelButton,
+  .addButton {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .recipePreview {
+    padding: 15px;
+  }
+
+  .planningForm {
+    padding: 15px;
+  }
+
+  .formHeader h3 {
+    font-size: 18px;
+  }
+
+  .dateInput {
+    padding: 12px 14px;
+    font-size: 14px;
+  }
+
+  .mealTypeOption {
+    width: 70px;
+    height: 70px;
+    padding: 10px 6px;
+    font-size: 12px;
+  }
+
+  .mealTypeIcon {
+    font-size: 20px;
+  }
+}

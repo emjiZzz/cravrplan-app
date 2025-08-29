@@ -1,0 +1,2158 @@
+/* ===== PLAN PAGE CONTAINER ===== */
+/* Main container and background styling for the entire plan page */
+
+/* Main container for the entire plan page */
+.planPageContainer {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #17371A 0%, #1a3f1e 50%, #17371A 100%);
+  position: relative;
+  padding: 20px;
+  overflow-x: hidden;
+}
+
+/* Background decorative elements */
+.planPageContainer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 20% 80%, rgba(84, 106, 4, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(23, 55, 26, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* ===== PAGE HEADER ===== */
+/* Header section with title and subtitle styling */
+
+/* Page header container */
+.pageHeader {
+  text-align: center;
+  margin-bottom: 30px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Header content wrapper */
+.headerContent {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Page title styling */
+.pageTitle {
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: #F8F7E5;
+  margin: 0 0 10px 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #F8F7E5 0%, #e8e7d5 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Page subtitle styling */
+.pageSubtitle {
+  font-size: 1rem;
+  color: #F8F7E5;
+  margin: 0;
+  opacity: 0.9;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* ===== NUTRITIONAL STATISTICS SECTION ===== */
+/* Styling for the nutritional statistics component */
+
+.nutritionalStatsSection {
+  margin-bottom: 20px;
+}
+
+/* ===== BUTTON STYLES ===== */
+/* Button styling for various actions throughout the page */
+
+/* Clear all button styling */
+.clearAllButton {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: rgb(254, 69, 69);
+  color: #F8F7E5;
+  border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+.clearAllButton:hover {
+  background: rgba(244, 67, 54, 0.8);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.2);
+}
+
+.clearAllButton:disabled {
+  background: rgba(158, 158, 158, 0.5);
+  color: rgba(248, 247, 229, 0.6);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  border-color: rgba(158, 158, 158, 0.3);
+}
+
+.clearAllButton:disabled:hover {
+  background: rgba(158, 158, 158, 0.5);
+  transform: none;
+  box-shadow: none;
+}
+
+.trashButton {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: rgba(142, 142, 142, 0.7);
+  color: #F8F7E5;
+  border: 1px solid rgba(158, 158, 158, 0.3);
+}
+
+.trashButton:hover {
+  background: rgba(158, 158, 158, 0.8);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(158, 158, 158, 0.2);
+}
+
+.trashButton:disabled {
+  background: rgba(158, 158, 158, 0.3);
+  color: rgba(248, 247, 229, 0.5);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  border-color: rgba(158, 158, 158, 0.2);
+}
+
+/* Trash button disabled hover state */
+.trashButton:disabled:hover {
+  background: rgba(158, 158, 158, 0.3);
+  transform: none;
+  box-shadow: none;
+}
+
+/* ===== MAIN CONTENT ===== */
+/* Main content layout and grid structure */
+
+/* Main content container */
+.mainContent {
+  max-width: 1400px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+/* Content wrapper with grid layout */
+.contentWrapper {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 30px;
+  align-items: start;
+}
+
+/* Left column for calendar */
+.leftColumn {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Right column for meal list */
+.rightColumn {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== SECTION CARDS ===== */
+/* Card-based layout for main content sections */
+
+/* Base styling for section cards */
+.sectionCard {
+  background: linear-gradient(135deg, #F8F7E5 0%, #f5f5f0 50%, #F8F7E5 100%);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(84, 106, 4, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Decorative top border for section cards */
+.sectionCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #546A04 0%, #17371A 50%, #546A04 100%);
+}
+
+/* ===== SECTION HEADERS ===== */
+/* Header styling for content sections with titles and actions */
+
+/* Section title container layout */
+.sectionTitleContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #17371A;
+  margin: 0;
+}
+
+.dragHint {
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: #546A04;
+  opacity: 0.8;
+  margin-left: 10px;
+  padding: 4px 8px;
+  background: rgba(84, 106, 4, 0.1);
+  border-radius: 6px;
+  border: 1px solid rgba(84, 106, 4, 0.2);
+}
+
+.calendarActions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.viewToggleButton {
+  padding: 8px 16px;
+  border: 2px solid rgba(84, 106, 4, 0.3);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: rgba(84, 106, 4, 0.1);
+  color: #17371A;
+}
+
+.viewToggleButton:hover {
+  background: rgba(84, 106, 4, 0.2);
+  border-color: rgba(84, 106, 4, 0.5);
+  transform: translateY(-1px);
+}
+
+/* Active state for view toggle buttons */
+.viewToggleButton.active {
+  background: rgba(84, 106, 4, 0.8);
+  border-color: #546A04;
+  color: #F8F7E5;
+  box-shadow: 0 2px 8px rgba(84, 106, 4, 0.3);
+}
+
+/* ===== CALENDAR STYLES ===== */
+/* Calendar container and basic calendar styling */
+
+/* Title icon styling */
+.titleIcon {
+  font-size: 1.8rem;
+}
+
+/* Calendar container styling */
+.calendarContainer {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 15px;
+  padding: 20px;
+  margin-bottom: 25px;
+  border: 1px solid rgba(84, 106, 4, 0.1);
+}
+
+/* ===== EVENT STYLES ===== */
+/* Styling for meal plan events and event lists */
+
+/* Today's events container */
+.todayEvents {
+  background: rgba(84, 106, 4, 0.05);
+  border-radius: 15px;
+  padding: 25px;
+  border: 1px solid rgba(84, 106, 4, 0.1);
+}
+
+.todayEventsTitle {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #17371A;
+  margin: 0 0 20px 0;
+  text-align: center;
+}
+
+/* Events list container */
+.eventsList {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Individual event item */
+.eventItem {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid rgba(84, 106, 4, 0.1);
+  transition: all 0.3s ease;
+}
+
+/* Removed hover effect since event items are not clickable */
+
+.eventHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.mealTypeIcon {
+  font-size: 1.5rem;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(84, 106, 4, 0.1);
+  border-radius: 8px;
+}
+
+.eventTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #17371A;
+  margin: 0;
+  flex: 1;
+}
+
+.difficultyBadge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: white;
+}
+
+.eventDetails {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.timeInfo,
+.nutritionInfo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: #546A04;
+  font-weight: 500;
+}
+
+/* Event action buttons container */
+.eventActions {
+  display: flex;
+  gap: 10px;
+}
+
+/* Swap and remove button base styles */
+.swapButton,
+.removeButton {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.swapButton {
+  background: rgba(84, 106, 4, 0.1);
+  color: #17371A;
+  border: 1px solid rgba(84, 106, 4, 0.2);
+}
+
+.swapButton:hover {
+  background: rgba(84, 106, 4, 0.2);
+  transform: translateY(-1px);
+}
+
+.removeButton {
+  background: rgba(220, 53, 69, 0.1);
+  color: red;
+  border: 1px solid rgba(220, 53, 69, 0.2);
+}
+
+/* Remove button hover effect */
+.removeButton:hover {
+  background: rgba(220, 53, 69, 0.2);
+  transform: translateY(-1px);
+}
+
+/* ===== MODAL STYLES ===== */
+/* Modal styling for various dialogs and overlays */
+
+/* ===== CONFIRMATION MODALS ===== */
+/* Confirmation dialog styling for user actions */
+
+/* Confirmation modal backdrop */
+.confirmModalBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.confirmModal {
+  background: linear-gradient(135deg, rgba(248, 247, 229, 0.95) 0%, rgba(245, 245, 240, 0.95) 50%, rgba(248, 247, 229, 0.95) 100%);
+  backdrop-filter: blur(10px);
+  border-radius: 24px;
+  padding: 40px 35px;
+  max-width: 480px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  text-align: center;
+  box-shadow:
+    0 25px 80px rgba(0, 0, 0, 0.25),
+    0 8px 32px rgba(84, 106, 4, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(84, 106, 4, 0.15);
+  position: relative;
+}
+
+.confirmModal::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #546A04 0%, #7A9A3A 50%, #546A04 100%);
+  border-radius: 24px 24px 0 0;
+}
+
+.confirmModal h3 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #17371A;
+  margin: 0 0 20px 0;
+  letter-spacing: -0.5px;
+  position: relative;
+}
+
+.confirmModal p {
+  font-size: 1.05rem;
+  color: #546A04;
+  margin: 0 0 30px 0;
+  line-height: 1.6;
+  opacity: 0.9;
+  font-weight: 500;
+}
+
+.confirmModalActions {
+  display: flex;
+  gap: 18px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.confirmModalActions button {
+  padding: 14px 28px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  min-width: 120px;
+}
+
+.confirmModalActions button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.confirmModalActions button:hover::before {
+  left: 100%;
+}
+
+.confirmModalActions button:first-child {
+  background: linear-gradient(135deg, rgba(84, 106, 4, 0.08) 0%, rgba(84, 106, 4, 0.12) 100%);
+  color: #17371A;
+  border: 2px solid rgba(84, 106, 4, 0.25);
+  box-shadow: 0 2px 8px rgba(84, 106, 4, 0.1);
+}
+
+.confirmModalActions button:first-child:hover {
+  background: linear-gradient(135deg, rgba(84, 106, 4, 0.15) 0%, rgba(84, 106, 4, 0.2) 100%);
+  border-color: rgba(84, 106, 4, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(84, 106, 4, 0.2);
+}
+
+.confirmButton {
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.9) 0%, rgba(76, 175, 80, 0.8) 100%) !important;
+  color: #F8F7E5 !important;
+  border: 2px solid rgba(76, 175, 80, 0.4) !important;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2) !important;
+}
+
+.confirmButton:hover {
+  background: linear-gradient(135deg, rgba(76, 175, 80, 1) 0%, rgba(76, 175, 80, 0.9) 100%) !important;
+  border-color: rgba(76, 175, 80, 0.6) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3) !important;
+}
+
+/* Trash Modal Styles */
+.trashItems {
+  max-height: 300px;
+  overflow-y: auto;
+  margin: 15px 0;
+}
+
+.trashItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  margin: 8px 0;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.trashItemInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.trashItemTitle {
+  font-weight: 600;
+  color: #17371A;
+  font-size: 0.95rem;
+}
+
+.trashItemDate {
+  font-size: 0.8rem;
+  color: #546A04;
+  opacity: 0.8;
+}
+
+.trashItemMeal {
+  font-size: 0.8rem;
+  color: #546A04;
+  text-transform: capitalize;
+}
+
+.trashItemActions {
+  display: flex;
+  gap: 8px;
+}
+
+.restoreButton {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: rgba(76, 175, 80, 0.7);
+  color: #F8F7E5;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.restoreButton:hover {
+  background: rgba(76, 175, 80, 0.8);
+  transform: translateY(-1px);
+}
+
+.deleteButton {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: rgba(244, 67, 54, 0.7);
+  color: #F8F7E5;
+  border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+.deleteButton:hover {
+  background: rgba(244, 67, 54, 0.8);
+  transform: translateY(-1px);
+}
+
+.clearTrashButton {
+  padding: 14px 28px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  min-width: 120px;
+  background: linear-gradient(135deg, rgba(244, 67, 54, 0.9) 0%, rgba(244, 67, 54, 0.8) 100%);
+  color: #F8F7E5;
+  border: 2px solid rgba(244, 67, 54, 0.4);
+  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.2);
+}
+
+.clearTrashButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.clearTrashButton:hover::before {
+  left: 100%;
+}
+
+.clearTrashButton:hover {
+  background: linear-gradient(135deg, rgba(244, 67, 54, 1) 0%, rgba(244, 67, 54, 0.9) 100%);
+  border-color: rgba(244, 67, 54, 0.6);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(244, 67, 54, 0.3);
+}
+
+.clearTrashButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ===== GRID CALENDAR STYLES ===== */
+/* Interactive calendar grid with drag-and-drop functionality */
+
+/* Grid calendar container */
+.gridCalendar {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 30px;
+  border: 1px solid rgba(248, 247, 229, 0.1);
+}
+
+/* Calendar header with navigation */
+.calendarHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 0 10px;
+}
+
+/* Calendar title styling */
+.calendarTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333333;
+  margin: 0;
+}
+
+.calendarNavButton {
+  background: #546A04;
+  border: 1px solid rgba(248, 247, 229, 0.2);
+  color: #FFFFFF;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1.5rem;
+  transition: all 0.2s ease;
+}
+
+.calendarNavButton:hover {
+  background: rgba(141, 178, 7, 0.5);
+  transform: translateY(-1px);
+}
+
+/* Calendar grid layout */
+.calendarGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 2px;
+}
+
+/* Calendar day header styling */
+.calendarDayHeader {
+  background: rgba(84, 106, 4, 0.3);
+  color: #333333;
+  padding: 12px 8px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-radius: 8px;
+}
+
+.calendarDay {
+  background: rgba(255, 255, 255, 0.03);
+  min-height: 120px;
+  padding: 8px;
+  border-radius: 8px;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.calendarDay:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.calendarDayEmpty {
+  background: transparent;
+  min-height: 120px;
+}
+
+.calendarDayNumber {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #333333;
+  margin-bottom: 8px;
+  text-align: center;
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  z-index: 2;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 2px 6px;
+  border-radius: 4px;
+  min-width: 20px;
+}
+
+.calendarDayEvents {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 30px;
+}
+
+/* Calendar event card styling */
+.calendarEventCard {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(248, 247, 229, 0.2);
+  position: relative;
+  min-height: 80px;
+  margin-bottom: 6px;
+}
+
+/* Calendar event card hover effect */
+.calendarEventCard:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+}
+
+/* ===== DRAG AND DROP STYLES ===== */
+/* Drag-and-drop interaction styling and visual feedback */
+
+/* Draggable event styling */
+.draggableEvent {
+  user-select: none;
+  cursor: grab;
+  transition: all 0.2s ease;
+}
+
+.draggableEvent:active {
+  cursor: grabbing;
+}
+
+.draggableEvent:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.dragOverDay {
+  background: rgba(84, 106, 4, 0.15) !important;
+  border: 2px dashed rgba(84, 106, 4, 0.6) !important;
+  transform: scale(1.02);
+  transition: all 0.2s ease;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(84, 106, 4, 0.2);
+}
+
+.dragOverDay::before {
+  content: 'Drop here';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(84, 106, 4, 0.9);
+  color: #F8F7E5;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  z-index: 10;
+  pointer-events: none;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  50% {
+    opacity: 0.8;
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.calendarEventImage {
+  width: 100%;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.calendarEventImageContainer {
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.calendarEventMealType {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 2;
+}
+
+.mealTypeIndicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: rgba(84, 106, 4, 0.9);
+  border-radius: 50%;
+  font-size: 0.9rem;
+  color: #F8F7E5;
+  border: 1px solid rgba(84, 106, 4, 0.2);
+  backdrop-filter: blur(4px);
+}
+
+.calendarEventInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.calendarEventNutrition {
+  display: flex;
+  gap: 3px;
+  margin-top: 4px;
+  justify-content: center;
+}
+
+.nutritionIndicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  position: relative;
+  cursor: help;
+}
+
+.nutritionIndicator::after {
+  content: attr(data-percentage);
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.6rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 10;
+}
+
+.nutritionIndicator:hover::after {
+  opacity: 1;
+}
+
+/* Nutrition Legend */
+.nutritionLegend {
+  margin-top: 20px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(248, 247, 229, 0.1);
+}
+
+.nutritionLegend h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333333;
+  margin: 0 0 12px 0;
+  text-align: center;
+}
+
+.legendItems {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legendColor {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid rgba(248, 247, 229, 0.3);
+}
+
+.legendItem span {
+  font-size: 0.8rem;
+  color: #333333;
+  font-weight: 500;
+}
+
+/* ===== RECIPE MODAL STYLES ===== */
+/* Recipe details modal styling and layout */
+
+/* Recipe modal backdrop */
+.recipeModalBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+  padding: 20px;
+}
+
+.recipeModal {
+  background: linear-gradient(135deg, #F8F7E5 0%, #f5f5f0 50%, #F8F7E5 100%);
+  border-radius: 20px;
+  padding: 0;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(84, 106, 4, 0.1);
+  position: relative;
+  margin: auto;
+  box-sizing: border-box;
+}
+
+.recipeModalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 25px 30px;
+  border-radius: 20px 20px 0 0;
+}
+
+.recipeModalHeader h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #17371A;
+  margin: 0;
+}
+
+.recipeModalClose {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #546A04;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.recipeModalClose:hover {
+  background: rgba(84, 106, 4, 0.1);
+  color: #17371A;
+}
+
+.recipeModalContent {
+  padding: 30px;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.recipeModalImage {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.recipeModalInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.recipeModalSection {
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.recipeModalSection h4 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #17371A;
+  margin: 0 0 15px 0;
+}
+
+.recipeModalDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.recipeDetailItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(84, 106, 4, 0.1);
+}
+
+.recipeDetailItem:last-child {
+  border-bottom: none;
+}
+
+.recipeDetailItem span:first-child {
+  font-size: 0.9rem;
+  color: #546A04;
+  font-weight: 500;
+}
+
+.recipeDetailItem span:last-child {
+  font-size: 0.9rem;
+  color: #17371A;
+  font-weight: 600;
+}
+
+.recipeModalNutrition {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.nutritionItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: rgba(84, 106, 4, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(84, 106, 4, 0.1);
+}
+
+.nutritionItem span:first-child {
+  font-size: 0.9rem;
+  color: #546A04;
+  font-weight: 500;
+}
+
+.nutritionItem span:last-child {
+  font-size: 0.9rem;
+  color: #17371A;
+  font-weight: 600;
+}
+
+.recipeInstructionsButton {
+  width: 100%;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, rgba(84, 106, 4, 0.8) 0%, rgba(84, 106, 4, 0.6) 100%);
+  color: #FFFFFF;
+  border: 2px solid rgba(84, 106, 4, 0.3);
+  margin-top: 10px;
+}
+
+.recipeInstructionsButton:hover {
+  background: linear-gradient(135deg, rgba(84, 106, 4, 0.9) 0%, rgba(84, 106, 4, 0.7) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(84, 106, 4, 0.2);
+  border-color: rgba(84, 106, 4, 0.5);
+}
+
+/* ===== EMPTY STATE STYLES ===== */
+/* Empty state styling for when no meals are planned */
+
+/* Empty calendar state styling */
+.emptyCalendarState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  border: 1px solid rgba(248, 247, 229, 0.1);
+  min-height: 300px;
+}
+
+.emptyCalendarIcon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  opacity: 0.7;
+}
+
+.emptyCalendarState h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333333;
+  margin: 0 0 15px 0;
+}
+
+.emptyCalendarState p {
+  font-size: 1rem;
+  color: #666666;
+  opacity: 0.8;
+  margin: 0 0 25px 0;
+  max-width: 400px;
+  line-height: 1.5;
+}
+
+.addFirstMealButton {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, rgba(84, 106, 4, 0.8) 0%, rgba(84, 106, 4, 0.6) 100%);
+  color: #FFFFFF;
+  border: 2px solid rgba(84, 106, 4, 0.3);
+}
+
+.addFirstMealButton:hover {
+  background: linear-gradient(135deg, rgba(84, 106, 4, 0.9) 0%, rgba(84, 106, 4, 0.7) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(84, 106, 4, 0.2);
+  border-color: rgba(84, 106, 4, 0.5);
+}
+
+/* Button container for multiple buttons in empty state */
+.emptyStateButtons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+/* Custom recipe button styling - similar to addFirstMealButton but with different color */
+.addCustomRecipeButton {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, rgba(46, 125, 50, 0.8) 0%, rgba(46, 125, 50, 0.6) 100%);
+  color: #FFFFFF;
+  border: 2px solid rgba(46, 125, 50, 0.3);
+}
+
+.addCustomRecipeButton:hover {
+  background: linear-gradient(135deg, rgba(46, 125, 50, 0.9) 0%, rgba(46, 125, 50, 0.7) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(46, 125, 50, 0.2);
+  border-color: rgba(46, 125, 50, 0.5);
+}
+
+/* Modal description styling */
+.modalDescription {
+  color: #546A04;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Modal actions container */
+.modalActions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.modalActions button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modalActions .cancelButton {
+  background: rgba(84, 106, 4, 0.1);
+  color: #546A04;
+  border: 1px solid rgba(84, 106, 4, 0.3);
+}
+
+.modalActions .cancelButton:hover {
+  background: rgba(84, 106, 4, 0.2);
+  border-color: rgba(84, 106, 4, 0.5);
+}
+
+.modalActions .confirmButton {
+  background: #4CAF50;
+  color: white;
+}
+
+.modalActions .confirmButton:hover {
+  background: rgba(76, 175, 80, 0.8);
+  transform: translateY(-1px);
+}
+
+.modalActions .confirmButton:disabled {
+  background: rgba(76, 175, 80, 0.3);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.emptyTodayState {
+  text-align: center;
+  padding: 40px 20px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 15px;
+  border: 2px dashed rgba(84, 106, 4, 0.2);
+}
+
+.emptyTodayIcon {
+  font-size: 3rem;
+  margin-bottom: 15px;
+  opacity: 0.6;
+}
+
+.emptyTodayState h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #17371A;
+  margin: 0 0 10px 0;
+}
+
+.emptyTodayState p {
+  font-size: 0.95rem;
+  color: #546A04;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.mealPlanToggle {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.toggleButton {
+  padding: 6px 12px;
+  border: 1px solid rgba(84, 106, 4, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  color: #546A04;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toggleButton:hover {
+  background: rgba(84, 106, 4, 0.1);
+  border-color: rgba(84, 106, 4, 0.5);
+}
+
+.toggleButton.active {
+  background: #546A04;
+  color: white;
+  border-color: #546A04;
+}
+
+.eventDate {
+  font-size: 0.75rem;
+  color: #546A04;
+  font-weight: 600;
+  margin-bottom: 4px;
+  padding: 2px 6px;
+  background: rgba(84, 106, 4, 0.1);
+  border-radius: 4px;
+  text-align: center;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+/* Responsive design adjustments for different screen sizes */
+
+/* Tablet and mobile adjustments */
+@media (max-width: 768px) {
+  .planPageContainer {
+    padding: 15px;
+  }
+
+  .pageTitle {
+    font-size: 2.5rem;
+  }
+
+  .pageSubtitle {
+    font-size: 1rem;
+  }
+
+  .contentWrapper {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .calendarActions {
+    gap: 6px;
+  }
+
+  .mealPlanToggle {
+    gap: 6px;
+  }
+
+  .toggleButton {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+  }
+
+  .sectionCard {
+    padding: 20px;
+  }
+
+  .eventDetails {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .eventActions {
+    flex-direction: column;
+  }
+
+  .confirmModal {
+    padding: 30px 25px;
+    max-width: 95%;
+  }
+
+  .confirmModal h3 {
+    font-size: 1.3rem;
+  }
+
+  .confirmModal p {
+    font-size: 0.95rem;
+  }
+
+  .confirmModalActions {
+    gap: 12px;
+  }
+
+  .confirmModalActions button {
+    padding: 12px 20px;
+    font-size: 0.9rem;
+    min-width: 100px;
+  }
+
+  .clearTrashButton {
+    padding: 12px 20px;
+    font-size: 0.9rem;
+    min-width: 100px;
+  }
+
+  .recipeModal {
+    width: 95%;
+    margin: 10px;
+  }
+
+  .recipeModalHeader,
+  .recipeModalContent {
+    padding: 20px;
+  }
+
+  .recipeModalImage {
+    height: 150px;
+  }
+
+  .recipeModalNutrition {
+    grid-template-columns: 1fr;
+  }
+
+  .recipeInstructionsButton {
+    font-size: 0.9rem;
+    padding: 10px 16px;
+  }
+
+  .recipeModalNotes {
+    max-height: 150px;
+    padding: 12px;
+  }
+
+  .recipeModalNotes p {
+    font-size: 0.85rem;
+    line-height: 1.6 !important;
+    word-break: break-word;
+    white-space: normal;
+    overflow-x: hidden;
+    min-width: 0;
+  }
+
+  .calendarGrid {
+    gap: 1px;
+  }
+
+  .calendarDay {
+    min-height: 100px;
+    padding: 6px;
+  }
+
+  .nutritionIndicator {
+    width: 6px;
+    height: 6px;
+  }
+
+  .legendItems {
+    gap: 15px;
+  }
+
+  .legendItem span {
+    font-size: 0.75rem;
+  }
+
+  .dragHint {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .pageTitle {
+    font-size: 2rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.3rem;
+  }
+
+  .eventTitle {
+    font-size: 1rem;
+  }
+
+
+
+  .confirmModal h3 {
+    font-size: 1.3rem;
+  }
+
+  .calendarDay {
+    min-height: 80px;
+    padding: 4px;
+  }
+
+  .legendItems {
+    gap: 10px;
+  }
+
+  .legendColor {
+    width: 10px;
+    height: 10px;
+  }
+
+  .recipeModalNotes {
+    max-height: 120px;
+    padding: 10px;
+  }
+
+  .recipeModalNotes p {
+    font-size: 0.8rem;
+  }
+}
+
+/* ===== ADD MEAL MODAL STYLES ===== */
+/* Add meal modal styling for meal creation and browsing */
+
+/* Add meal modal backdrop */
+.addMealModalBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.addMealModal {
+  background: linear-gradient(135deg, rgba(248, 247, 229, 0.95) 0%, rgba(245, 245, 240, 0.95) 50%, rgba(248, 247, 229, 0.95) 100%);
+  backdrop-filter: blur(10px);
+  border-radius: 24px;
+  padding: 0;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow:
+    0 25px 80px rgba(0, 0, 0, 0.25),
+    0 8px 32px rgba(84, 106, 4, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(84, 106, 4, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.addMealModal::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #546A04 0%, #7CB342 100%);
+  border-radius: 24px 24px 0 0;
+}
+
+.addMealModalHeader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 25px 30px 20px;
+  border-bottom: 1px solid rgba(84, 106, 4, 0.1);
+}
+
+.addMealModalHeader h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #2E3A1A;
+  margin: 0;
+  text-align: center;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+
+
+.addMealModalContent {
+  padding: 25px 30px 30px;
+}
+
+.addMealOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.addMealOption {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 20px;
+  border: 2px solid rgba(84, 106, 4, 0.2);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+}
+
+.addMealOption:hover {
+  border-color: rgba(84, 106, 4, 0.4);
+  background: rgba(255, 255, 255, 0.9);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(84, 106, 4, 0.15);
+}
+
+.addMealOption.active {
+  border-color: #546A04;
+  background: rgba(84, 106, 4, 0.1);
+  box-shadow: 0 4px 15px rgba(84, 106, 4, 0.2);
+}
+
+.addMealOptionIcon {
+  font-size: 2rem;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(84, 106, 4, 0.1);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.addMealOptionContent h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2E3A1A;
+  margin: 0 0 5px 0;
+}
+
+.addMealOptionContent p {
+  font-size: 0.9rem;
+  color: #546A04;
+  margin: 0;
+  opacity: 0.8;
+}
+
+.customRecipeForm {
+  margin-top: 20px;
+}
+
+.formGroup {
+  margin-bottom: 20px;
+}
+
+.formGroup label {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #2E3A1A;
+  margin-bottom: 8px;
+}
+
+.formInput,
+.formSelect {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid rgba(84, 106, 4, 0.2);
+  border-radius: 8px;
+  font-size: 1rem;
+  background: rgba(255, 255, 255, 0.9);
+  color: #2E3A1A;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  height: 48px;
+  line-height: 1.5;
+}
+
+/* Ensure select elements match input styling */
+.formSelect {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23546A04' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 40px;
+}
+
+.formInput:focus,
+.formSelect:focus {
+  outline: none;
+  border-color: #546A04;
+  box-shadow: 0 0 0 3px rgba(84, 106, 4, 0.1);
+}
+
+.formActions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 25px;
+}
+
+.cancelButton,
+.submitButton {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancelButton {
+  background: rgba(158, 158, 158, 0.7);
+  color: #F8F7E5;
+  border: 1px solid rgba(158, 158, 158, 0.3);
+}
+
+.cancelButton:hover {
+  background: rgba(158, 158, 158, 0.8);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(158, 158, 158, 0.2);
+}
+
+.submitButton {
+  background: rgba(84, 106, 4, 0.8);
+  color: #F8F7E5;
+  border: 1px solid rgba(84, 106, 4, 0.3);
+}
+
+.submitButton:hover {
+  background: rgba(84, 106, 4, 0.9);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(84, 106, 4, 0.2);
+}
+
+.browseRecipesSection {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.browseRecipesSection p {
+  font-size: 1rem;
+  color: #546A04;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.browseRecipesButton {
+  padding: 15px 30px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, #546A04 0%, #7CB342 100%);
+  color: #F8F7E5;
+  box-shadow: 0 4px 15px rgba(84, 106, 4, 0.3);
+}
+
+.browseRecipesButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(84, 106, 4, 0.4);
+}
+
+/* Responsive styles for Add Meal Modal */
+@media (max-width: 768px) {
+  .addMealModal {
+    width: 95%;
+    max-width: none;
+    margin: 20px;
+  }
+
+  .addMealModalHeader {
+    padding: 20px 25px 15px;
+  }
+
+  .addMealModalContent {
+    padding: 20px 25px 25px;
+  }
+
+  .addMealOption {
+    padding: 15px;
+  }
+
+  .addMealOptionIcon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.5rem;
+  }
+
+  .formActions {
+    flex-direction: column;
+  }
+
+  .browseRecipesButton {
+    width: 100%;
+  }
+}
+
+/* Small mobile adjustments */
+@media (max-width: 480px) {
+  .addMealModalHeader h3 {
+    font-size: 1.3rem;
+  }
+
+  .addMealOptionContent h4 {
+    font-size: 1rem;
+  }
+
+  .addMealOptionContent p {
+    font-size: 0.85rem;
+  }
+}
+
+/* ===== IMAGE UPLOAD STYLES ===== */
+/* Image upload functionality and preview styling */
+
+/* Image upload area styling */
+.imageUploadArea {
+  border: 2px dashed #546A04;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  background: rgba(84, 106, 4, 0.05);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.imageUploadArea:hover {
+  border-color: #546A04;
+  background: rgba(84, 106, 4, 0.1);
+}
+
+.imageUploadArea.dragOver {
+  border-color: #546A04;
+  background: rgba(84, 106, 4, 0.15);
+  transform: scale(1.02);
+}
+
+.imageUploadArea.hasImage {
+  border-style: solid;
+  padding: 0;
+  overflow: auto;
+  max-height: 400px;
+}
+
+.uploadPlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.uploadIcon {
+  font-size: 2.5rem;
+  color: #546A04;
+  opacity: 0.7;
+}
+
+.uploadPlaceholder p {
+  margin: 0;
+  color: #546A04;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.fileInput {
+  display: none;
+}
+
+.browseButton {
+  background: #546A04;
+  color: #F8F7E5;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  text-decoration: none;
+}
+
+.browseButton:hover {
+  background: rgba(84, 106, 4, 0.8);
+  transform: translateY(-1px);
+}
+
+.imagePreview {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.previewImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.removeImageButton {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(244, 67, 54, 0.9);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.removeImageButton:hover {
+  background: rgba(244, 67, 54, 1);
+  transform: scale(1.1);
+}
+
+.editForm {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.formTextarea {
+  width: 95%;
+  max-width: 100%;
+  min-height: 100px;
+  padding: 12px;
+  border: 1px solid rgba(84, 106, 4, 0.3);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  background: rgba(248, 247, 229, 0.9);
+  color: #2E3A1A;
+  resize: vertical;
+  transition: all 0.2s ease;
+}
+
+.formTextarea:focus {
+  outline: none;
+  border-color: #546A04;
+  box-shadow: 0 0 0 2px rgba(84, 106, 4, 0.1);
+}
+
+.customRecipeActions {
+  display: flex;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.editRecipeButton,
+.addNotesButton {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #546A04;
+  color: #F8F7E5;
+}
+
+.editRecipeButton:hover,
+.addNotesButton:hover {
+  background: rgba(84, 106, 4, 0.8);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(84, 106, 4, 0.2);
+}
+
+.recipeModalNotes {
+  background: rgba(84, 106, 4, 0.05);
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 4px solid #546A04;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  max-height: 200px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.recipeModalNotes p {
+  margin: 0;
+  color: #2E3A1A;
+  font-size: 0.9rem;
+  line-height: 1.6 !important;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  white-space: normal;
+  hyphens: auto;
+  width: 100%;
+  box-sizing: border-box;
+  display: block;
+  min-width: 0;
+}
+
+/* Handle very long unbroken strings */
+.recipeModalNotes>* {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  max-width: 100%;
+}
+
+/* Custom scrollbar for notes section */
+.recipeModalNotes::-webkit-scrollbar {
+  width: 6px;
+}
+
+.recipeModalNotes::-webkit-scrollbar-track {
+  background: rgba(84, 106, 4, 0.05);
+  border-radius: 3px;
+}
+
+.recipeModalNotes::-webkit-scrollbar-thumb {
+  background: rgba(84, 106, 4, 0.3);
+  border-radius: 3px;
+}
+
+.recipeModalNotes::-webkit-scrollbar-thumb:hover {
+  background: rgba(84, 106, 4, 0.5);
+}
+
+.recipeModalNotes {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(84, 106, 4, 0.3) rgba(84, 106, 4, 0.05);
+}
+
+/* Custom Scrollbar Styles */
+.imageUploadArea::-webkit-scrollbar,
+.recipeModalImage::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.imageUploadArea::-webkit-scrollbar-track,
+.recipeModalImage::-webkit-scrollbar-track {
+  background: rgba(84, 106, 4, 0.1);
+  border-radius: 4px;
+}
+
+.imageUploadArea::-webkit-scrollbar-thumb,
+.recipeModalImage::-webkit-scrollbar-thumb {
+  background: rgba(84, 106, 4, 0.5);
+  border-radius: 4px;
+}
+
+.imageUploadArea::-webkit-scrollbar-thumb:hover,
+.recipeModalImage::-webkit-scrollbar-thumb:hover {
+  background: rgba(84, 106, 4, 0.7);
+}
+
+/* Firefox scrollbar styles */
+.imageUploadArea,
+.recipeModalImage {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(84, 106, 4, 0.5) rgba(84, 106, 4, 0.1);
+}
+
+/* Confirm Modal Scrollbar Styles */
+.confirmModal::-webkit-scrollbar {
+  width: 8px;
+}
+
+.confirmModal::-webkit-scrollbar-track {
+  background: rgba(84, 106, 4, 0.1);
+  border-radius: 4px;
+  margin: 4px;
+}
+
+.confirmModal::-webkit-scrollbar-thumb {
+  background: rgba(84, 106, 4, 0.5);
+  border-radius: 4px;
+}
+
+.confirmModal::-webkit-scrollbar-thumb:hover {
+  background: rgba(84, 106, 4, 0.7);
+}
+
+.confirmModal {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(84, 106, 4, 0.5) rgba(84, 106, 4, 0.1);
+}

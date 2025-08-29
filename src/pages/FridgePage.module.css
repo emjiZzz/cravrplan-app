@@ -1,0 +1,804 @@
+/* ===== FRIDGE PAGE CONTAINER ===== */
+
+/* Main container for the entire fridge page */
+.fridgePageContainer {
+  min-height: calc(100vh - 80px);
+  background: linear-gradient(135deg, #17371A 0%, #1a3f1e 50%, #17371A 100%);
+  padding: 20px;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Background decorative elements */
+.fridgePageContainer::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(circle at 20% 80%, rgba(84, 106, 4, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(84, 106, 4, 0.06) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ===== PAGE HEADER ===== */
+
+/* Page header container */
+.pageHeader {
+  text-align: center;
+  margin-bottom: 0px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Header content wrapper */
+.headerContent {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Page title styling */
+.pageTitle {
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: #F8F7E5;
+  margin: 0 0 10px 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #F8F7E5 0%, #e8e7d5 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Page subtitle styling */
+.pageSubtitle {
+  font-size: 1rem;
+  color: #F8F7E5;
+  margin: 0;
+  opacity: 0.9;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* ===== MAIN CONTENT ===== */
+
+/* Main content grid layout */
+.mainContent {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 30px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  position: relative;
+  z-index: 10;
+}
+
+/* ===== SECTION CARDS ===== */
+
+/* Base styling for section cards */
+.sectionCard {
+  background: linear-gradient(135deg, #F8F7E5 0%, #f5f5f0 50%, #F8F7E5 100%);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 4px 16px rgba(84, 106, 4, 0.05);
+  border: 1px solid rgba(84, 106, 4, 0.1);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Decorative top border for section cards */
+.sectionCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #546A04, #17371A, #546A04);
+  border-radius: 20px 20px 0 0;
+}
+
+/* Section title icon styling */
+.titleIcon {
+  font-size: 24px;
+}
+
+/* ===== SEARCH BAR ===== */
+
+/* Search bar container */
+.searchBar {
+  margin-bottom: 25px;
+}
+
+/* Search input styling */
+.searchInput {
+  width: 92%;
+  padding: 16px 20px;
+  border: 2px solid rgba(84, 106, 4, 0.2);
+  border-radius: 12px;
+  font-size: 16px;
+  background: rgba(255, 255, 255, 0.8);
+  color: #17371A;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(84, 106, 4, 0.05);
+}
+
+/* Focus state for search input */
+.searchInput:focus {
+  outline: none;
+  border-color: #546A04;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(84, 106, 4, 0.1), 0 4px 12px rgba(84, 106, 4, 0.1);
+}
+
+/* ===== CUSTOM INPUT SECTION ===== */
+
+/* Custom input section container */
+.customInputSection {
+  margin-bottom: 30px;
+}
+
+/* Input group layout */
+.inputGroup {
+  display: flex;
+  gap: 12px;
+}
+
+/* Custom input field styling */
+.customInput {
+  flex: 1;
+  padding: 14px 18px;
+  border: 2px solid rgba(84, 106, 4, 0.2);
+  border-radius: 12px;
+  font-size: 15px;
+  background: rgba(255, 255, 255, 0.8);
+  color: #17371A;
+  transition: all 0.3s ease;
+}
+
+/* Focus state for custom input */
+.customInput:focus {
+  outline: none;
+  border-color: #546A04;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(84, 106, 4, 0.1);
+}
+
+/* Add button styling */
+.addButton {
+  padding: 14px 20px;
+  background: linear-gradient(135deg, #546A04, #17371A);
+  color: #F8F7E5;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+/* Hover effect for add button */
+.addButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(84, 106, 4, 0.3);
+}
+
+/* ===== CATEGORIES CONTAINER ===== */
+
+/* Categories container with scroll */
+.categoriesContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-height: 500px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+/* Individual category card */
+.categoryCard {
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid rgba(84, 106, 4, 0.1);
+  transition: all 0.3s ease;
+}
+
+/* Hover effect for category cards */
+.categoryCard:hover {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(84, 106, 4, 0.2);
+}
+
+/* Category title styling */
+.categoryTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #17371A;
+  margin: 0 0 15px 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid rgba(84, 106, 4, 0.2);
+}
+
+/* Ingredients grid layout */
+.ingredientsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 8px;
+}
+
+/* Ingredient chip styling */
+.ingredientChip {
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 2px solid rgba(84, 106, 4, 0.15);
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #17371A;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: capitalize;
+  text-align: center;
+}
+
+/* Hover effect for ingredient chips */
+.ingredientChip:hover {
+  border-color: #546A04;
+  background: rgba(84, 106, 4, 0.1);
+  transform: translateY(-1px);
+}
+
+/* Selected state for ingredient chips */
+.ingredientChip.selected {
+  background: linear-gradient(135deg, #546A04, #17371A);
+  color: #F8F7E5;
+  border-color: #546A04;
+  box-shadow: 0 4px 12px rgba(84, 106, 4, 0.3);
+}
+
+/* ===== RESULTS SECTION ===== */
+
+/* Results section layout */
+.resultsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+/* ===== SECTION HEADER ===== */
+
+/* Section header layout */
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+/* Section title styling */
+.sectionTitle {
+  font-size: 22px;
+  font-weight: 700;
+  color: #17371A;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Clear all button styling */
+.clearAllButton {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #dc3545, #c82333);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* Hover effect for clear all button */
+.clearAllButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+/* ===== SELECTED INGREDIENTS ===== */
+
+/* Selected ingredients list */
+.selectedIngredientsList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 25px;
+}
+
+/* Individual selected ingredient item */
+.selectedIngredientItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 12px;
+  border: 1px solid rgba(84, 106, 4, 0.1);
+  transition: all 0.3s ease;
+}
+
+/* Hover effect for selected ingredient items */
+.selectedIngredientItem:hover {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(84, 106, 4, 0.2);
+}
+
+/* Ingredient details layout */
+.ingredientDetails {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex: 1;
+}
+
+/* Ingredient name styling */
+.ingredientName {
+  font-weight: 600;
+  color: #17371A;
+  font-size: 16px;
+  text-transform: capitalize;
+}
+
+/* Remove button styling */
+.removeButton {
+  background: linear-gradient(135deg, #dc3545, #c82333);
+  color: white;
+  border: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+/* Hover effect for remove button */
+.removeButton:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+}
+
+/* ===== SEARCH CONTROLS ===== */
+
+/* Search controls layout */
+.searchControls {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding-top: 20px;
+  border-top: 2px solid rgba(84, 106, 4, 0.1);
+}
+
+/* Control group layout */
+.controlGroup {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Control label styling */
+.controlLabel {
+  font-weight: 600;
+  color: #17371A;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+/* Control select styling */
+.controlSelect {
+  padding: 10px 14px;
+  border: 2px solid rgba(84, 106, 4, 0.2);
+  border-radius: 8px;
+  background: white;
+  color: #17371A;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+/* Focus state for control select */
+.controlSelect:focus {
+  outline: none;
+  border-color: #546A04;
+  box-shadow: 0 0 0 3px rgba(84, 106, 4, 0.1);
+}
+
+/* Search button styling */
+.searchButton {
+  padding: 14px 24px;
+  background: linear-gradient(135deg, #546A04, #17371A);
+  color: #F8F7E5;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+/* Hover effect for search button */
+.searchButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(84, 106, 4, 0.3);
+}
+
+/* Disabled state for search button */
+.searchButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ===== LOADING SPINNER ===== */
+
+/* Loading spinner styling */
+.loadingSpinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(248, 247, 229, 0.3);
+  border-top: 2px solid #F8F7E5;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* Spinner rotation animation */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Search icon styling */
+.searchIcon {
+  font-size: 16px;
+}
+
+/* ===== EMPTY STATE ===== */
+
+/* Empty state styling */
+.emptyState {
+  text-align: center;
+  padding: 60px 20px;
+  color: #546A04;
+}
+
+/* Empty state icon */
+.emptyIcon {
+  font-size: 48px;
+  margin-bottom: 20px;
+  opacity: 0.7;
+}
+
+/* Empty state text */
+.emptyState p {
+  font-size: 18px;
+  font-weight: 500;
+  margin: 0 0 8px 0;
+}
+
+/* Empty state subtext */
+.emptySubtext {
+  font-size: 14px;
+  opacity: 0.7;
+  font-weight: 400;
+}
+
+/* ===== RECIPE CARDS ===== */
+
+/* Recipe grid layout */
+.recipesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+/* Individual recipe card */
+.recipeCard {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(84, 106, 4, 0.1);
+}
+
+/* Hover effect for recipe cards */
+.recipeCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border-color: #546A04;
+}
+
+/* Recipe image container */
+.recipeImageContainer {
+  position: relative;
+  height: 180px;
+  overflow: hidden;
+}
+
+/* Recipe image styling */
+.recipeImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+/* Hover effect for recipe image */
+.recipeCard:hover .recipeImage {
+  transform: scale(1.05);
+}
+
+/* Recipe overlay for ingredient stats */
+.recipeOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(84, 106, 4, 0.8), rgba(23, 55, 26, 0.8));
+  display: flex;
+  align-items: flex-end;
+  padding: 15px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* Show overlay on hover */
+.recipeCard:hover .recipeOverlay {
+  opacity: 1;
+}
+
+/* Recipe stats layout */
+.recipeStats {
+  display: flex;
+  gap: 15px;
+  width: 100%;
+}
+
+/* Used ingredients count styling */
+.usedCount {
+  color: #28a745;
+  font-weight: 600;
+  font-size: 13px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: help;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+/* Hover effect for used count */
+.usedCount:hover {
+  background: rgba(255, 255, 255, 1);
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+/* Missing ingredients count styling */
+.missedCount {
+  color: #dc3545;
+  font-weight: 600;
+  font-size: 13px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: help;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+/* Hover effect for missed count */
+.missedCount:hover {
+  background: rgba(255, 255, 255, 1);
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+}
+
+/* Recipe content area */
+.recipeContent {
+  padding: 20px;
+}
+
+/* Recipe title styling */
+.recipeTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #17371A;
+  margin: 0 0 12px 0;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkitK-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Recipe time styling */
+.recipeTime {
+  font-size: 13px;
+  color: #546A04;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+}
+
+/* View recipe button styling */
+.viewRecipeButton {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #546A04, #17371A);
+  color: #F8F7E5;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Hover effect for view recipe button */
+.viewRecipeButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(84, 106, 4, 0.3);
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+/* Large screen adjustments */
+@media (max-width: 1200px) {
+
+  /* Switch to single column layout */
+  .mainContent {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+
+  /* Reorder sections for better mobile experience */
+  .ingredientSection {
+    order: 2;
+  }
+
+  .resultsSection {
+    order: 1;
+  }
+}
+
+/* Tablet and mobile adjustments */
+@media (max-width: 768px) {
+
+  /* Page title adjustments for mobile */
+  .pageTitle {
+    font-size: 2.5rem;
+  }
+
+  .pageSubtitle {
+    font-size: 1rem;
+  }
+
+  /* Main content adjustments for mobile */
+  .mainContent {
+    padding: 20px;
+    gap: 20px;
+  }
+
+  /* Section card adjustments for mobile */
+  .sectionCard {
+    padding: 25px;
+  }
+
+  /* Section header adjustments for mobile */
+  .sectionHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .clearAllButton {
+    align-self: flex-end;
+  }
+
+  /* Search controls adjustments for mobile */
+  .searchControls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+  }
+
+  .controlGroup {
+    justify-content: space-between;
+  }
+
+  .searchButton {
+    margin-left: 0;
+  }
+
+  /* Recipe grid adjustments for mobile */
+  .recipesGrid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Ingredients grid adjustments for mobile */
+  .ingredientsGrid {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  }
+
+  /* Ingredient details adjustments for mobile */
+  .ingredientDetails {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+/* Small mobile adjustments */
+@media (max-width: 480px) {
+
+  /* Page title adjustments for small mobile */
+  .pageTitle {
+    font-size: 2rem;
+  }
+
+  .pageSubtitle {
+    font-size: 0.9rem;
+  }
+
+  /* Main content adjustments for small mobile */
+  .mainContent {
+    padding: 15px;
+  }
+
+  /* Section card adjustments for small mobile */
+  .sectionCard {
+    padding: 20px;
+  }
+
+  /* Input group adjustments for small mobile */
+  .inputGroup {
+    flex-direction: column;
+  }
+
+  .addButton {
+    width: 100%;
+  }
+
+  /* Ingredient chip adjustments for small mobile */
+  .ingredientChip {
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+}
