@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { usePlan } from '../context/PlanContext';
 import type { PlanEvent } from '../context/PlanContextTypes';
 import styles from './AddToPlanModal.module.css';
+import SafeImage from './SafeImage';
 import ConfirmationModal from './ConfirmationModal';
 
 interface AddToPlanModalProps {
@@ -154,14 +155,11 @@ const AddToPlanModal: React.FC<AddToPlanModalProps> = ({ isOpen, onClose, recipe
         {/* Recipe Preview Section */}
         <div className={styles.recipePreview}>
           <div className={styles.recipeImageContainer}>
-            <img
+            <SafeImage
               src={recipe.image}
               alt={recipe.title}
               className={styles.recipeImage}
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop';
-              }}
+              fallbackText="NO IMAGE"
             />
           </div>
           <div className={styles.recipeInfo}>
