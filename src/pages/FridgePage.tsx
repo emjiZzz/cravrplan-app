@@ -7,6 +7,7 @@ import type { Recipe } from '../types/recipeTypes';
 import { useAuth } from '../context/AuthContext';
 import { useGuest } from '../context/GuestContext';
 import { firestoreService } from '../services/firestoreService';
+import SafeImage from '../components/SafeImage';
 
 /**
  * Extended Recipe interface for fridge functionality
@@ -873,14 +874,11 @@ const FridgePage: React.FC = () => {
                   <div key={recipe.id} className={styles.recipeCard}>
                     {/* Recipe Image with Overlay */}
                     <div className={styles.recipeImageContainer}>
-                      <img
+                      <SafeImage
                         src={recipe.image}
                         alt={recipe.title}
                         className={styles.recipeImage}
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop';
-                        }}
+                        fallbackText="NO IMAGE"
                       />
                       <div className={styles.recipeOverlay}>
                         <div className={styles.recipeStats}>

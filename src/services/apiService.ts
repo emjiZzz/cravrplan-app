@@ -25,6 +25,8 @@ const CONFIG = {
   RATE_LIMIT_DELAY: 1000, // Wait 1 second between requests to be respectful to the API
   MAX_RETRIES: 3, // Maximum number of retry attempts for failed requests
   REQUEST_TIMEOUT: 10000, // 10 seconds timeout for requests
+  CACHE_DURATION: 5 * 60 * 1000, // Cache data for 5 minutes (300,000 ms)
+  CACHE_MAX_SIZE: 100, // Maximum number of cached items to prevent memory issues
 };
 
 /**
@@ -72,15 +74,139 @@ const buildQueryParams = (params: Record<string, string | number | boolean | str
   return searchParams.toString();
 };
 
+// Cache interface for storing API responses
+// This helps us avoid making the same API calls repeatedly
+interface CacheItem {
+  data: any;           // The actual response data
+  timestamp: number;   // When this data was cached
+  expiresAt: number;   // When this cache item expires
+}
+
 // Main API Service Class - Handles all recipe-related API calls
 // This class manages the communication with the Spoonacular API
 class RecipeApiService {
   private requestCount: number = 0;      // Track number of requests made
   private lastRequestTime: number = 0;   // Track when the last request was made
+  private cache: Map<string, CacheItem> = new Map(); // Cache for storing API responses
+  private isApiBlocked: boolean = false; // Track if API is blocked due to 402 errors
+  private apiBlockedUntil: number = 0;   // When the API block expires
 
   constructor() {
     if (CONFIG.LOG_API_ERRORS) {
-      console.log('API Service initialized');
+      console.log('API Service initialized with caching enabled');
+    }
+  }
+
+  /**
+   * Generate a cache key from URL and parameters
+   * This creates a unique identifier for each API request
+   * @param url - The API endpoint URL
+   * @param params - Request parameters
+   * @returns A unique cache key string
+   */
+  private generateCacheKey(url: string, params?: Record<string, any>): string {
+    const paramString = params ? JSON.stringify(params) : '';
+    return `${url}:${paramString}`;
+  }
+
+  /**
+   * Get data from cache if it exists and hasn't expired
+   * This prevents unnecessary API calls by reusing cached data
+   * @param cacheKey - The unique key for the cached data
+   * @returns Cached data if available and valid, null otherwise
+   */
+  private getFromCache(cacheKey: string): any | null {
+    const cachedItem = this.cache.get(cacheKey);
+
+    if (!cachedItem) {
+      return null; // No cached data
+    }
+
+    const now = Date.now();
+
+    // Check if cache has expired
+    if (now > cachedItem.expiresAt) {
+      this.cache.delete(cacheKey); // Remove expired cache
+      if (CONFIG.LOG_API_ERRORS) {
+        console.log('Cache expired for key:', cacheKey);
+      }
+      return null;
+    }
+
+    if (CONFIG.LOG_API_ERRORS) {
+      console.log('Using cached data for key:', cacheKey);
+    }
+    return cachedItem.data;
+  }
+
+  /**
+   * Store data in cache with expiration time
+   * This saves API responses so we can reuse them later
+   * @param cacheKey - The unique key for the data
+   * @param data - The data to cache
+   */
+  private setCache(cacheKey: string, data: any): void {
+    const now = Date.now();
+    const expiresAt = now + CONFIG.CACHE_DURATION;
+
+    // If cache is getting too large, remove oldest items
+    if (this.cache.size >= CONFIG.CACHE_MAX_SIZE) {
+      const oldestKey = this.cache.keys().next().value;
+      if (oldestKey) {
+        this.cache.delete(oldestKey);
+      }
+    }
+
+    this.cache.set(cacheKey, {
+      data,
+      timestamp: now,
+      expiresAt
+    });
+
+    if (CONFIG.LOG_API_ERRORS) {
+      console.log('Cached data for key:', cacheKey, 'expires at:', new Date(expiresAt));
+    }
+  }
+
+  /**
+   * Check if API is currently blocked due to 402 errors
+   * This prevents making API calls when we know they will fail
+   * @returns True if API is blocked, false otherwise
+   */
+  private isApiCurrentlyBlocked(): boolean {
+    if (!this.isApiBlocked) {
+      return false;
+    }
+
+    const now = Date.now();
+    if (now >= this.apiBlockedUntil) {
+      // Block period has expired, unblock the API
+      this.isApiBlocked = false;
+      this.apiBlockedUntil = 0;
+      if (CONFIG.LOG_API_ERRORS) {
+        console.log('API block period expired, API is now available');
+      }
+      return false;
+    }
+
+    if (CONFIG.LOG_API_ERRORS) {
+      const remainingTime = Math.ceil((this.apiBlockedUntil - now) / 1000);
+      console.log(`API is blocked for ${remainingTime} more seconds due to 402 errors`);
+    }
+    return true;
+  }
+
+  /**
+   * Block API calls for a specified duration after 402 error
+   * This prevents wasting API quota on calls that will fail
+   * @param durationMs - How long to block API calls in milliseconds
+   */
+  private blockApi(durationMs: number = 5 * 60 * 1000): void {
+    this.isApiBlocked = true;
+    this.apiBlockedUntil = Date.now() + durationMs;
+
+    if (CONFIG.LOG_API_ERRORS) {
+      console.log(`API blocked for ${durationMs / 1000} seconds due to 402 error`);
     }
   }
 
@@ -163,6 +289,16 @@ class RecipeApiService {
             false,
             errorData
           );
+        } else if (response.status === 402) {
+          // 402 Payment Required - API quota exceeded or payment required
+          // Block API calls for 5 minutes to prevent wasting quota
+          this.blockApi(5 * 60 * 1000); // Block for 5 minutes
+          throw new RecipeApiError(
+            'API quota exceeded. Please try again later or upgrade your plan.',
+            'QUOTA_EXCEEDED_ERROR',
+            false,
+            errorData
+          );
         } else if (response.status === 429) {
           throw new RecipeApiError(
             'API rate limit exceeded. Please try again later.',
@@ -240,11 +376,34 @@ class RecipeApiService {
    * @param params - Search parameters (query, cuisine, diet, etc.)
    * @returns Search results with recipes and metadata
    * 
-   * This is the main function for searching recipes. It tries the API first,
-   * and if that fails, it falls back to mock data to ensure the app always works.
+   * This is the main function for searching recipes. It first checks the cache,
+   * then tries the API if not cached, and falls back to mock data if API fails.
+   * This reduces API calls and costs by reusing cached data.
    */
   async searchRecipes(params: RecipeSearchParams): Promise<RecipeSearchResponse> {
     const mockResult = this.getMockSearchResults(params);
+
+    // Generate cache key for this search
+    const cacheKey = this.generateCacheKey('/complexSearch', params);
+
+    // Check if we have cached data first
+    const cachedData = this.getFromCache(cacheKey);
+    if (cachedData) {
+      return cachedData; // Return cached data instead of making API call
+    }
+
+    // Check if API is blocked due to 402 errors
+    if (this.isApiCurrentlyBlocked()) {
+      if (CONFIG.LOG_API_ERRORS) {
+        console.log('API is blocked due to 402 errors, using mock data');
+      }
+      return {
+        results: mockResult.results,
+        offset: mockResult.offset,
+        number: mockResult.number,
+        totalResults: mockResult.totalResults
+      };
+    }
 
     try {
       await this.checkRateLimit();
@@ -260,6 +419,10 @@ class RecipeApiService {
 
       // Make API request
       const apiResult = await this.makeRequest<RecipeSearchResponse>(`${API_BASE_URL}/complexSearch?${queryParams}`);
+
+      // Cache the successful API response
+      this.setCache(cacheKey, apiResult);
+
       return apiResult;
     } catch (error) {
       // If API fails, use mock data
@@ -282,10 +445,28 @@ class RecipeApiService {
    * @returns Array of recipes that can be made with the given ingredients
    * 
    * This function finds recipes that can be made with the ingredients the user has.
-   * It allows for some missing ingredients to be flexible in recipe suggestions.
+   * It first checks the cache, then tries the API, and falls back to mock data.
+   * Caching helps reduce API calls for the same ingredient combinations.
    */
   async searchRecipesByIngredients(ingredients: string[], maxMissingIngredients: number = 3): Promise<Recipe[]> {
     const mockResults = this.getMockRecipesByIngredients(ingredients, maxMissingIngredients);
+
+    // Generate cache key for this ingredient search
+    const cacheKey = this.generateCacheKey('/findByIngredients', { ingredients, maxMissingIngredients });
+
+    // Check if we have cached data first
+    const cachedData = this.getFromCache(cacheKey);
+    if (cachedData) {
+      return cachedData; // Return cached data instead of making API call
+    }
+
+    // Check if API is blocked due to 402 errors
+    if (this.isApiCurrentlyBlocked()) {
+      if (CONFIG.LOG_API_ERRORS) {
+        console.log('API is blocked due to 402 errors, using mock data for ingredient search');
+      }
+      return mockResults;
+    }
 
     try {
       await this.checkRateLimit();
@@ -302,6 +483,10 @@ class RecipeApiService {
       });
 
       const result = await this.makeRequest<{ results: Recipe[] }>(`${API_BASE_URL}/findByIngredients?${ingredientParams}`);
+
+      // Cache the successful API response
+      this.setCache(cacheKey, result.results || []);
+
       return result.results || [];
     } catch (error) {
       // If API fails, use mock data
@@ -317,15 +502,37 @@ class RecipeApiService {
    * @param recipeId - The unique ID of the recipe
    * @returns Detailed recipe information including nutrition and instructions
    * 
-   * This function gets comprehensive information about a specific recipe,
-   * including ingredients, instructions, nutrition facts, and more.
+   * This function gets comprehensive information about a specific recipe.
+   * It first checks the cache, then tries the API, and falls back to mock data.
+   * Caching recipe details helps reduce API calls for the same recipes.
    */
   async getRecipeDetails(recipeId: number): Promise<RecipeDetailResponse> {
+    // Generate cache key for this recipe detail request
+    const cacheKey = this.generateCacheKey(`/${recipeId}/information`, { recipeId });
+
+    // Check if we have cached data first
+    const cachedData = this.getFromCache(cacheKey);
+    if (cachedData) {
+      return cachedData; // Return cached data instead of making API call
+    }
+
+    // Check if API is blocked due to 402 errors
+    if (this.isApiCurrentlyBlocked()) {
+      if (CONFIG.LOG_API_ERRORS) {
+        console.log('API is blocked due to 402 errors, using mock data for recipe details');
+      }
+      return this.getMockRecipeDetails(recipeId);
+    }
+
     try {
       await this.checkRateLimit();
 
       const detailParams = buildQueryParams({ apiKey: API_KEY });
       const result = await this.makeRequest<RecipeDetailResponse>(`${API_BASE_URL}/${recipeId}/information?${detailParams}`);
+
+      // Cache the successful API response
+      this.setCache(cacheKey, result);
+
       return result;
     } catch (error) {
       // If API fails, use mock data

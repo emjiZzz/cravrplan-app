@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styles from './RecipeCard.module.css';
+import SafeImage from './SafeImage';
 
 // ===== TYPE DEFINITIONS =====
 
@@ -184,11 +185,11 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
     >
       {/* Recipe image with overlay */}
       <div className={styles.imageContainer}>
-        <img
+        <SafeImage
           src={recipe.image}
           alt={recipe.title}
           className={styles.recipeImage}
-          loading="lazy"
+          fallbackText="NO IMAGE"
         />
 
         {/* Image overlay for visual effects */}

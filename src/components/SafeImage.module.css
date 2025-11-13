@@ -1,0 +1,197 @@
+/* SafeImage Component Styles */
+
+/* Main container that holds the image or fallback content */
+.safeImageContainer {
+  /* Use flexbox for consistent layout */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Set minimum dimensions to prevent collapsing */
+  min-width: 100px;
+  min-height: 100px;
+
+  /* Background color for the container */
+  background-color: #f8f9fa;
+
+  /* Border radius for rounded corners */
+  border-radius: 8px;
+
+  /* Border for visual definition */
+  border: 1px solid #e9ecef;
+
+  /* Prevent content from overflowing */
+  overflow: hidden;
+
+  /* Position relative for absolute positioning of overlays */
+  position: relative;
+}
+
+/* The actual image when it loads successfully */
+.safeImage {
+  /* Make image fill the container */
+  width: 100%;
+  height: 100%;
+
+  /* Maintain aspect ratio */
+  object-fit: cover;
+
+  /* Smooth transitions */
+  transition: opacity 0.3s ease;
+}
+
+/* Loading container with spinner and text */
+.loadingContainer {
+  /* Center content vertically and horizontally */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  /* Add some padding */
+  padding: 20px;
+
+  /* Text color */
+  color: #6c757d;
+}
+
+/* Loading spinner animation */
+.loadingSpinner {
+  /* Create a circular spinner */
+  width: 24px;
+  height: 24px;
+  border: 2px solid #e9ecef;
+  border-top: 2px solid #007bff;
+  border-radius: 50%;
+
+  /* Animation properties */
+  animation: spin 1s linear infinite;
+
+  /* Add margin below spinner */
+  margin-bottom: 8px;
+}
+
+/* Spinner rotation animation */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Loading text */
+.loadingText {
+  /* Small font size */
+  font-size: 12px;
+  font-weight: 500;
+
+  /* Text color */
+  color: #6c757d;
+}
+
+/* Fallback container when image fails to load */
+.fallbackContainer {
+  /* Center content vertically and horizontally */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  /* Add padding */
+  padding: 20px;
+
+  /* Text color */
+  color: #6c757d;
+
+  /* Background color for fallback */
+  background-color: #f8f9fa;
+}
+
+/* SVG fallback icon */
+.fallbackIcon {
+  /* Icon size */
+  width: 48px;
+  height: 48px;
+
+  /* Icon color */
+  color: #adb5bd;
+
+  /* Add margin below icon */
+  margin-bottom: 8px;
+}
+
+/* Fallback text */
+.fallbackText {
+  /* Font properties */
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+
+  /* Text color */
+  color: #6c757d;
+
+  /* Prevent text from being too long */
+  max-width: 100%;
+  word-wrap: break-word;
+
+  /* Make text uppercase to match "NO IMAGE" style */
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+  .safeImageContainer {
+    /* Smaller minimum dimensions on mobile */
+    min-width: 80px;
+    min-height: 80px;
+  }
+
+  .fallbackIcon {
+    /* Smaller icon on mobile */
+    width: 36px;
+    height: 36px;
+  }
+
+  .fallbackText {
+    /* Smaller text on mobile */
+    font-size: 12px;
+  }
+
+  .loadingSpinner {
+    /* Smaller spinner on mobile */
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* Dark mode support (if needed) */
+@media (prefers-color-scheme: dark) {
+  .safeImageContainer {
+    background-color: #2d3748;
+    border-color: #4a5568;
+  }
+
+  .loadingContainer,
+  .fallbackContainer {
+    color: #a0aec0;
+    background-color: #2d3748;
+  }
+
+  .fallbackIcon {
+    color: #718096;
+  }
+
+  .loadingText,
+  .fallbackText {
+    color: #a0aec0;
+  }
+
+  .loadingSpinner {
+    border-color: #4a5568;
+    border-top-color: #63b3ed;
+  }
+}
